@@ -6,7 +6,10 @@
 # Mainnet indexer without the user configuring anything. The desktop wallet
 # shipped a fresh install that said "NOT CONNECTED - No server configured"
 # because only its launcher script wrote the default; this is the check that
-# catches the same shape of defect here.
+# catches the same shape of defect here. The fresh wallet then types two SWARM
+# Mainnet addresses and one Zcash address into its Send field, because the
+# desktop wallet also shipped a mainnet build that refused every mainnet
+# recipient.
 #
 # The default server is the FIRST entry of `app/uris/serverUris.ts`, with a
 # matching copy in `rust/lib/src/lib.rs` (SWARM_MAINNET_SERVER_URI). A build
@@ -428,6 +431,101 @@ else
   echo "NOT PROVEN: $DEFAULT_SERVER does not answer this runner (HTTP $HTTP_CODE),"
   echo "            so the connected state was not asserted. The default server"
   echo "            being pre-set on a fresh install was, and it passed."
+fi
+
+echo "=== SWARM Mainnet recipients in Send ==="
+
+# The desktop wallet shipped mainnet builds whose Send field refused every
+# SWARM Mainnet address. Here the fresh wallet types two mainnet addresses and
+# one Zcash address into its own Send field and reads the verdict the screen
+# shows, `send.address.check` or `send.address.error`. No amount is entered and
+# the wallet holds nothing, so nothing is sent.
+MAINNET_UNIFIED="swm1q4q6yr3rvnnqw64tqktf7plq86cnmdxezv2g5wjerfpratclfv87guyfqru4vf775ykqd8q9e7uzscmns7w6q2fpxwl5up0ez5xqe5gv"
+MAINNET_TRANSPARENT="s1UsiRFq4FrtHUbHobXxssCN7EVCcu9GvFk"
+# Zcash's own encoding of the all-zero key hash. Refusing it shows the check
+# can say no.
+ZCASH_TRANSPARENT="t1Hsc1LR8yKnbbe3twRp88p6vFfC5t7DLbs"
+
+open_send() {
+  for _ in 1 2 3 4 5; do
+    ui_dump || true
+    if ui_has 'send.addressplaceholder'; then return 0; fi
+    if ! ui_tap 'tab.send'; then
+      adb shell input keyevent KEYCODE_BACK
+      sleep 3
+    fi
+  done
+  ui_dump || true
+  ui_has 'send.addressplaceholder'
+}
+
+clear_recipient() {
+  ui_dump || true
+  ui_tap 'send.addressplaceholder' || return 1
+  adb shell input keyevent KEYCODE_MOVE_END
+  # shellcheck disable=SC2046
+  adb shell input keyevent $(printf 'KEYCODE_DEL %.0s' $(seq 1 140))
+  sleep 2
+}
+
+# Types `address` into the emptied field and sets VERDICT to what the screen
+# shows. The last character goes in on its own, after the verdicts on the
+# partial address have settled, so the one left on screen is the verdict on
+# the whole address. A refusal is read until the window closes, because the
+# partial address was refused a moment earlier.
+recipient_verdict() {
+  local address="$1" label="$2"
+  VERDICT="field not reached"
+  clear_recipient || return 0
+  adb shell input text "${address%?}"
+  sleep 4
+  adb shell input text "${address: -1}"
+  VERDICT="none shown"
+  for _ in $(seq 1 10); do
+    sleep 2
+    ui_dump || continue
+    if ui_has 'send.address.check'; then VERDICT="accepted"; break; fi
+    if ui_has 'send.address.error'; then VERDICT="refused"; fi
+  done
+  cp "$DUMP" "$OUT/ui-send-$label.xml" 2>/dev/null || true
+  shot "send-$label"
+  echo "  $label $address: $VERDICT" | tee -a "$OUT/send-verdicts.txt"
+}
+
+if open_send; then
+  shot send-screen
+  recipient_verdict "$MAINNET_UNIFIED" mainnet-unified
+  UNIFIED_VERDICT="$VERDICT"
+  recipient_verdict "$MAINNET_TRANSPARENT" mainnet-transparent
+  TRANSPARENT_VERDICT="$VERDICT"
+  recipient_verdict "$ZCASH_TRANSPARENT" zcash-transparent
+  ZCASH_VERDICT="$VERDICT"
+  clear_recipient || true
+  adb shell input keyevent KEYCODE_BACK
+  sleep 2
+  ui_dump || true
+  ui_tap 'tab.history' || true
+
+  if [ "$UNIFIED_VERDICT" = "refused" ] || [ "$TRANSPARENT_VERDICT" = "refused" ]; then
+    echo "FAIL: the Send field refused a SWARM Mainnet address." >&2
+    exit 1
+  fi
+  if [ "$ZCASH_VERDICT" = "accepted" ]; then
+    echo "FAIL: the Send field accepted a Zcash address on SWARM Mainnet." >&2
+    exit 1
+  fi
+  if [ "$UNIFIED_VERDICT" = "accepted" ] && [ "$TRANSPARENT_VERDICT" = "accepted" ] \
+     && [ "$ZCASH_VERDICT" = "refused" ]; then
+    echo "ok: Send accepts swm1... and s1... and refuses Zcash's t1... on SWARM Mainnet"
+  else
+    echo "NOT PROVEN: the Send field showed no verdict for every address"
+    echo "            (unified: $UNIFIED_VERDICT, transparent: $TRANSPARENT_VERDICT,"
+    echo "            zcash: $ZCASH_VERDICT). See $OUT/ui-send-*.xml."
+  fi
+else
+  echo "NOT PROVEN: the Send field was not reached, so no recipient was typed."
+  cp "$DUMP" "$OUT/ui-send-unreached.xml" 2>/dev/null || true
+  shot send-unreached
 fi
 
 echo "=== SWARM smoke test passed ($LABEL) ==="
