@@ -3,7 +3,7 @@
 //
 // Both stores reject at the last moment: App Store Connect refuses a screenshot
 // that is one pixel off its size classes, Play Console refuses an icon that is
-// not 512x512 32-bit PNG. The build takes 45 minutes; this takes a second. It
+// not 512x512. The build takes 45 minutes; this takes a second. It
 // reads the actual files with no image library — PNG and JPEG headers only —
 // so it runs in any job that has Node.
 //
@@ -30,9 +30,10 @@ const bad = message => problems.push(message);
 function pngInfo(buffer) {
   const signature = buffer.subarray(0, 8).toString('hex');
   if (signature !== '89504e470d0a1a0a') return null;
-  const view = buffer.subarray(8);
-  if (view.subarray(4, 8).toString('ascii') !== 'IHDR') return null;
-  const colourType = view[25];
+  // Every read below is an absolute file offset: the IHDR chunk type is bytes
+  // 12-15, then width (16), height (20), bit depth (24) and colour type (25).
+  if (buffer.subarray(12, 16).toString('ascii') !== 'IHDR') return null;
+  const colourType = buffer[25];
   // The tRNS chunk gives palette images an alpha channel; without it a
   // palette image is opaque. One pass over the chunks is enough.
   let hasTrns = false;
@@ -281,7 +282,7 @@ function checkPlay() {
     checkImage(join(images, 'icon.png'), {
       exact: '512x512',
       noAlpha: true,
-      note: 'Play requires a 32-bit (opaque) 512x512 PNG',
+      note: 'a full square with no transparency; Play masks the corners itself',
     });
     checkImage(join(images, 'featureGraphic.png'), {
       exact: '1024x500',
