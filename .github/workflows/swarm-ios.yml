@@ -591,7 +591,18 @@ jobs:
           with open(path, 'w') as target:
               json.dump(settings, target)
           PY
-          xcrun simctl launch "$UDID" "$BID"
+          # Attached to a pseudo-terminal, so the app's own stdout and stderr
+          # land in a file. That is where React Native writes every
+          # `console.log`/`console.warn`/`console.error`, including the one
+          # `AppErrorBoundary` writes when a render throws. Without this the
+          # only record of a JavaScript fault is a screenshot of whatever the
+          # app fell back to, which is how the risk-notice regression got as
+          # far as a red run with no cause in it. Backgrounded: the launch
+          # blocks until the app exits, and it has to stay alive through the
+          # Maestro walk that follows.
+          nohup xcrun simctl launch --console-pty "$UDID" "$BID" \
+            > artifacts/app-console.txt 2>&1 &
+          disown || true
           sleep 30
           xcrun simctl io "$UDID" screenshot artifacts/04-risk-notice.png
 
@@ -636,6 +647,34 @@ jobs:
             -exec cp {} artifacts/ \;
           xcrun simctl io "$UDID" screenshot artifacts/06-after-maestro.png || true
           maestro --device "$UDID" hierarchy > evidence/view-hierarchy.txt 2>&1 || true
+
+      # The log that matters is the one from DURING the walk. The capture in
+      # the launch step above runs before Maestro has touched anything, so a
+      # JavaScript exception thrown while the walk taps through the app was
+      # never in any artifact. This step runs after the walk, always, and
+      # writes next to it.
+      - name: Capture the app log after the walk
+        if: always()
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          UDID="${{ steps.sim.outputs.udid }}"
+          mkdir -p artifacts
+          # Everything the process emitted, wide enough to cover both launches
+          # and the whole Maestro walk.
+          xcrun simctl spawn "$UDID" log show --last 30m --style compact \
+            --predicate "processImagePath CONTAINS[c] 'Zingo'" \
+            > artifacts/app-log-after-maestro.txt 2>&1 || true
+          # React Native's console output, and any crash report the runtime
+          # wrote, filtered out of the system noise so a reader finds the
+          # cause without paging through FrontBoard chatter.
+          grep -inE "error|exception|TypeError|undefined is not|not a function|AppErrorBoundary|Invariant|RCTFatal|JavaScript|facebook.react" \
+            artifacts/app-log-after-maestro.txt \
+            > artifacts/app-log-errors.txt 2>&1 || true
+          echo "==== app console (stdout/stderr of the app itself) ===="
+          tail -n 200 artifacts/app-console.txt 2>/dev/null || echo "(no console capture)"
+          echo "==== log lines that look like faults ===="
+          tail -n 120 artifacts/app-log-errors.txt 2>/dev/null || echo "(none)"
 
       # These screenshots come from this build on this simulator. They record
       # first-launch state for review.
