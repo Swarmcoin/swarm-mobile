@@ -4,6 +4,18 @@ Prepared 2026-09-24 for S4FE AG, app `6815274408`, bundle
 `green.swarm.swarmwallet`. The wallet SDK revision is
 `ef08aa252ec55f411dc937045548cd4f3f3dc664`.
 
+## Mainnet update, 27 September 2026
+
+The 0.2.0 candidate pins `swarm-sdk-mainnet-1`, commit
+`c7464d2ec40a5d619500a9ebee76ac4c39775baa`. The cryptographic package versions
+in the inventory below match build 1028. The source changes add SWARM network
+identifiers, address encodings, chain validation, and server genesis metadata.
+The vendored transaction changes select the existing NU6.3 rules for the SWARM
+consensus branch. Distribution continues through the S4FE AG TestFlight app.
+
+Apple records `usesNonExemptEncryption: false` for build 1028. The source
+continues to leave the declaration in App Store Connect.
+
 ## Source inventory
 
 | Area | Evidence |

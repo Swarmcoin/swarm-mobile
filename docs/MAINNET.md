@@ -1,8 +1,6 @@
-# SWARM Wallet on mainnet (Android and iOS)
+# SWARM Wallet on mainnet
 
-What the mobile wallet does on the live SWARM network, what enforces it, and
-what was actually verified. Written on 2026-09-26 on branch
-`codex/mobile-mainnet-20260926`.
+Updated 27 September 2026 for the iOS 0.2.0 release.
 
 ## The contract
 
@@ -20,153 +18,75 @@ what was actually verified. Written on 2026-09-26 on branch
 | gRPC port | 9068 |
 | SDK `ChainType` | `SwarmMainnet(SwarmMainnetGenesis)` |
 | Activation height | 1 |
-| SDK pin | `Swarm-Official/privacy-zingolib` @ `d9f1a5b888067724b61b2fae46307ed56b4b1e0a` |
+| SDK pin | `swarm-sdk-mainnet-1` at `c7464d2ec40a5d619500a9ebee76ac4c39775baa` |
 | Block explorer | `https://mainnet.explore.swarm.green/` |
 
-The engineering testnet is unchanged and still selectable, under the name
-**SWARM Testnet (engineering)**: chain `swarm-testnet`, indexer
-`https://lwd.swarm.green:443`, genesis
-`045993f5c91ea160c7ebda573dd97b0016816bca68d395bfff202779b88e2a28`, `swarm1…`
-and `tm…`/`t2…`, coins with no value.
+## Wallet creation and server identity
 
-This is the same contract the desktop wallet implements
-(`Swarm-Official/privacy-wallet`, branch
-`codex/mainnet-wallet-mainnet-20260925`, commits `13dd5606`, `d08e17e2`,
-`3661ffa2`, `745c2092`), to the character. Two wallets that talk to the same
-indexers and sign with the same SDK must agree on what a SWARM address is and
-on what string opens a chain.
+`nativeChainHint()` supplies the genesis-qualified hint to all four native
+wallet creation and restore entry points. The SDK, address validation, and
+block explorer use the selected SWARM network profile.
 
-## The hint is not the label
+The published SDK exposes `GetLightdInfo.genesisHash` through
+`info_server().genesis_hash`. The protocol dependency resolves to
+`Swarm-Official/privacy-lightwallet-protocol-rust` at
+`c9c13e46bbea726f904f12cb18cd85e57ff46d35`.
+The sync and send paths check the server chain label and compare a reported
+genesis with the selected profile. An empty genesis field denotes an older
+server that omitted the field. The production server returned the pinned
+genesis in the live native test on 27 September.
 
-The Rust library's first chain argument is a chain **hint**. For `main`,
-`test`, `regtest` and `swarm-testnet` the hint and the label are the same
-string. For SWARM production they are not: `ChainType::SwarmMainnet` carries
-the genesis, and the SDK gives it no default, so
-`ChainType::try_from("swarm-mainnet")` is an error on purpose. A hint without
-a hash cannot build a chain the wallet would then be unable to identify.
+Four crates resolve through `rust/vendor`: `zcash_address`,
+`zcash_protocol`, `zcash_primitives`, and `zcash_transparent`.
+Their network changes supply the SWARM address prefixes and consensus branch
+`0x53574d31`. See `rust/vendor/README.md` for provenance.
 
-The desktop wallet shipped `0.1.0-mainnet.1` with a correct hint builder that
-**nothing called**, and the owner could not create a wallet. So in this
-repository:
+## Upgrading an iPhone
 
-- `nativeChainHint()` in `app/utils/networkProfiles.ts` is the one place a
-  label becomes a hint.
-- The four wallet-opening wrappers in
-  `app/walletBackend/utils/walletUtils.ts` (`createNewWallet`,
-  `restoreWalletFromSeed`, `restoreWalletFromUfvk` and `loadExistingWallet`)
-  take a **label** and build the hint themselves. They are the only callers of
-  the corresponding `RPCModule` methods.
-- `__tests__/nativeChainHint.unit.test.ts` **reads the source** of `app/`,
-  `screens/` and `ui/` and fails the build if any other file names one of
-  those four `RPCModule` methods. A unit test of the builder alone would have
-  passed on the build the owner could not use.
+The bundle identifier remains `green.swarm.swarmwallet`.
+Existing wallets retain their keys, files, and networks. The wallet picker
+opens new wallet onboarding on SWARM Mainnet. The previous testnet wallets
+remain available in the same picker.
 
-## What refuses what
+The native reader validates saved wallets against both supported SWARM
+profiles. The wallet file determines its network before an indexer opens.
+When the selected network differs, the reader selects that wallet network's
+default server. The UI persists the matching selection. A matching custom
+server remains selected, and offline mode remains offline.
 
-**Addresses** (`app/utils/swarmAddress.ts`). Decided from the string alone, in
-front of the FFI, because this build's vendored `zcash_protocol` gives
-upstream TESTNET's constants SwarmTestnet's unified HRP. So `swarm1…` decodes
-as chain `test` on purpose, and that aliasing must not extend to production. A
-mainnet wallet accepts `swm1…`, `texswm1…`, `zswmsapling1…`, `s1…` and `s3…`;
-it refuses `swarm1…`, `utest1…`, `tm…`, `t2…` (named as SWARM Testnet's) and
-every upstream Zcash encoding (`u1…`, `zs1…`, `t1…`, `t3…`). A testnet wallet
-refuses mainnet's by the same rule.
+Each network has its own risk acknowledgement. Creating a mainnet wallet
+requires the mainnet notice even after accepting the testnet notice.
 
-**Servers** (`app/utils/serverIdentity.ts`, wired by
-`app/walletBackend/utils/serverGate.ts`). The indexer is asked which chain it
-serves before a sync and again immediately before a send. Twice, because the
-server can be changed between the two and a transaction built against the
-wrong consensus rules and broadcast cannot be taken back. The chain label is
-compared always; the genesis is compared when the indexer states one
-(`GetLightdInfo` does not carry it in stock lightwalletd, so this tightens
-against a server that says more and does not break against one that does not).
-A server that cannot be reached at all is left to the existing unreachability
-paths rather than accused of being the wrong one.
+The engineering network uses `swarm-testnet`, `https://lwd.swarm.green:443`,
+and `swarm1…` addresses. Its genesis is
+`045993f5c91ea160c7ebda573dd97b0016816bca68d395bfff202779b88e2a28`.
+Its balances belong to that network.
 
-**Wallets on another chain.** A wallet whose chain is not a SWARM chain is
-named for what it is and otherwise left alone: not synced, not sent from, and
-not silently moved onto a SWARM chain, because its recovery phrase is the only
-thing that opens it and moving it would hide that.
+## Verification
 
-## The native layer
+The release source is `ba055bba39d1b28472425223053004ff249f5437`.
 
-`rust/Cargo.toml` pins the SDK at `d9f1a5b8…`, which carries
-`ChainType::SwarmMainnet(SwarmMainnetGenesis)`, `NetworkType::SwarmMain` and
-`BranchId::SwarmMain`.
+- The JavaScript suite passed 684 tests and 95 snapshots.
+- TypeScript checking and lint passed for the changed UI modules.
+- Native address compatibility, network identity, saved-wallet validation,
+  and idle sync pause tests passed.
+- The live native test reopened a mainnet wallet with previous testnet
+  settings and verified the production server's chain label and genesis.
+- The iOS 18.3 upgrade test installed the 0.2.0 candidate over build 1028,
+  retained both existing wallets, created a third wallet on mainnet, switched
+  between networks, and reopened the mainnet wallet after restarting.
+- Apple Vision decoded the mainnet receive QR as a 108-character `swm1…`
+  address.
 
-Four crates are vendored under `rust/vendor/`, not two, because
-`zcash_primitives` and `zcash_transparent` each match one of those enums
-exhaustively and so no longer compile against the patched `zcash_protocol`.
-All four are byte-for-byte the desktop wallet's, which built and tested them
-against this pin on four platforms; the versions match this workspace's
-existing lockfile exactly, and the two crates already vendored here were
-verified to be strict subsets of the desktop's, so the SWARM **testnet**
-prefix work survives untouched. See `rust/vendor/README.md` for the archive
-checksums and what each patch does.
+See `docs/ios/TESTFLIGHT-MAINNET-2026-09-27.md` for the signed release status.
 
-`rust/lib/src/lib.rs` embeds the genesis and the mainnet indexer as constants,
-parses `swarm-mainnet:<genesis>` (and refuses the bare label with a sentence
-that says why), reports the **label** from `chain_name_short`, decodes
-addresses on both SWARM networks, and reports both profiles from
-`swarm_network_identity()` with each one's hint.
+## Distribution
 
-## Versions
+[Build 1044](https://github.com/Swarm-Official/swarm-mobile/actions/runs/36320428820)
+uses version 0.2.0 and the existing S4FE AG signing setup. The App Store and
+TestFlight descriptions describe the mainnet iPhone wallet. The test notes
+explain how an existing tester opens mainnet onboarding.
 
-Android `0.2.0` (`versionCode` 4, `SWARM_VERSION` `0.2.0-mainnet.1`); iOS
-`MARKETING_VERSION` `0.2.0`. The application id `green.swarm.wallet`, the
-Android namespace `org.ZingoLabs.Zingo`, the iOS bundle identifier and the App
-Store record are **unchanged**: this is the same app, on the network it was
-built for.
-
-## What was verified
-
-Recorded by the CI runs on this branch; see the vault handover note for the
-run URLs and the artifact hashes.
-
-- `SWARM Rust lockfile`: the workspace resolves against the new SDK pin with
-  **no lockfile change**, and all four patched crates resolve from `vendor/`
-  rather than from crates.io. That last check is the one that matters: if one
-  of them stopped, SWARM production would silently decode as something else.
-- `SWARM Android`: lint, `tsc --noEmit`, the full jest suite, the Rust
-  library for `armeabi-v7a`, `arm64-v8a` and `x86_64`, the branding and
-  listing guards, and a debug-signed APK.
-- `SWARM iOS`: the Rust xcframework and the simulator build.
-
-## What this build still gets wrong, and who must fix it
-
-**The website still carries the testnet notice.** `app/legal/riskNotice.ts`
-and `app/legal/documents.json` now hold one text per network, picked from the
-chain the wallet is on, and the vault source
-(`D:/privacy/docs/ios/legal/RISK-NOTICE.md`) carries both. The published page
-at swarm.green/wallet/risks has not been updated, so the app and the website
-disagree until the owner publishes the mainnet text.
-
-**The store listings describe the testnet.** The Play `full_description` and
-the App Store description were not touched.
-
-**The explorer follows the chain.** Each network profile carries its own site:
-`mainnet.explore.swarm.green` on SWARM Mainnet, `explore.swarm.green` on the
-engineering testnet. `Utils.getBlockExplorerTxIDURL` reads the profile and the
-Settings row shows the host of the network the wallet is on. Both hosts
-answered 200 on 2026-09-27. How completely the mainnet site indexes the chain
-was not measured.
-
-**The Nym mixnet stays off on mainnet.** No mixnet send has been demonstrated
-end to end against any SWARM indexer, and on mainnet a send that silently
-leaves the mixnet is a real payment. `mixnetAvailability.ts` lists neither
-SWARM chain.
-
-## Not done here, and why
-
-**TestFlight.** The signed-archive job in `.github/workflows/swarm-ios.yml`
-runs under the `apple-distribution` GitHub environment, whose deployment
-branch policy allows exactly one branch: `codex/ios-device-release`. A signed
-build from this branch would require either adding a branch policy to that
-environment or merging into the owner's branch, and both are the owner's
-decisions to make about his own Apple credentials. The unsigned iOS jobs prove
-the code compiles and links for the device toolchain; the signed upload is
-listed in the handover as an owner step.
-
-**Google Play.** Nothing here uploads. The `bundle` job builds a Play-format
-`.aab` only when the four upload-key secrets are present, and publishing stays
-a manual owner action, as `docs/SWARM-ANDROID.md` describes.
+Nym transport remains disabled on both SWARM networks pending a confirmed
+payment through that transport. Funded mainnet payment testing requires a
+physical-device test after installation.

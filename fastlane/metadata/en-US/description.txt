@@ -1,7 +1,4 @@
-SWARM Wallet brings SWARM to your iPhone. Create or restore a self-custody wallet, send and receive SWM, and manage your wallet activity from one app.
-
-SWARM MAINNET IS THE LIVE NETWORK
-The wallet opens on SWARM Mainnet and the SWM in it is real. What you lose is lost for good. Nobody sells SWM to you through this app and nobody promises a price. Start with an amount you can afford to lose. An engineering test network, whose coins have no value, stays selectable in Settings.
+SWARM Wallet brings SWARM to your iPhone. Connect to SWARM Mainnet, create or restore a self-custody wallet, send and receive SWM, and manage your wallet activity from one app.
 
 SEND AND RECEIVE SWM
 Share a shielded address (swm1…) or QR code to receive SWM. Enter or scan a recipient address, choose an amount, and add an optional memo when sending.
@@ -10,7 +7,7 @@ YOUR WALLETS, TOGETHER
 Create multiple wallets and switch between them on your iPhone. View your addresses, save address book entries, and review your balance and transaction history.
 
 CONTROL YOUR WALLET
-Your recovery phrase gives you control of your wallet. Restore an existing wallet, use device authentication, adjust privacy settings, and choose your wallet server (lwd-main.swarm.green by default).
+Your recovery phrase gives you control of your wallet. Restore an existing wallet, use device authentication, adjust privacy settings, and choose your wallet server.
 
 Based on Zingo Mobile (MIT licence) and zingolib, SWARM Wallet is open source. Read the privacy policy, terms, and open-source notices inside the app.
 

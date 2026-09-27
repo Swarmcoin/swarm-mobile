@@ -1,0 +1,9 @@
+SWARM Wallet 0.2.0 connects to SWARM Mainnet.
+
+For an existing installation, open the wallet selector and choose "Create or restore on SWARM Mainnet". Save the recovery phrase for the new wallet. Existing testnet wallets remain in the selector with their original balances and network. Testnet balances do not become mainnet funds.
+
+Check wallet creation and restoration, the swm1 receive address and QR code, address copying, QR scanning, Send, transaction history, memos, the address book, and device authentication. Check that each saved wallet reopens after closing the app and that switching wallets selects its network.
+
+Use a small amount for the first mainnet payment. Check the destination, amount, and fee before confirming. Mainnet transfers use real SWM.
+
+Report problems through TestFlight feedback with the screen, steps, and build number. Keep recovery phrases and private keys out of feedback.

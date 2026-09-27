@@ -1,9 +1,9 @@
-SWARM Wallet is a self-custody wallet for SwarmTestnet, a test network. SWM test coins have no monetary value, and the network may reset. The app stores wallet keys on the device and connects to https://lwd.swarm.green:443 by default. It requires no account or sign-in.
+SWARM Wallet is a self-custody wallet for SWARM Mainnet. SWM on this network is real. The app stores wallet keys on the device and connects to https://lwd-main.swarm.green:8443 by default. It requires no account or sign-in.
 
 How to test
 1. Open the app, accept the risk notice, and create a wallet. Approve the device passcode or Face ID request. Keep the app open until wallet creation finishes.
-2. Open Receive to see the shielded address and QR code. Copy the address or scan the code with another test wallet.
-3. Fund the address with disposable SwarmTestnet SWM. Wait until the balance becomes spendable. Open Send, enter a SwarmTestnet destination and an amount, review the fee, and confirm the transaction.
+2. Open Receive to see the shielded swm1 address and QR code. Copy the address or scan the code with another SWARM Mainnet wallet.
+3. A funded payment test requires mainnet SWM. Wait until a received balance becomes spendable. Open Send, enter a SWARM Mainnet destination and an amount, review the destination and fee, and confirm the transaction.
 4. Open History to check the transaction and balance. The options panel provides the recovery phrase action, protected by device authentication.
 
-The app starts with an empty wallet. A funded Send test needs coins from another SwarmTestnet wallet. The app contains no miner and offers no purchase of SWM. Camera access supports QR scanning. Face ID or the device passcode protects local wallet access.
+The app starts with an empty wallet. Camera access supports QR scanning. Face ID or the device passcode protects local wallet access. The wallet selector creates or restores additional mainnet wallets and retains existing saved wallets. Each wallet has a separate recovery phrase.
