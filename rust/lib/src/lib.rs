@@ -626,13 +626,13 @@ fn build_connection_params(
                          cannot say which chain it means."
                     ))
                 })?;
-            ChainType::SwarmMainnet(
-                SwarmMainnetGenesis::from_display_hex(genesis).map_err(|e| {
+            ChainType::SwarmMainnet(SwarmMainnetGenesis::from_display_hex(genesis).map_err(
+                |e| {
                     ZingolibError::init(format!(
                         "Not a valid '{SWARM_MAINNET_LABEL}' chain hint: {e}"
                     ))
-                })?,
-            )
+                },
+            )?)
         }
         hint => match hint.strip_prefix("regtest:") {
             // A regtest chain has no universal schedule: the node that was
@@ -889,22 +889,14 @@ pub fn init_from_bytes(
 
         let decoded_bytes = wallet_bytes;
 
-        // Offline (empty server uri) has no server, so the caller-supplied
-        // `chain_hint` is meaningless — and the wallet already stores its own
-        // chain. Try each chain and keep the one the wallet deserializes under,
-        // so an Offline open works regardless of any residual chain value (a
-        // mainnet wallet opened while settings still say "test", and vice
-        // versa). Online we honor the hint strictly: a chain that disagrees
-        // with the selected server is a genuine mismatch and must error.
-        // SWARM: this build only ever writes SwarmTestnet wallets, and the SDK
-        // gives SwarmTestnet its own wallet-file chain tag, so a wallet from
-        // any other chain fails to deserialize here by design rather than being
-        // silently adopted. Offline therefore tries exactly one chain.
-        let chain_hints: Vec<String> = if server_uri.is_empty() {
-            vec![SWARM_CHAIN_HINT.to_string()]
+        let (wallet_hint, default_server) =
+            wallet_network(&decoded_bytes).map_err(ZingolibError::init)?;
+        let server_uri = if !server_uri.is_empty() && chain_hint != wallet_hint {
+            default_server.to_string()
         } else {
-            vec![chain_hint]
+            server_uri
         };
+        let chain_hints = [wallet_hint];
 
         // `LightClient::from_bytes` deserializes the wallet straight from memory.
         // The native layer (Kotlin/Swift) owns all wallet persistence and ships
@@ -1041,10 +1033,7 @@ mod swarm_identity_tests {
         assert_eq!(value["chain_name"], SWARM_CHAIN_HINT);
         assert_eq!(value["coin_ticker"], "SWM");
         assert_eq!(value["genesis"], SWARM_TESTNET_GENESIS);
-        assert_eq!(
-            value["birthday"],
-            zingolib::config::SWARM_TESTNET_BIRTHDAY
-        );
+        assert_eq!(value["birthday"], zingolib::config::SWARM_TESTNET_BIRTHDAY);
     }
 
     /// The placeholder gate is reported honestly in both directions, so a
@@ -1178,9 +1167,14 @@ mod swarm_identity_tests {
             assert_eq!(params.chain_type, expected, "{hint}");
         }
         assert!(matches!(
-            build_connection_params(String::new(), "regtest".to_string(), "Medium".to_string(), 1)
-                .expect("regtest is accepted")
-                .chain_type,
+            build_connection_params(
+                String::new(),
+                "regtest".to_string(),
+                "Medium".to_string(),
+                1
+            )
+            .expect("regtest is accepted")
+            .chain_type,
             ChainType::Regtest(_),
         ));
     }
@@ -2211,20 +2205,29 @@ pub fn read_wallet_recovery_info(wallet_bytes: Vec<u8>) -> Result<String, Zingol
     serde_json::to_string(&salvaged).map_err(|e| ZingolibError::Read(e.to_string()))
 }
 
-/// Confirms the bytes parse as a complete wallet under one of the supported
-/// chains, reporting the failure whose parse reached the deepest byte.
-///
-/// SWARM: SwarmTestnet is the only chain this build creates wallets for, so it
-/// is the only one tried. The SDK gives SwarmTestnet its own wallet-file chain
-/// tag, so a file from another chain is refused here instead of being opened
-/// against the wrong genesis.
+/// Validates a complete wallet against the supported SWARM networks.
 pub fn validate_wallet_bytes(wallet_bytes: Vec<u8>) -> Result<(), ZingolibError> {
-    let chains = [ChainType::CustomTestnet];
+    wallet_network(&wallet_bytes).map(|_| ())
+}
+
+fn wallet_network(wallet_bytes: &[u8]) -> Result<(String, &'static str), ZingolibError> {
+    let networks = [
+        (
+            swarm_mainnet_chain(),
+            swarm_mainnet_chain_hint(),
+            SWARM_MAINNET_SERVER_URI,
+        ),
+        (
+            ChainType::CustomTestnet,
+            SWARM_CHAIN_HINT.to_string(),
+            SWARM_TESTNET_SERVER_URI,
+        ),
+    ];
     let mut deepest = (0usize, String::from("empty wallet bytes"));
-    for chain in chains {
-        let mut remaining = wallet_bytes.as_slice();
+    for (chain, hint, server) in networks {
+        let mut remaining = wallet_bytes;
         match zingolib::wallet::LightWallet::validate(&mut remaining, chain) {
-            Ok(()) => return Ok(()),
+            Ok(()) => return Ok((hint, server)),
             Err(e) => {
                 let consumed = wallet_bytes.len() - remaining.len();
                 if consumed >= deepest.0 {
@@ -2299,6 +2302,63 @@ mod wallet_salvage_tests {
 #[cfg(test)]
 mod wallet_validation_tests {
     use super::*;
+
+    /// Tests that a saved mainnet wallet opens offline when testnet was selected.
+    #[test]
+    fn mainnet_wallet_reopens_after_testnet() {
+        let _serial = lock_discipline_tests::serialized();
+        let bytes = saved_wallet(&swarm_mainnet_chain_hint());
+        validate_wallet_bytes(bytes.clone()).expect("mainnet wallet validates");
+        let reopened = init_from_bytes(
+            bytes,
+            String::new(),
+            SWARM_CHAIN_HINT.to_string(),
+            "Medium".to_string(),
+            1,
+        )
+        .expect("mainnet wallet reopens offline");
+        let seed: serde_json::Value = serde_json::from_str(&reopened).unwrap();
+        assert_eq!(seed["chain_name"], SWARM_MAINNET_LABEL);
+        reset_lightclient();
+    }
+
+    /// Tests that a saved testnet wallet opens offline when mainnet was selected.
+    #[test]
+    fn testnet_wallet_reopens_after_mainnet() {
+        let _serial = lock_discipline_tests::serialized();
+        let bytes = saved_wallet(SWARM_CHAIN_HINT);
+        let reopened = init_from_bytes(
+            bytes,
+            String::new(),
+            swarm_mainnet_chain_hint(),
+            "Medium".to_string(),
+            1,
+        )
+        .expect("testnet wallet reopens offline");
+        let seed: serde_json::Value = serde_json::from_str(&reopened).unwrap();
+        assert_eq!(seed["chain_name"], SWARM_CHAIN_HINT);
+        reset_lightclient();
+    }
+
+    /// Tests that the production server supplies the pinned genesis when a mainnet wallet opens with stale testnet settings.
+    #[test]
+    #[ignore = "requires the live SWARM mainnet indexer"]
+    fn live_mainnet_wallet_reopen() {
+        let _serial = lock_discipline_tests::serialized();
+        let bytes = saved_wallet(&swarm_mainnet_chain_hint());
+        init_from_bytes(
+            bytes,
+            SWARM_TESTNET_SERVER_URI.to_string(),
+            SWARM_CHAIN_HINT.to_string(),
+            "Medium".to_string(),
+            1,
+        )
+        .expect("mainnet wallet reopens on its server");
+        let info: serde_json::Value = serde_json::from_str(&info_server().unwrap()).unwrap();
+        assert_eq!(info["chain_name"], SWARM_MAINNET_LABEL);
+        assert_eq!(info["genesis_hash"], SWARM_MAINNET_GENESIS);
+        reset_lightclient();
+    }
 
     fn saved_wallet(chain_hint: &str) -> Vec<u8> {
         let _ = set_crypto_default_provider_to_ring();

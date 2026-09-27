@@ -217,6 +217,8 @@ jobs:
         working-directory: rust
         run: |
           cargo test --locked -p zingo swarm_prefix_tests --lib
+          cargo test --locked -p zingo swarm_identity_tests --lib
+          cargo test --locked -p zingo wallet_validation_tests --lib -- --test-threads=1
           cargo test --locked -p zingo pause_idle_wallet --lib -- --test-threads=1
 
       - name: Build the iOS xcframeworks (upstream script, unmodified)
