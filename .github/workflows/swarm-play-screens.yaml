@@ -1,0 +1,92 @@
+name: SWARM Play screens
+
+# Photographs the phone screenshots Google Play shows, from the app that is
+# actually published - not from a build made for the occasion.
+#
+# The APK is downloaded from the public swarm-releases tag
+# swarm-wallet-android-0.2.0-mainnet.1 and its SHA-256 is checked before it is
+# installed, so the listing's art and the download on swarm.green are the same
+# binary. One fixed device frame (pixel_5, API 30, x86_64) so every screenshot
+# in the set has the same size, and a throwaway wallet created inside the run.
+#
+# Nothing here uploads anything to Play. The captures leave as an artifact for
+# a human to compose with scripts/store/build_store_art.py.
+
+on:
+  workflow_dispatch:
+    inputs:
+      apk-url:
+        description: 'APK to photograph'
+        required: false
+        type: string
+        default: 'https://github.com/Swarm-Official/swarm-releases/releases/download/swarm-wallet-android-0.2.0-mainnet.1/SWARM-Wallet-0.2.0-mainnet.1-android.apk'
+      apk-sha256:
+        description: 'Its SHA-256'
+        required: false
+        type: string
+        default: '99a8fe21345bbc89e6fa33aa40c8847e613d1fef6ad62f30b8f1a6b5932f8944'
+  push:
+    branches: [codex/play-screens-mainnet-20260927]
+
+concurrency:
+  group: swarm-play-screens-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APK_URL: ${{ inputs.apk-url || 'https://github.com/Swarm-Official/swarm-releases/releases/download/swarm-wallet-android-0.2.0-mainnet.1/SWARM-Wallet-0.2.0-mainnet.1-android.apk' }}
+  APK_SHA256: ${{ inputs.apk-sha256 || '99a8fe21345bbc89e6fa33aa40c8847e613d1fef6ad62f30b8f1a6b5932f8944' }}
+
+jobs:
+  screenshots:
+    name: Photograph the store screens
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # The published APK, checked against the sum the release publishes. A
+      # mismatch stops the run: art from an unidentified binary is worth less
+      # than no art.
+      - name: Download the published APK and check its SHA-256
+        run: |
+          mkdir -p dist
+          curl -fsSL --retry 3 -o dist/swarm-wallet.apk "$APK_URL"
+          echo "$APK_SHA256  dist/swarm-wallet.apk" | sha256sum -c -
+          ls -l dist
+
+      # The APK carries an x86_64 slice, so a stock x86_64 image runs it. The
+      # 200 MB install needs more than the default userdata partition.
+      - name: Walk the app and photograph each screen
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          ram-size: 4096M
+          disk-size: 8G
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          # One line: the action runs each script line in its own `sh -c`.
+          script: bash scripts/store/capture_play_screens.sh store-mainnet-out
+
+      - name: Upload the captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swarm-play-screens-mainnet
+          path: store-mainnet-out/
+          retention-days: 30
+          if-no-files-found: error
