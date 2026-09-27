@@ -1,1 +1,1 @@
-Billetera testnet de SWARM: envía y recibe monedas SWM de prueba, sin valor.
+Billetera SWARM: guarda, envía y recibe SWM en SWARM Mainnet, la red en vivo.

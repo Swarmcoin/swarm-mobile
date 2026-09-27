@@ -1,1 +1,1 @@
-SWARM testnet wallet: send and receive SWM test coins. They have no value.
+SWARM Wallet: hold, send and receive SWM on SWARM Mainnet, the live network.

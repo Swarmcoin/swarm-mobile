@@ -1,13 +1,14 @@
-SWARM Wallet is the phone wallet for SwarmTestnet, the test network of SWARM: private, proof-of-work money run by its community.
+SWARM Wallet is the phone wallet for SWARM Mainnet, the live network of SWARM: private, proof-of-work money run by its community.
 
-THIS IS A TEST NETWORK. SWM test coins have no monetary value, cannot be bought or sold, and may disappear when the test network is reset. Nothing in this app is an offer, an investment or a way to earn money.
+THE COINS HERE ARE REAL. SWM on SWARM Mainnet has real value, and what you lose is lost for good. Nothing in this app is an offer, an investment or a way to earn money. Nobody sells SWM to you through this app, and nobody promises a price.
 
 What you can do
 • Create a wallet on your phone. Your recovery words stay with you; nobody else has them.
-• Receive SWM at a shielded address and show it as a QR code.
-• Send SWM to another SwarmTestnet address, with an optional encrypted memo.
+• Receive SWM at a shielded address (swm1…) and show it as a QR code.
+• Send SWM to another SWARM address, with an optional encrypted memo.
 • See your balance and your transaction history.
 • Lock the app with your phone's screen lock or fingerprint.
+• Switch to SWARM Testnet (engineering) in Settings if you want to try things out. Its coins have no value and never will.
 
 What this app does not do
 • It does not mine. Phones do not mine SWARM; mining runs on a computer with the separate SWARM Node program.
@@ -15,15 +16,16 @@ What this app does not do
 • It has no accounts, no sign-up, no exchange, no swap, no fiat prices, no ads and no referral or reward programme.
 
 Privacy
-The app has no analytics and no tracking. It talks to one server to sync blocks and send transactions: the SWARM wallet server (lwd.swarm.green) or a server you choose yourself. The camera is used only to read QR codes on your phone. Fingerprint or screen-lock unlock is handled by Android and never leaves the device. Details: https://swarm.green/wallet/privacy/
+The app has no analytics and no tracking. It talks to one server to sync blocks and send transactions: the SWARM mainnet wallet server (lwd-main.swarm.green) or a server you choose yourself. Shielded transactions hide sender, receiver and amount on the chain, but they do not hide your internet address from that server, and transparent addresses are public. The camera is used only to read QR codes on your phone. Fingerprint or screen-lock unlock is handled by Android and never leaves the device. Details: https://swarm.green/wallet/privacy/
 
 Open source
-SWARM Wallet is a fork of Zingo, an MIT-licensed wallet, adapted for SwarmTestnet. Source code: https://github.com/Swarm-Official/swarm-mobile
+SWARM Wallet is a fork of Zingo, an MIT-licensed wallet, adapted for SWARM. Source code: https://github.com/Swarm-Official/swarm-mobile
 
 Please note
-• Write your recovery words on paper. If you lose them, nobody can restore your wallet.
-• The test network may be reset at any time; test coins do not carry over.
-• This is experimental software provided as-is, without warranty. Terms: https://swarm.green/wallet/terms/
+• Write your recovery words on paper. If you lose them, nobody can restore your wallet, and that includes us.
+• Start with an amount you can afford to lose. Send a small payment and confirm it arrived before you move anything larger.
+• The privacy software on this network is new and has not been independently audited.
+• This is early software, provided as-is and without warranty. Risk notice: https://swarm.green/wallet/risks/ Terms: https://swarm.green/wallet/terms/
 
 SWARM is not affiliated with or endorsed by the Electric Coin Company, the Zcash Foundation, Zingo Labs, Foursquare's Swarm app or the Ethereum Swarm project.
 

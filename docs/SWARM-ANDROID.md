@@ -1,22 +1,21 @@
 # SWARM Wallet for Android
 
-> **Since 0.2.0 this app opens on SWARM Mainnet, the live network.** The page
-> below was written for the testnet-only build and still describes it, except
-> where it says otherwise. What changed, and what enforces it, is in
-> [docs/MAINNET.md](MAINNET.md): chain `swarm-mainnet`, indexer
-> `https://lwd-main.swarm.green:8443`, genesis
-> `01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd`, and
-> addresses beginning `swm1…`, `s1…` or `s3…`. The network described below is
-> still selectable, named **SWARM Testnet (engineering)**, and its coins still
-> have no value.
+> **Since 0.2.0 this app opens on SWARM Mainnet, the live network.** The
+> engineering account of what changed and what enforces it is in
+> [docs/MAINNET.md](MAINNET.md). A few sections further down still describe the
+> engineering testnet profile, and say so where they do.
 
-A wallet for **SwarmTestnet**, a private Zcash-derived proof-of-work **test**
-network. It is a fork of [zingo-mobile](https://github.com/zingolabs/zingo-mobile)
-(MIT) built on the project's fork of the Zingo SDK,
-[privacy-zingolib](https://github.com/brs-holding/privacy-zingolib).
+A wallet for **SWARM Mainnet**, a private Zcash-derived proof-of-work network
+that launched in September 2026. It is a fork of
+[zingo-mobile](https://github.com/zingolabs/zingo-mobile) (MIT) built on the
+project's fork of the Zingo SDK,
+[privacy-zingolib](https://github.com/Swarm-Official/privacy-zingolib).
 
-**SwarmTestnet coins have no value.** This is an engineering testnet. Nothing
-here is a mainnet launch, an audit, or a reason to move real money.
+**The SWM in this wallet is real.** What is lost here is lost for good. This is
+a first release for a young network, it has not been independently audited, and
+it is not a reason to move more than you can afford to lose. The engineering
+testnet is still selectable in Settings as **SWARM Testnet (engineering)**, and
+its coins have no value.
 
 Phones do not mine. Both app stores forbid on-device mining, so this is a
 wallet only — mining happens on a PC with the SWARM Node app.
@@ -27,14 +26,16 @@ wallet only — mining happens on a PC with the SWARM Node app.
 
 | | |
 | --- | --- |
-| Network | SwarmTestnet (`SwarmTestnet`), light-wallet chain label `swarm-testnet` |
+| Network | SWARM Mainnet, light-wallet chain label `swarm-mainnet` |
+| Genesis | `01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd` |
 | Ticker | **SWM** |
-| Addresses | Standard Zcash **testnet** encodings: `utest…`, `ztestsapling…`, `tm…` |
+| Addresses | `swm1…` (unified), `s1…` / `s3…` (transparent) |
 | Wallet birthday | Height 1 |
 | Upgrades | Everything through NU6.3 active from height 1 |
-| Indexer | `https://lwd.swarm.green:443` (a lightwalletd-compatible Zaino), or your own |
-| Explorer | `https://explore.swarm.green/` |
+| Indexer | `https://lwd-main.swarm.green:8443` (a lightwalletd-compatible Zaino), or your own |
+| Explorer | `https://mainnet.explore.swarm.green/` (the engineering testnet's is `https://explore.swarm.green/`) |
 | Android package | `green.swarm.wallet` |
+| Also selectable | **SWARM Testnet (engineering)**, chain label `swarm-testnet`, `https://lwd.swarm.green:443`, addresses `swarm1…`; its coins have no value |
 
 ### Where the default server comes from
 
@@ -42,7 +43,7 @@ A fresh install must already know its server; the user configures nothing. The
 value lives in two places, one per language:
 
 - `app/uris/serverUris.ts` — the single TypeScript entry,
-  `uri: 'https://lwd.swarm.green:443'`, the whole list the app ships with.
+  `uri: 'https://lwd-main.swarm.green:8443'`, the whole list the app ships with.
   `app/uris/fetchServerList.ts` returns `[]` on purpose, so nothing overrides
   it from the network.
 - `rust/lib/src/lib.rs` — `SWARM_DEFAULT_SERVER_URI`, the native copy, so the
@@ -63,10 +64,10 @@ advanced mode, so the test taps the mode pill in the drawer before it can read
 the server back. Someone in basic mode has no way to see which server their
 wallet uses.
 
-The app speaks **only** SwarmTestnet. There is no mainnet, no ZEC, no fiat
-price, no currency picker, no donation toggle, no exchange or swap, and no
-public server registry: the app never asks a third party which server to
-trust.
+The app speaks **only** SWARM: mainnet by default, the engineering testnet if
+you choose it in Settings. There is no ZEC, no fiat price, no currency picker,
+no donation toggle, no exchange or swap, and no public server registry: the app
+never asks a third party which server to trust.
 
 ---
 
@@ -192,8 +193,8 @@ and it is never what goes to Play.
 
 ## What works, and what is not proven
 
-Be precise about this, because a testnet wallet that overstates itself is worse
-than no wallet.
+Be precise about this, because a wallet that overstates itself is worse than no
+wallet, and this one now holds real coins.
 
 ### Proven
 
@@ -203,8 +204,8 @@ than no wallet.
 - The APK installs on an Android emulator, launches, loads the native wallet
   library, runs its JS bundle and reaches its first screen without crashing.
   This is asserted by `scripts/swarm_smoke_test.sh` on every CI run.
-- A fresh install already holds `https://lwd.swarm.green:443` with nothing
-  configured by hand. The same smoke test uninstalls first, drives the first
+- A fresh install already holds `https://lwd-main.swarm.green:8443` with
+  nothing configured by hand. The same smoke test uninstalls first, drives the first
   launch to a wallet with `uiautomator`, and reads the server back off the
   Settings screen. It measures whether the runner can reach that server, and
   when it can, it also requires the app to report a connected state rather
@@ -223,17 +224,17 @@ than no wallet.
 
 ### Not proven
 
-- **Nothing on a real chain.** The smoke test proves the app comes up pointed
-  at `lwd.swarm.green:443` and, when CI can reach it, reports a connected
-  state. No balance, no send and no receive has been exercised against
-  SwarmTestnet *from this app*.
+- **No money has moved.** The smoke test proves the app comes up pointed at
+  `lwd-main.swarm.green:8443`, creates a wallet, shows the mainnet risk notice
+  and reports a connected state. No balance, no send and no receive has been
+  exercised against SWARM Mainnet *from this app*.
 - **Nothing on real hardware.** The emulator smoke test runs on x86_64. The
   `arm64-v8a` and `armeabi-v7a` libraries are built and packaged but have not
   been executed on a phone.
 - **Seed backup, restore and biometric unlock** are upstream's, unmodified, and
   have not been re-verified against this build.
 - **The Nym mixnet transport** is inherited from upstream and is off by
-  default. It has not been exercised against SwarmTestnet.
+  default. It has not been exercised against either SWARM network.
 - Screens inherited from upstream that have no meaning on this network yet
   (migration flows, address book chains) are present but untested here.
 
@@ -241,9 +242,11 @@ than no wallet.
 
 ## The genesis gate
 
-SwarmTestnet's genesis hash lives in exactly **one** constant in the SDK,
-`SWARM_TESTNET_GENESIS` in `zingolib/src/config.rs`. It now holds the real
-hash:
+Each SWARM network's genesis hash lives in exactly **one** constant in the SDK.
+Mainnet's is `01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd`,
+and the build records it in `release-manifest.json`. The paragraphs below
+describe the same gate on the engineering testnet, whose constant is
+`SWARM_TESTNET_GENESIS` in `zingolib/src/config.rs`. It holds the real hash:
 
 ```
 045993f5c91ea160c7ebda573dd97b0016816bca68d395bfff202779b88e2a28
@@ -269,7 +272,7 @@ Every build records what it was made with, in `release-manifest.json`:
 
 ```json
 "network": {
-  "genesis": "045993f5c91ea160c7ebda573dd97b0016816bca68d395bfff202779b88e2a28",
+  "genesis": "01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd",
   "genesis_is_placeholder": false
 }
 ```
@@ -284,9 +287,9 @@ manifest cannot drift from the binary.
 The app fails with one plain sentence rather than a stack trace:
 
 - **The server cannot be reached.** Check the server address in Settings; the
-  default is `https://lwd.swarm.green:443`.
+  default is `https://lwd-main.swarm.green:8443`.
 - **The server is on a different chain.** The app refuses it. A server that
-  does not report `swarm-testnet` is not a SwarmTestnet server, and opening a
+  does not report `swarm-mainnet` is not a SWARM Mainnet server, and opening a
   wallet against the wrong chain is how coins get lost.
 - **The explorer does not open.** The app checks whether the link can be
   opened before opening it, and reports it instead of throwing.
@@ -326,8 +329,8 @@ drops 32-bit x86, which no current phone or emulator image needs.
 ### Where the SDK comes from
 
 `rust/Cargo.toml` pins three crates to
-`brs-holding/privacy-zingolib`. That fork carries the SwarmTestnet identity and
-nothing else — chain type, chain label, birthday, the indexer identity check,
+`Swarm-Official/privacy-zingolib`. That fork carries the SWARM network
+identities (mainnet and the engineering testnet) and nothing else — chain type, chain label, birthday, the indexer identity check,
 and a distinct wallet-file chain tag so a wallet from another chain cannot be
 opened against the wrong genesis. Key derivation, signing, proving, note
 scanning, address encoding and transaction building are upstream's, untouched.
