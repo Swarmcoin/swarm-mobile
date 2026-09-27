@@ -158,7 +158,7 @@ describe('Utils.getBlockExplorerTxIDURL', () => {
         ChainNameEnum.swarmChainName,
         BlockExplorerEnum.Swarmexplorer,
       ),
-    ).toBe(`https://explore.swarm.green/tx/${txid}`);
+    ).toBe(`https://testnet.explore.swarm.green/transactions/${txid}`);
   });
 
   test('the SWARM explorer links a SWARM Mainnet transaction to its own site', () => {
@@ -168,7 +168,7 @@ describe('Utils.getBlockExplorerTxIDURL', () => {
         ChainNameEnum.swarmMainnetChainName,
         BlockExplorerEnum.Swarmexplorer,
       ),
-    ).toBe(`https://mainnet.explore.swarm.green/tx/${txid}`);
+    ).toBe(`https://mainnet.explore.swarm.green/transactions/${txid}`);
   });
 
   test('None returns empty string', () => {

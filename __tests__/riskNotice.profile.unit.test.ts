@@ -61,7 +61,7 @@ describe('explorerUrlFor', () => {
       'https://mainnet.explore.swarm.green/',
     );
     expect(explorerUrlFor(ChainNameEnum.swarmChainName)).toBe(
-      'https://explore.swarm.green/',
+      'https://testnet.explore.swarm.green/',
     );
   });
 
@@ -70,7 +70,7 @@ describe('explorerUrlFor', () => {
       'mainnet.explore.swarm.green',
     );
     expect(explorerHostFor(ChainNameEnum.swarmChainName)).toBe(
-      'explore.swarm.green',
+      'testnet.explore.swarm.green',
     );
   });
 

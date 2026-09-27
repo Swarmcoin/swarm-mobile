@@ -212,9 +212,10 @@ export default class Utils {
   /**
    * The explorer page for a transaction, or "" when the chain has no explorer.
    *
-   * Each SWARM network has its own site and the profile holds it. The upstream
-   * Zcash chains and the Offline empty chain have none, and their callers hide
-   * the affordance rather than open a dead page.
+   * Each SWARM network has its own site and the profile holds it. Both sites
+   * serve a transaction at `/transactions/<txid>` and answer 404 at `/tx/`.
+   * The upstream Zcash chains and the Offline empty chain have none, and their
+   * callers hide the affordance rather than open a dead page.
    */
   static getBlockExplorerTxIDURL(
     txid: string,
@@ -225,7 +226,7 @@ export default class Utils {
       return '';
     }
     const explorer = explorerUrlFor(chainName);
-    return explorer ? `${explorer}tx/${txid}` : '';
+    return explorer ? `${explorer}transactions/${txid}` : '';
   }
 
   static generateColorList(numColors: number): string[] {

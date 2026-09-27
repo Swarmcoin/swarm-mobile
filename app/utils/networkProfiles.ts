@@ -64,8 +64,12 @@ export const SWARM_TESTNET_SERVER = 'https://lwd.swarm.green:443';
 /** The block explorer that indexes the SWARM production chain. */
 export const SWARM_MAINNET_EXPLORER = 'https://mainnet.explore.swarm.green/';
 
-/** The block explorer that indexes the engineering testnet. */
-export const SWARM_TESTNET_EXPLORER = 'https://explore.swarm.green/';
+/**
+ * The block explorer that indexes the engineering testnet, by its explicit
+ * name. The bare `explore.swarm.green` serves the same site today, and
+ * specs/NETWORKS.md keeps it out of new links because it may move to mainnet.
+ */
+export const SWARM_TESTNET_EXPLORER = 'https://testnet.explore.swarm.green/';
 
 /** Everything one SWARM network is, in the terms the app needs. */
 export type SwarmNetworkProfile = {
