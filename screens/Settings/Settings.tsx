@@ -89,6 +89,7 @@ import BottomSheet, {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { hasRecoveryWalletInfo } from '@app/services/recoveryWalletInfo';
+import { explorerHostFor } from '@app/utils/networkProfiles';
 import { useFullSheetSnapPoints } from '@app/hooks/useFullSheetSnapPoints';
 import { useKeyboardHeight } from '@app/hooks/useKeyboardHeight';
 import { useDismissSheetsOnBlur } from '@app/hooks/useDismissSheetsOnBlur';
@@ -223,6 +224,20 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
   if (typeof blockExplorersArray === 'object') {
     BLOCKEXPLORERMENU = blockExplorersArray as Options[];
   }
+
+  // The SWARM explorer row shows the host of the network this wallet is on.
+  // The host comes from the network profile, never from the catalogues: a
+  // translated string cannot follow the chain, and a mainnet wallet that
+  // links the testnet explorer sends its user to another chain's pages.
+  const explorerLabel = (value: string): string => {
+    const host =
+      value === BlockExplorerEnum.Swarmexplorer
+        ? explorerHostFor(walletChainName)
+        : '';
+    return (
+      host || (translate(`settings.value-blockexplorer-${value}`) as string)
+    );
+  };
 
   const { colors } = useTheme();
   const screenName = ScreenEnum.Settings;
@@ -2045,11 +2060,7 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
                           color: colors.fgMuted,
                         }}
                       >
-                        {
-                          translate(
-                            `settings.value-blockexplorer-${blockExplorer}`,
-                          ) as string
-                        }
+                        {explorerLabel(blockExplorer)}
                       </RegText>
                       <FontAwesomeIcon
                         icon={faChevronRight}
@@ -2850,7 +2861,7 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
         ref={blockExplorerSelectRef}
         title={translate('settings.select-blockexplorer-placeholder') as string}
         items={BLOCKEXPLORERMENU.map(b => ({
-          label: translate(`settings.value-blockexplorer-${b.value}`) as string,
+          label: explorerLabel(b.value),
           value: b.value,
         }))}
         value={blockExplorer}

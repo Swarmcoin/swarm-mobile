@@ -15,26 +15,46 @@ import {
 import { useTheme } from '@app/theme';
 import {
   LegalLinkIdEnum,
-  RISK_NOTICE_PARAGRAPHS,
+  riskNoticeParagraphs,
   RISK_NOTICE_TITLE,
 } from '@app/legal';
 import documents from '@app/legal/documents.json';
 import { TranslateType } from '@app/AppState';
+import {
+  SwarmProfileIdEnum,
+  swarmProfileFor,
+} from '@app/utils/networkProfiles';
 
 type LegalSheetProps = {
   page: LegalLinkIdEnum;
+  /** The chain label whose wording these documents describe. */
+  chain: string;
   translate: (key: string) => TranslateType;
   onClose: () => void;
 };
 
-export function LegalSheet({ page, translate, onClose }: LegalSheetProps) {
+// A paragraph that differs by network is stored as one string per profile id.
+const paragraphText = (paragraph: unknown, chain: string): string => {
+  const id = swarmProfileFor(chain)?.id ?? SwarmProfileIdEnum.testnet;
+  if (paragraph && typeof paragraph === 'object' && id in paragraph) {
+    return String((paragraph as Record<string, string>)[id]);
+  }
+  return String(paragraph);
+};
+
+export function LegalSheet({
+  page,
+  chain,
+  translate,
+  onClose,
+}: LegalSheetProps) {
   const { colors } = useTheme();
   const notices = translate('about.copyright');
   const document =
     page === LegalLinkIdEnum.privacy || page === LegalLinkIdEnum.terms
       ? documents[page]
       : page === LegalLinkIdEnum.risks
-        ? { title: RISK_NOTICE_TITLE, paragraphs: RISK_NOTICE_PARAGRAPHS }
+        ? { title: RISK_NOTICE_TITLE, paragraphs: riskNoticeParagraphs(chain) }
         : {
             title: String(translate('about.open-source-notices')),
             paragraphs: Array.isArray(notices) ? notices : [],
@@ -73,7 +93,7 @@ export function LegalSheet({ page, translate, onClose }: LegalSheetProps) {
                 selectable
                 style={[styles.paragraph, { color: colors.fgDefault }]}
               >
-                {String(paragraph).replaceAll('**', '')}
+                {paragraphText(paragraph, chain).replaceAll('**', '')}
               </Text>
             ))}
           </ScrollView>

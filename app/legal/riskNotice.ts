@@ -1,6 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// The "Before you start" risk notice.
+import {
+  SwarmProfileIdEnum,
+  swarmProfileFor,
+} from '@app/utils/networkProfiles';
+
+// The "Before you start" risk notice, one text per network.
+//
+// Which network the wallet is on decides what the notice has to say. On the
+// engineering testnet the coins are worthless and the chain can be reset. On
+// SWARM Mainnet the SWM is real and the recovery phrase is the only way back
+// to it. A mainnet build that tells its first user the coins have no value is
+// the defect this split exists to prevent.
 //
 // This is a LEGAL text, not UI copy. It is reproduced here word for word from
 // `docs/ios/legal/RISK-NOTICE.md` (section "Before you start") in the project
@@ -22,23 +33,43 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const RISK_NOTICE_TITLE = 'Before you start';
 
-export const RISK_NOTICE_PARAGRAPHS: readonly string[] = [
-  '**SWARM is a test network.** SWM test coins have no value. Nobody sells them, and nobody should buy them. The network can be reset at any time and every balance with it.',
+const TESTNET_PARAGRAPHS: readonly string[] = [
+  '**SWARM Testnet is an engineering network.** SWM test coins have no value. Nobody sells them, and nobody should buy them. The network can be reset at any time and every balance with it.',
   '**Your recovery phrase is your wallet.** Write the 24 words down and keep them offline. Whoever has them controls your coins. If you lose them, nobody can recover your wallet, and that includes us. We will never ask for them.',
   '**Transactions cannot be undone.** Not by you, not by us, not by anyone. Check the address before you send.',
   '**Privacy has limits.** Shielded transactions hide sender, receiver and amount on the chain. They do not hide your internet address from the wallet server, and transparent ("t") addresses are public. The privacy software on this network is new and has not been independently audited.',
   '**The software is experimental.** It may have bugs that lose test coins, lose data or fail to sync. It is provided as is, without warranty.',
   '**You are responsible for your own laws.** Whether using cryptocurrency software is lawful where you live is yours to check.',
   '**Nothing here is advice.** Not financial, not legal, not tax.',
-  '**No main network exists.** Nothing you hold or do on the test network gives you a right to anything on any future network, and no promise is made that one will exist.',
+  '**A test balance is not a mainnet balance.** Nothing you hold or do on the test network gives you a right to anything on SWARM Mainnet.',
 ];
+
+const MAINNET_PARAGRAPHS: readonly string[] = [
+  '**SWARM Mainnet is the live network.** The SWM in this wallet is real. What you lose here is lost for good, and nobody can put it back.',
+  '**You hold this wallet yourself.** The keys live on this device. No company custodies your coins. No support desk can move, freeze or refund them for you.',
+  '**Your recovery phrase is your only backup.** Write the 24 words down and keep them offline. Whoever has them controls your coins. If you lose them, nobody can recover your wallet, and that includes us. We will never ask for them.',
+  '**Transactions cannot be undone.** Not by you, not by us, not by anyone. Check the address before you send.',
+  '**Privacy has limits.** Shielded transactions hide sender, receiver and amount on the chain. They do not hide your internet address from the wallet server, and transparent addresses are public. The privacy software on this network is new and has not been independently audited.',
+  '**The software is early and comes from outside the app stores.** This is a first release for a network that launched this month. It may have bugs that lose coins, lose data or fail to sync. Install it only from the SWARM download page. It is provided as is, without warranty.',
+  '**Start with an amount you can afford to lose.** Send a small test payment and confirm it arrived before you move anything larger.',
+  '**You are responsible for your own laws.** Whether using cryptocurrency software is lawful where you live is yours to check.',
+  '**Nothing here is advice.** Not financial, not legal, not tax.',
+];
+
+/** The notice for the network a chain label names. */
+export const riskNoticeParagraphs = (
+  chain: string | undefined | null,
+): readonly string[] =>
+  swarmProfileFor(chain)?.id === SwarmProfileIdEnum.mainnet
+    ? MAINNET_PARAGRAPHS
+    : TESTNET_PARAGRAPHS;
 
 export const RISK_NOTICE_ACKNOWLEDGE = 'I understand';
 
 // Versioned on purpose. If the notice ever changes materially, bump the
 // suffix and every installation is asked again rather than silently treated
-// as having read something it never saw.
-export const RISK_NOTICE_STORAGE_KEY = '@risk-notice-acknowledged-v1';
+// as having read something it never saw. v2 carries the mainnet text.
+export const RISK_NOTICE_STORAGE_KEY = '@risk-notice-acknowledged-v2';
 
 /**
  * Whether this installation has acknowledged the risk notice.

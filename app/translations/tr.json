@@ -355,7 +355,7 @@
     "blockexplorers": [
       {
         "value": "Swarmexplorer",
-        "text": "explore.swarm.green"
+        "text": "SWARM Explorer"
       },
       {
         "value": "None",
@@ -466,7 +466,7 @@
     "nym-network": "NYM Mixnet",
     "nym-enhanced-privacy": "Gelişmiş Gizlilik",
     "nym-diagnostics": "Mixnet tanılamasını çalıştır",
-    "value-blockexplorer-Swarmexplorer": "explore.swarm.green"
+    "value-blockexplorer-Swarmexplorer": "SWARM Explorer"
   },
   "mixnet": {
     "status": {

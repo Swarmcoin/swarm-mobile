@@ -7,7 +7,7 @@ import Button, { ButtonTypeEnum } from '@ui/primitives/Button';
 import BoldText from '@ui/primitives/BoldText';
 import {
   RISK_NOTICE_ACKNOWLEDGE,
-  RISK_NOTICE_PARAGRAPHS,
+  riskNoticeParagraphs,
   RISK_NOTICE_TITLE,
 } from '@app/legal';
 
@@ -18,6 +18,8 @@ type RiskNoticeProps = {
    * from Settings → About, where the button only closes it.
    */
   mode: 'gate' | 'read';
+  /** The chain label whose notice this renders. */
+  chain: string;
   /** Label for the `read` button. The gate's label is the notice's own. */
   closeLabel?: string;
   onDismiss: () => void;
@@ -50,16 +52,18 @@ const NoticeParagraph: React.FunctionComponent<{
 /**
  * The "Before you start" risk notice.
  *
- * The text is the legal source string in `app/legal/riskNotice.ts`, which is
- * the same text as the published page; it is not translated and not edited
- * here. See that file for why.
+ * The text is the legal source string in `app/legal/riskNotice.ts`, one per
+ * network and the same text as the published page. It is not translated and
+ * not edited here. See that file for why.
  */
 const RiskNotice: React.FunctionComponent<RiskNoticeProps> = ({
   mode,
+  chain,
   closeLabel,
   onDismiss,
 }) => {
   const { colors } = useTheme();
+  const paragraphs = riskNoticeParagraphs(chain);
 
   return (
     <SafeAreaView
@@ -93,7 +97,7 @@ const RiskNotice: React.FunctionComponent<RiskNoticeProps> = ({
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 12 }}
         >
-          {RISK_NOTICE_PARAGRAPHS.map((text: string) => (
+          {paragraphs.map((text: string) => (
             <NoticeParagraph
               key={text.substring(0, 24)}
               text={text}

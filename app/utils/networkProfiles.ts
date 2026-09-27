@@ -61,6 +61,12 @@ export const SWARM_MAINNET_SERVER = 'https://lwd-main.swarm.green:8443';
 /** Where an engineering-testnet wallet looks for its indexer. */
 export const SWARM_TESTNET_SERVER = 'https://lwd.swarm.green:443';
 
+/** The block explorer that indexes the SWARM production chain. */
+export const SWARM_MAINNET_EXPLORER = 'https://mainnet.explore.swarm.green/';
+
+/** The block explorer that indexes the engineering testnet. */
+export const SWARM_TESTNET_EXPLORER = 'https://explore.swarm.green/';
+
 /** Everything one SWARM network is, in the terms the app needs. */
 export type SwarmNetworkProfile = {
   /** Which network this is. */
@@ -99,6 +105,8 @@ export type SwarmNetworkProfile = {
   readonly transparentPrefixes: readonly string[];
   /** The indexer this network's wallets start on. */
   readonly defaultServer: string;
+  /** The block explorer that indexes this network. */
+  readonly explorer: string;
   /** Whether that indexer exists yet. */
   readonly serverIsLive: boolean;
   /** The light-wallet gRPC port this network's indexer serves. */
@@ -141,6 +149,7 @@ const TESTNET: SwarmNetworkProfile = {
   texHrp: 'textest',
   transparentPrefixes: ['tm', 't2'],
   defaultServer: SWARM_TESTNET_SERVER,
+  explorer: SWARM_TESTNET_EXPLORER,
   serverIsLive: true,
   grpcPort: 9067,
   genesis: SWARM_TESTNET_GENESIS,
@@ -161,6 +170,7 @@ const MAINNET: SwarmNetworkProfile = {
   texHrp: 'texswm',
   transparentPrefixes: ['s1', 's3'],
   defaultServer: SWARM_MAINNET_SERVER,
+  explorer: SWARM_MAINNET_EXPLORER,
   serverIsLive: true,
   grpcPort: 9068,
   genesis: SWARM_MAINNET_GENESIS,
@@ -350,6 +360,19 @@ export const serverHost = (uri: string | undefined | null): string => {
   const host = withoutScheme.split('/')[0];
   return host ?? '';
 };
+
+/**
+ * The block explorer for a chain label, or "" when the chain has none.
+ *
+ * Upstream Zcash's `main`, `test` and `regtest` reach no SWARM explorer, and a
+ * caller that gets "" hides the affordance rather than opening a dead page.
+ */
+export const explorerUrlFor = (chain: string | undefined | null): string =>
+  swarmProfileFor(chain)?.explorer ?? '';
+
+/** The explorer host a settings row shows for a chain, or "" when none. */
+export const explorerHostFor = (chain: string | undefined | null): string =>
+  serverHost(explorerUrlFor(chain));
 
 /**
  * The translation key for the one-line network notice under the app name.

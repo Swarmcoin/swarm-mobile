@@ -2366,7 +2366,11 @@ export class LoadingAppClass extends Component<
               {/* Last in the tree and absolutely positioned, so it covers
                   whatever the boot sequence was drawing. */}
               {this.state.riskNoticeGateOpen && (
-                <RiskNotice mode="gate" onDismiss={this.acceptRiskNotice} />
+                <RiskNotice
+                  mode="gate"
+                  chain={this.state.server.chainName}
+                  onDismiss={this.acceptRiskNotice}
+                />
               )}
               <CustomServerModalHost
                 ref={this.customServerModalRef}

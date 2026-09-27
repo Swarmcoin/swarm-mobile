@@ -573,6 +573,7 @@ const StartMenu: React.FunctionComponent<StartMenuProps> = ({
       {page && (
         <LegalSheet
           page={page}
+          chain={server.chainName}
           translate={translate}
           onClose={() => setPage(undefined)}
         />

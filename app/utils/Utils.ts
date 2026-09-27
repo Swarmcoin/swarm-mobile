@@ -38,6 +38,7 @@ import { RPCParseAddressType } from '@app/walletBackend/types/RPCParseAddressTyp
 import { RPCParseAddressStatusEnum } from '@app/walletBackend/enums/RPCParseAddressStatusEnum';
 import { RPCAddressKindEnum } from '@app/walletBackend/enums/RPCAddressKindEnum';
 import { RPCReceiversEnum } from '@app/walletBackend/enums/RPCReceiversEnum';
+import { explorerUrlFor } from './networkProfiles';
 
 export default class Utils {
   static trimToSmall(addr?: string, numChars?: number): string {
@@ -209,31 +210,22 @@ export default class Utils {
   }
 
   /**
-   * The SWARM block explorer. One site, one constant — SwarmTestnet is the
-   * only chain this wallet reaches, so there is no per-chain URL table any
-   * more. The site is not live yet, so callers must treat the link as
-   * possibly-unopenable (see `getBlockExplorerTxIDURL`).
+   * The explorer page for a transaction, or "" when the chain has no explorer.
+   *
+   * Each SWARM network has its own site and the profile holds it. The upstream
+   * Zcash chains and the Offline empty chain have none, and their callers hide
+   * the affordance rather than open a dead page.
    */
-  static readonly SWARM_BLOCK_EXPLORER_URL = 'https://explore.swarm.green/';
-
   static getBlockExplorerTxIDURL(
     txid: string,
     chainName: ChainNameEnum,
     blockExplorer: BlockExplorerEnum,
   ): string {
-    // explore.swarm.green indexes the engineering testnet. SWARM Mainnet has
-    // no published explorer yet, and the upstream chains and Offline empty
-    // chain never had one, so every chain but the testnet returns '' and
-    // every caller hides the affordance. Inventing a mainnet URL here would
-    // ship a dead link into a live wallet; add the real one when it exists.
-    if (chainName !== ChainNameEnum.swarmChainName) {
+    if (blockExplorer !== BlockExplorerEnum.Swarmexplorer) {
       return '';
     }
-    if (blockExplorer === BlockExplorerEnum.Swarmexplorer) {
-      return `${Utils.SWARM_BLOCK_EXPLORER_URL}tx/${txid}`;
-    }
-    // BlockExplorerEnum.None (or any unknown value) → no explorer link.
-    return '';
+    const explorer = explorerUrlFor(chainName);
+    return explorer ? `${explorer}tx/${txid}` : '';
   }
 
   static generateColorList(numColors: number): string[] {
