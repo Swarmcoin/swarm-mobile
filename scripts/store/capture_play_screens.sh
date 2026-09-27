@@ -4,9 +4,9 @@
 # Unlike scripts/swarm_store_screens.sh, which rides along on the smoke test's
 # emulator and photographs whatever the drawer walk happens to reach, this
 # script owns its emulator and walks a fixed route: home, Receive, Send,
-# History, Settings. It installs the APK the workflow put in dist/ - in CI
-# that is the published mainnet release, downloaded and checksummed - creates
-# a throwaway wallet, and names each capture after the screen it is.
+# Settings (advanced mode) and About. It installs the APK the workflow put in
+# dist/ - in CI that is the published mainnet release, downloaded and checked -
+# then creates a throwaway wallet and names each capture after the screen.
 #
 # The wallet it creates is thrown away with the emulator. Its recovery words
 # are never printed, and the recovery-words screen is never photographed.
@@ -76,10 +76,14 @@ ui_center() {
 import re, sys, xml.etree.ElementTree as ET
 
 mode, needle, path = sys.argv[1], sys.argv[2], sys.argv[3]
-attr = {"desc": "content-desc", "text": "text", "id": "resource-id"}[mode]
+attrs = {"desc": ("content-desc",), "text": ("text",), "id": ("resource-id",),
+         "any": ("resource-id", "text", "content-desc")}[mode]
 for node in ET.parse(path).getroot().iter("node"):
-    value = node.get(attr, "")
-    hit = needle in value if mode == "id" else value == needle
+    values = [node.get(a, "") for a in attrs]
+    if mode in ("desc", "text"):
+        hit = values[0] == needle
+    else:
+        hit = any(needle in v for v in values)
     if not hit:
         continue
     box = re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", node.get("bounds", ""))
@@ -177,24 +181,20 @@ if ui_tap desc 'Send'; then
   ui_dump && cp "$DUMP" "$OUT/ui-03-send.xml"
 fi
 
-echo "=== 04 history ==="
-if ui_tap desc 'History'; then
-  sleep 4
-  shot "04-history"
-  ui_dump && cp "$DUMP" "$OUT/ui-04-history.xml"
-fi
-
 # A fresh install runs in basic mode, whose Settings screen carries only the
-# language row: the server and the block explorer are advanced-mode rows, and
-# they are the ones worth showing on a listing. The mode pill lives in the
-# drawer.
-echo "=== 05 settings (advanced mode) ==="
+# language row and the About link. The server and the block explorer - the two
+# rows that say which network this is - are advanced-mode rows, and the mode
+# pill lives in the drawer. (The History tab is the home screen on this build,
+# so it is not photographed twice.)
+echo "=== 04 settings (advanced mode) ==="
 if ui_tap id 'header.drawmenu'; then
-  if ui_tap text 'Advanced'; then
-    sleep 8
-    ui_tap id 'header.drawmenu' || adb shell input keyevent KEYCODE_BACK
-    sleep 3
+  if ! ui_tap any 'Advanced'; then
+    # The pill reads "SWARM Wallet   Basic"; tapping it offers the modes.
+    ui_tap any 'Basic' && ui_tap any 'Advanced'
   fi
+  sleep 8
+  ui_tap id 'header.drawmenu' || adb shell input keyevent KEYCODE_BACK
+  sleep 3
 fi
 for _ in 1 2 3; do
   ui_tap id 'header.settings' && break
@@ -203,8 +203,15 @@ for _ in 1 2 3; do
 done
 sleep 3
 ui_dump || true
-cp "$DUMP" "$OUT/ui-05-settings.xml" 2>/dev/null || true
-shot "05-settings"
+cp "$DUMP" "$OUT/ui-04-settings.xml" 2>/dev/null || true
+shot "04-settings"
+
+echo "=== 05 about ==="
+if ui_tap any 'About SWARM Wallet'; then
+  sleep 3
+  shot "05-about"
+  ui_dump && cp "$DUMP" "$OUT/ui-05-about.xml"
+fi
 
 echo "=== What the captures say ==="
 # The listing must not be able to claim mainnet from art that shows a testnet
