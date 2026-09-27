@@ -488,10 +488,10 @@ jobs:
           # build's.
           echo "--- can this runner reach the indexer? ---"
           for ip in $IPS; do
-            if nc -z -G 8 -w 8 "$ip" 443 2>&1; then
-              echo "ok      TCP 443 to $ip is open from this runner"
+            if nc -z -G 8 -w 8 "$ip" 8443 2>&1; then
+              echo "ok      TCP 8443 to $ip is open from this runner"
             else
-              echo "::warning::TCP 443 to $ip is NOT reachable from this runner; the app cannot sync here whatever it does"
+              echo "::warning::TCP 8443 to $ip is unreachable from this runner"
             fi
           done
           IFACE=any
@@ -799,8 +799,8 @@ jobs:
           # bare `for ip in ; do`, which is a syntax error, not an empty loop.
           IPS="${{ steps.capture.outputs.indexer_ips }}"
           for ip in $IPS; do
-            n=$(grep -c "$ip.443" "$RUNNER_TEMP/capture.txt" || true)
-            echo "packets to $ip:443 = $n"
+            n=$(grep -Fc "$ip.8443" "$RUNNER_TEMP/capture.txt" || true)
+            echo "packets to $ip:8443 = $n"
             HITS=$((HITS + n))
           done
           {
@@ -812,7 +812,7 @@ jobs:
             grep -E 'lwd-main.swarm.green' "$RUNNER_TEMP/capture.txt" | head -40 || true
           } > evidence/fresh-install-wire.txt
           if [ "$HITS" -gt 0 ]; then
-            echo "ok      the fresh install really did talk to the indexer on 443"
+            echo "ok      the fresh install reached the indexer on 8443"
             echo "proved=true" >> "$GITHUB_OUTPUT"
           else
             echo "::warning::no packets to the indexer's address were captured; this proves nothing either way (the capture may have missed them)"
