@@ -120,11 +120,11 @@ addresses on both SWARM networks, and reports both profiles from
 
 ## Versions
 
-Android `0.2.0` (`versionCode` 4, `SWARM_VERSION` `0.2.0-mainnet.1`); iOS
-`MARKETING_VERSION` `0.2.0`. The application id `green.swarm.wallet`, the
-Android namespace `org.ZingoLabs.Zingo`, the iOS bundle identifier and the App
-Store record are **unchanged**: this is the same app, on the network it was
-built for.
+Android `0.2.0` (`versionCode` 5, `SWARM_VERSION` `0.2.0-mainnet.2`); iOS
+`MARKETING_VERSION` `0.2.0`. `0.2.0-mainnet.1` was `versionCode` 4. The
+application id `green.swarm.wallet`, the Android namespace
+`org.ZingoLabs.Zingo`, the iOS bundle identifier and the App Store record are
+**unchanged**: this is the same app, on the network it was built for.
 
 ## What was verified
 

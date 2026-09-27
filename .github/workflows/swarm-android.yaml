@@ -40,15 +40,16 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # The SWARM app version. This round is the first MAINNET build: the wallet
+  # The SWARM app version. This round is the second MAINNET build: the wallet
   # opens on SWARM Mainnet (https://lwd-main.swarm.green:8443, genesis
   # 01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd) and the
   # engineering testnet is a second, clearly-labelled choice. See docs/MAINNET.md.
-  SWARM_VERSION: 0.2.0-mainnet.1
+  # 0.2.0-mainnet.1 was versionCode 4. A version string never names two builds.
+  SWARM_VERSION: 0.2.0-mainnet.2
   # versionCode must increase for every Play upload; bump it here. Play keeps
   # every code it has ever seen and refuses a repeat, including one from a
   # release that was later deleted.
-  SWARM_ANDROID_VERSION_CODE: 4
+  SWARM_ANDROID_VERSION_CODE: 5
   # Play shows this string. It stays a plain three-part version; which network
   # the build is for is said by SWARM_VERSION, by the release notes and by the
   # app itself, not by a suffix Play would have to parse.
