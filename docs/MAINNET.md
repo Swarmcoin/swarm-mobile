@@ -133,23 +133,22 @@ run URLs and the artifact hashes.
 
 ## What this build still gets wrong, and who must fix it
 
-**The legal text is the testnet's.** `app/legal/riskNotice.ts` and
-`app/legal/documents.json` say SWARM is a test network, that SWM test coins
-have no value, and that no main network exists. That text is reproduced word
-for word from the project vault (`docs/ios/legal/RISK-NOTICE.md`) and from
-swarm.green/wallet/risks, and the file says in its own header that changing a
-word here means changing it there in the same commit. Rewriting a legal notice
-is not a decision for a build commit, so it was left alone. It is wrong in
-front of a mainnet user, it is shown before a wallet is created, and it is the
-last thing standing between this build and a person.
+**The website still carries the testnet notice.** `app/legal/riskNotice.ts`
+and `app/legal/documents.json` now hold one text per network, picked from the
+chain the wallet is on, and the vault source
+(`D:/privacy/docs/ios/legal/RISK-NOTICE.md`) carries both. The published page
+at swarm.green/wallet/risks has not been updated, so the app and the website
+disagree until the owner publishes the mainnet text.
 
 **The store listings describe the testnet.** The Play `full_description` and
 the App Store description were not touched.
 
-**No mainnet block explorer.** `explore.swarm.green` indexes the engineering
-chain, so the explorer affordance is hidden on mainnet rather than pointing at
-a dead page. Add the URL to `Utils.getBlockExplorerTxIDURL` when a mainnet
-explorer exists.
+**The explorer follows the chain.** Each network profile carries its own site:
+`mainnet.explore.swarm.green` on SWARM Mainnet, `explore.swarm.green` on the
+engineering testnet. `Utils.getBlockExplorerTxIDURL` reads the profile and the
+Settings row shows the host of the network the wallet is on. Both hosts
+answered 200 on 2026-09-27. How completely the mainnet site indexes the chain
+was not measured.
 
 **The Nym mixnet stays off on mainnet.** No mixnet send has been demonstrated
 end to end against any SWARM indexer, and on mainnet a send that silently
