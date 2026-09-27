@@ -622,7 +622,7 @@ exports[`Component Address Book Details - test Address Book Datails - Add - snap
         {
           "busy": undefined,
           "checked": undefined,
-          "disabled": undefined,
+          "disabled": false,
           "expanded": undefined,
           "selected": undefined,
         }
@@ -1314,7 +1314,7 @@ exports[`Component Address Book Details - test Address Book Datails - Delete - s
         {
           "busy": undefined,
           "checked": undefined,
-          "disabled": undefined,
+          "disabled": false,
           "expanded": undefined,
           "selected": undefined,
         }
@@ -2073,7 +2073,7 @@ exports[`Component Address Book Details - test Address Book Datails - Modify - s
         {
           "busy": undefined,
           "checked": undefined,
-          "disabled": undefined,
+          "disabled": false,
           "expanded": undefined,
           "selected": undefined,
         }

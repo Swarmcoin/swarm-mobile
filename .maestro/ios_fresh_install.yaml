@@ -15,20 +15,31 @@ appId: ${APP_ID}
       id: "loadingapp.createnewwallet"
       enabled: true
     timeout: 120000
+- scrollUntilVisible:
+    element:
+      id: "loadingapp.createnewwallet"
+    direction: DOWN
+    centerElement: true
+- waitForAnimationToEnd:
+    timeout: 5000
 - tapOn:
     id: "loadingapp.createnewwallet"
+    enabled: true
     retryTapIfNoChange: true
 # The notice is drawn by the same JavaScript thread that is reading settings,
 # resolving the server and warming the Rust layer, so on a cold runner it can
 # be slow. 30 s was the one impatient wait in a flow whose others are 300 s and
 # 600 s, and it is what failed run 36291652810 on a build that was fine.
 - extendedWaitUntil:
-    visible: "Before you start"
+    visible:
+      id: "risknotice.title"
     timeout: 180000
+- assertVisible: "SWARM Mainnet is the live network.*"
+- takeScreenshot: mainnet-risk-notice
 - waitForAnimationToEnd:
     timeout: 5000
 - tapOn:
-    text: "I understand"
+    id: "risknotice.acknowledge"
     retryTapIfNoChange: true
 - extendedWaitUntil:
     visible:
@@ -82,6 +93,13 @@ appId: ${APP_ID}
     timeout: 60000
 - waitForAnimationToEnd:
     timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "loadingapp.createnewwallet"
+    direction: DOWN
+    centerElement: true
+- waitForAnimationToEnd:
+    timeout: 5000
 - tapOn:
     id: "loadingapp.createnewwallet"
     retryTapIfNoChange: true
@@ -129,3 +147,19 @@ appId: ${APP_ID}
 - assertVisible:
     id: "wallets.open.2"
 - takeScreenshot: first-wallet-restored
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "home.welcome"
+    timeout: 300000
+- tapOn:
+    id: "header.wallets"
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible:
+      id: "wallets.active.1"
+    timeout: 30000
+- assertVisible:
+    id: "wallets.open.2"
+- takeScreenshot: wallets-after-relaunch

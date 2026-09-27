@@ -126,6 +126,7 @@ const Button: React.FunctionComponent<ButtonProps> = ({
       accessible={accessible}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled: !!disabled }}
       style={{
         ...styleButton,
         ...styleButtonCommon,

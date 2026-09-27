@@ -420,7 +420,7 @@ exports[`Filters - snapshots Filters with active sent filter and memos 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }
@@ -497,7 +497,7 @@ exports[`Filters - snapshots Filters with active sent filter and memos 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }
@@ -994,7 +994,7 @@ exports[`Filters - snapshots Filters with no active filters 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }
@@ -1071,7 +1071,7 @@ exports[`Filters - snapshots Filters with no active filters 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }

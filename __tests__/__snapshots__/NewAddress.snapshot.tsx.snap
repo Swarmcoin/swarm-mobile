@@ -96,7 +96,7 @@ exports[`NewAddress - snapshots NewAddress transparent kind 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }
@@ -173,7 +173,7 @@ exports[`NewAddress - snapshots NewAddress transparent kind 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }
@@ -650,7 +650,7 @@ exports[`NewAddress - snapshots NewAddress unified kind 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }
@@ -727,7 +727,7 @@ exports[`NewAddress - snapshots NewAddress unified kind 1`] = `
           {
             "busy": undefined,
             "checked": undefined,
-            "disabled": undefined,
+            "disabled": false,
             "expanded": undefined,
             "selected": undefined,
           }

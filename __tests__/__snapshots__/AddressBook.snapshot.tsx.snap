@@ -1166,7 +1166,7 @@ exports[`Component Address Book - test Address Book - snapshot 1`] = `
             {
               "busy": undefined,
               "checked": undefined,
-              "disabled": undefined,
+              "disabled": false,
               "expanded": undefined,
               "selected": undefined,
             }

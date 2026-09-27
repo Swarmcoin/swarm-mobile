@@ -1120,7 +1120,7 @@
     "wallet": "Wallet",
     "active": "Current wallet",
     "open": "Open",
-    "create": "Create or restore another wallet",
+    "create": "SWARM Mainnet üzerinde oluştur veya geri yükle",
     "addresses": "My addresses",
     "description": "Keep separate wallets on this iPhone and switch between them. Each wallet has its own recovery phrase. Save every phrase offline.",
     "read-error": "The saved wallets could not be read. Reopen the app and try again.",

@@ -51,7 +51,7 @@ const MAINNET_PARAGRAPHS: readonly string[] = [
   '**Your recovery phrase is your only backup.** Write the 24 words down and keep them offline. Whoever has them controls your coins. If you lose them, nobody can recover your wallet, and that includes us. We will never ask for them.',
   '**Transactions cannot be undone.** Not by you, not by us, not by anyone. Check the address before you send.',
   '**Privacy has limits.** Shielded transactions hide sender, receiver and amount on the chain. They do not hide your internet address from the wallet server, and transparent addresses are public. The privacy software on this network is new and has not been independently audited.',
-  '**The software is early and comes from outside the app stores.** This is a first release for a network that launched this month. It may have bugs that lose coins, lose data or fail to sync. Install it only from the SWARM download page. It is provided as is, without warranty.',
+  '**The software is early.** It may have bugs that lose coins, lose data or fail to sync. Use the official SWARM release linked from the SWARM website. It is provided as is, without warranty.',
   '**Start with an amount you can afford to lose.** Send a small test payment and confirm it arrived before you move anything larger.',
   '**You are responsible for your own laws.** Whether using cryptocurrency software is lawful where you live is yours to check.',
   '**Nothing here is advice.** Not financial, not legal, not tax.',
@@ -96,7 +96,7 @@ export const RISK_NOTICE_ACKNOWLEDGE = 'I understand';
 // Versioned on purpose. If the notice ever changes materially, bump the
 // suffix and every installation is asked again rather than silently treated
 // as having read something it never saw. v2 carries the mainnet text.
-export const RISK_NOTICE_STORAGE_KEY = '@risk-notice-acknowledged-v2';
+export const RISK_NOTICE_STORAGE_KEY = '@risk-notice-acknowledged-v3';
 
 /**
  * Whether this installation has acknowledged the risk notice.
@@ -105,18 +105,27 @@ export const RISK_NOTICE_STORAGE_KEY = '@risk-notice-acknowledged-v2';
  * small annoyance, letting a first wallet be created without it is the thing
  * this exists to prevent.
  */
-export const hasAcknowledgedRiskNotice = async (): Promise<boolean> => {
+export const hasAcknowledgedRiskNotice = async (
+  chain?: string,
+): Promise<boolean> => {
   try {
-    return (await AsyncStorage.getItem(RISK_NOTICE_STORAGE_KEY)) === 'true';
+    return (
+      (await AsyncStorage.getItem(
+        `${RISK_NOTICE_STORAGE_KEY}:${noticeProfileIdFor(chain)}`,
+      )) === 'true'
+    );
   } catch {
     return false;
   }
 };
 
 /** Records the acknowledgement. A failed write only means it is asked again. */
-export const acknowledgeRiskNotice = async (): Promise<void> => {
+export const acknowledgeRiskNotice = async (chain?: string): Promise<void> => {
   try {
-    await AsyncStorage.setItem(RISK_NOTICE_STORAGE_KEY, 'true');
+    await AsyncStorage.setItem(
+      `${RISK_NOTICE_STORAGE_KEY}:${noticeProfileIdFor(chain)}`,
+      'true',
+    );
   } catch {
     // Nothing to do and nothing to report: the notice is shown again next
     // launch, which is the safe direction to fail in.

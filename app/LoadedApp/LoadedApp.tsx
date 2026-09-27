@@ -28,6 +28,8 @@ import {
 
 import { Wallets } from '@screens/Wallets/Wallets';
 import { selectWallet } from '@app/walletBackend/utils/savedWallets';
+import { DEFAULT_SWARM_PROFILE } from '@app/utils/networkProfiles';
+import { serverForWallet } from '@app/utils/walletServer';
 import WalletBackend, { fetchWallet } from '@app/walletBackend';
 import {
   changeServer,
@@ -2069,8 +2071,25 @@ export class LoadedAppClass extends Component<
   onSelectWallet = async (id: string) => {
     await this.rpc.clearTimers();
     const selected = await selectWallet(id);
-    if (selected.kind === 'error')
-      this.addLastSnackbar(String(this.state.translate(selected.errorKey)));
+    if (selected.kind === 'error') {
+      await this.rpc.configure();
+      throw new Error(selected.errorKey);
+    }
+    if (!id) {
+      const server = serverForWallet(
+        DEFAULT_SWARM_PROFILE.chainLabel,
+        this.state.server,
+      );
+      await SettingsFileImpl.writeSettings(SettingsNameEnum.server, server);
+      await SettingsFileImpl.writeSettings(
+        SettingsNameEnum.selectServer,
+        server === this.state.server
+          ? this.state.selectServer
+          : server.uri
+            ? SelectServerEnum.auto
+            : SelectServerEnum.offline,
+      );
+    }
     this.keepAwake(false);
     await this.navigateToLoadingApp({ startingApp: false, newWallet: true });
   };

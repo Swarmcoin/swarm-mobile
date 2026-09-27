@@ -122,6 +122,7 @@ import RiskNotice from '@ui/widgets/RiskNotice';
 import { acknowledgeRiskNotice, hasAcknowledgedRiskNotice } from '@app/legal';
 import { AppStackParamList } from '@app/types';
 import { openSavedWallet } from '@app/walletBackend/utils/savedWallets';
+import { serverForWallet } from '@app/utils/walletServer';
 import {
   SWARM_MAINNET_PROFILE,
   SWARM_TESTNET_PROFILE,
@@ -820,7 +821,7 @@ export class LoadingAppClass extends Component<
    * what is gated is the wallet, not the network.
    */
   ensureRiskNoticeAcknowledged = async (): Promise<void> => {
-    if (await hasAcknowledgedRiskNotice()) {
+    if (await hasAcknowledgedRiskNotice(this.state.server.chainName)) {
       return;
     }
     if (this.unmounted) {
@@ -841,7 +842,7 @@ export class LoadingAppClass extends Component<
     this.setState({ riskNoticeGateOpen: false });
     // The write is best-effort and must not delay the person: a
     // failed write only means the notice is shown again next launch.
-    acknowledgeRiskNotice();
+    acknowledgeRiskNotice(this.state.server.chainName);
     if (resume) {
       resume();
     }
@@ -1066,6 +1067,24 @@ export class LoadingAppClass extends Component<
           result.value,
         );
         if (!resultJson.error) {
+          const server = serverForWallet(
+            resultJson.chain_name,
+            this.state.server,
+          );
+          if (server !== this.state.server) {
+            const selectServer = server.uri
+              ? SelectServerEnum.auto
+              : SelectServerEnum.offline;
+            await SettingsFileImpl.writeSettings(
+              SettingsNameEnum.server,
+              server,
+            );
+            await SettingsFileImpl.writeSettings(
+              SettingsNameEnum.selectServer,
+              selectServer,
+            );
+            this.setState({ server, selectServer });
+          }
           // Load the wallet and navigate to the vts screen
           let readOnly: boolean = false;
           let orchardPool: boolean = false;
