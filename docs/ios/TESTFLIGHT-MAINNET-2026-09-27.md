@@ -2,7 +2,7 @@
 
 ## Build
 
-| Field | Candidate |
+| Field | Release |
 | --- | --- |
 | Version | 0.2.0 |
 | Build | 1044 |
@@ -11,7 +11,9 @@
 | Bundle | `green.swarm.swarmwallet` |
 | Apple app | `6815274408` |
 | Distribution group | SWARM Internal |
-| Status | The signed workflow is running. Apple processing remains pending. |
+| Status | VALID and IN_BETA_TESTING on 27 September 2026 |
+| Apple build ID | `e57a81fd-677b-4f01-b5f2-3f7655a66045` |
+| IPA SHA-256 | `7d9d7d372ac4b406f4a689db4a386ae64fba18561f10244bcdc2173d7f6e6e4b` |
 
 ## Changes
 
@@ -59,7 +61,42 @@ inside its disposable simulator.
 
 Funded mainnet payment testing on an iPhone remains a tester step.
 
+## Hosted evidence
+
+The native job passed its compatibility, identity, saved-wallet validation,
+and sync-pause tests. The iOS 26.5 simulator passed the wallet walkthrough
+in 187 seconds. The screenshots show the `swm1…` receive address and both
+wallets after an app restart. The bundle and branding checks passed.
+
+The app container selected `https://lwd-main.swarm.green:8443` on
+`swarm-mainnet`. The packet capture contains 3,310 packets for
+`64.94.84.101:8443`. The workflow's text report counted the previous port
+443. Commit `d739e8cb7` corrects that report for future runs.
+
+The simulator app ZIP has SHA-256
+`df14616cd1f89b9181acc1b498cf244c3354dae44bccb8c8d06b1b948052501c`.
+GitHub reports the native framework artifact ZIP digest as
+`798e305ff097708d1dec3831d72e57200c44ee8e5ed467fadfce814bd1c5340e`.
+The full device and simulator frameworks and matching Swift bindings are
+installed in the local `ios/` directory.
+
 ## Release completion
 
-Record the IPA checksum, Apple build ID, processing status, group assignment,
-and temporary-secret deletion after the signed workflow completes.
+All five GitHub jobs passed. The signed archive contained version 0.2.0,
+build 1044, and bundle `green.swarm.swarmwallet`. Apple accepted the upload
+at 14:57 UTC. Its delivery UUID matches the Apple build ID above.
+
+Apple processed the build as `VALID`. The internal build state is
+`IN_BETA_TESTING`, and the SWARM Internal group includes build 1044.
+The icon asset is present. The en-US test notes match
+`fastlane/testflight/what_to_test.txt`.
+
+The existing encryption declaration was retained after reviewing the SDK
+dependency changes. The four temporary GitHub release secrets were removed
+at 14:58 UTC. A separate read confirmed that the release environment's
+secret list was empty.
+
+Existing testers can update the installed app, open Wallets, and select
+Create or restore on SWARM Mainnet. Their saved wallets remain available.
+The public App Store submission still requires the review details recorded
+above and the remaining submission checks.

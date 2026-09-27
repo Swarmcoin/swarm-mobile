@@ -83,7 +83,9 @@ See `docs/ios/TESTFLIGHT-MAINNET-2026-09-27.md` for the signed release status.
 ## Distribution
 
 [Build 1044](https://github.com/Swarm-Official/swarm-mobile/actions/runs/36320428820)
-uses version 0.2.0 and the existing S4FE AG signing setup. The App Store and
+is available to the SWARM Internal TestFlight group as version 0.2.0.
+Apple processing and all five release jobs passed. The release uses the
+existing S4FE AG signing setup. The App Store and
 TestFlight descriptions describe the mainnet iPhone wallet. The test notes
 explain how an existing tester opens mainnet onboarding.
 
