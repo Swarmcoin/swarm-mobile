@@ -217,7 +217,11 @@ if ui_has 'loadingapp.createnewwallet'; then
       ui_tap 'risknotice.acknowledge' || true
       continue
     fi
-    if ui_has 'seed.button.ok'; then
+    # The recovery-words screen. Its button is `newseed.continue` on this
+    # build; the other two are what older builds and the restore flow show.
+    if ui_has 'newseed.continue'; then
+      if ui_tap 'newseed.continue'; then GATES_CLOSED=1; break; fi
+    elif ui_has 'seed.button.ok'; then
       if ui_tap 'seed.button.ok'; then GATES_CLOSED=1; break; fi
     elif ui_has 'I have saved'; then
       if ui_tap 'I have saved'; then GATES_CLOSED=1; break; fi
