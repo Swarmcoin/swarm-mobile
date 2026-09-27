@@ -21,6 +21,7 @@ what was actually verified. Written on 2026-09-26 on branch
 | SDK `ChainType` | `SwarmMainnet(SwarmMainnetGenesis)` |
 | Activation height | 1 |
 | SDK pin | `Swarm-Official/privacy-zingolib` @ `d9f1a5b888067724b61b2fae46307ed56b4b1e0a` |
+| Block explorer | `https://mainnet.explore.swarm.green/` |
 
 The engineering testnet is unchanged and still selectable, under the name
 **SWARM Testnet (engineering)**: chain `swarm-testnet`, indexer

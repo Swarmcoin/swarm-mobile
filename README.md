@@ -1,8 +1,9 @@
 # SWARM Wallet
 
-A wallet for **SwarmTestnet**, a private Zcash-derived proof-of-work **test**
-network. SwarmTestnet coins have no value: this is an engineering testnet, not
-a mainnet launch and not a reason to move real money.
+A wallet for **SWARM**, a Zcash-derived proof-of-work network. This branch
+builds for **SWARM Mainnet**, the live network, where SWM is real. The
+engineering testnet stays selectable in the app and its coins have no value.
+Read [docs/MAINNET.md](./docs/MAINNET.md) before handing a build to anyone.
 
 Phones do not mine. Both app stores forbid on-device mining, so this is a
 wallet only.
@@ -13,10 +14,11 @@ it yourself.
 
 | | |
 | --- | --- |
-| Network | SwarmTestnet, light-wallet chain label `swarm-testnet` |
+| Network | SWARM Mainnet, light-wallet chain label `swarm-mainnet` |
 | Ticker | SWM |
-| Indexer | `https://lwd.swarm.green:443` |
-| Explorer | `https://explore.swarm.green/` |
+| Indexer | `https://lwd-main.swarm.green:8443` |
+| Explorer | `https://mainnet.explore.swarm.green/` |
+| Also selectable | SWARM Testnet (engineering), `swarm-testnet`, `https://lwd.swarm.green:443`, `https://explore.swarm.green/` |
 | Android package | `green.swarm.wallet` |
 
 This app is **not** distributed through any app store, and the builds it
@@ -35,7 +37,7 @@ This is a fork of [zingolabs/zingo-mobile](https://github.com/zingolabs/zingo-mo
 keeps that licence and its copyright notices — see [LICENSE](./LICENSE). The
 wallet SDK is the project's fork of
 [Zingolib](https://github.com/zingolabs/zingolib), which carries the
-SwarmTestnet identity and nothing else: key derivation, signing, proving, note
+SWARM identities and nothing else: key derivation, signing, proving, note
 scanning, address encoding and transaction building are upstream's, untouched.
 
 Documentation below this point is upstream's and describes the Zingo apps; the
