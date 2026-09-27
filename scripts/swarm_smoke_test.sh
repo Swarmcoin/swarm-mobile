@@ -201,16 +201,32 @@ if ui_has 'loadingapp.createnewwallet'; then
   echo "  the start menu is showing; creating a wallet"
   ui_tap 'loadingapp.createnewwallet' || {
     echo "FAIL: could not tap Create New Wallet" >&2; exit 1; }
-  # The recovery-words screen, when the flow shows one.
-  for _ in 1 2 3; do
+  # Creating a wallet raises the risk notice first; the recovery-words screen
+  # comes after it, when the flow shows one. Both are gates: until each is
+  # acknowledged the app never starts a sync, so the loop looks for whichever
+  # one is on screen instead of assuming an order.
+  GATES_CLOSED=""
+  for _ in $(seq 1 8); do
     ui_dump || break
+    if ui_has 'risknotice.acknowledge'; then
+      # The button sits at the foot of a long scroll view; scroll it into
+      # reach first so the tap lands on the button and not on the text.
+      adb shell input swipe 540 1600 540 500 300 >/dev/null 2>&1 || true
+      sleep 2
+      ui_dump || true
+      ui_tap 'risknotice.acknowledge' || true
+      continue
+    fi
     if ui_has 'seed.button.ok'; then
-      if ui_tap 'seed.button.ok'; then break; fi
+      if ui_tap 'seed.button.ok'; then GATES_CLOSED=1; break; fi
     elif ui_has 'I have saved'; then
-      if ui_tap 'I have saved'; then break; fi
+      if ui_tap 'I have saved'; then GATES_CLOSED=1; break; fi
     fi
     sleep 3
   done
+  if [ -z "$GATES_CLOSED" ]; then
+    echo "  note: no recovery-words screen closed within the window"
+  fi
 else
   echo "  the wallet was created on launch; no start menu"
 fi
