@@ -194,6 +194,50 @@ shot() {
 ui_dump || { echo "FAIL: uiautomator produced no dump" >&2; exit 1; }
 cp "$DUMP" "$OUT/ui-first-screen.xml"
 
+# The risk notice is the first thing a mainnet build shows, and what it says
+# is the release's own statement about the money in the wallet. A mainnet APK
+# carrying the testnet text tells its first user that real SWM is worthless,
+# which shipped once already. The run fails on it here rather than in a store
+# listing.
+NOTICE="$OUT/ui-risk-notice.xml"
+
+# Reads the whole notice. Only the paragraphs on screen reach a dump, so the
+# scroll view is walked to its foot and every dump is kept.
+assert_mainnet_notice() {
+  cp "$DUMP" "$NOTICE"
+  for _ in 1 2 3 4 5; do
+    adb shell input swipe 540 1500 540 600 300 >/dev/null 2>&1 || true
+    sleep 1
+    ui_dump || break
+    cat "$DUMP" >> "$NOTICE"
+  done
+  for phrase in 'SWARM Mainnet is the live network' \
+                'The SWM in this wallet is real' \
+                'You hold this wallet yourself' \
+                'Your recovery phrase is your only backup' \
+                'The software is early'; do
+    if ! grep -q -- "$phrase" "$NOTICE"; then
+      echo "FAIL: the mainnet risk notice is missing: $phrase" >&2
+      echo "      dump: $NOTICE" >&2
+      exit 1
+    fi
+  done
+  for phrase in 'test coins' 'test network' 'engineering network' 'have no value'; do
+    if grep -qi -- "$phrase" "$NOTICE"; then
+      echo "FAIL: the mainnet risk notice still carries testnet wording: $phrase" >&2
+      exit 1
+    fi
+  done
+  echo "  the risk notice carries the mainnet wording"
+}
+
+NOTICE_CHECKED=""
+if ui_has 'risknotice.screen'; then
+  shot risk-notice
+  assert_mainnet_notice
+  NOTICE_CHECKED=1
+fi
+
 # On a fresh install with a reachable server the app creates the wallet by
 # itself and lands on the Receive screen. Offline, or in advanced mode, it
 # stops at the start menu and waits to be told.
@@ -209,7 +253,12 @@ if ui_has 'loadingapp.createnewwallet'; then
   for _ in $(seq 1 8); do
     ui_dump || break
     if ui_has 'risknotice.acknowledge'; then
-      # The button sits at the foot of a long scroll view; scroll it into
+      if [ -z "$NOTICE_CHECKED" ]; then
+        shot risk-notice
+        assert_mainnet_notice
+        NOTICE_CHECKED=1
+      fi
+      # The button sits at the foot of a long scroll view. Scroll it into
       # reach first so the tap lands on the button and not on the text.
       adb shell input swipe 540 1600 540 500 300 >/dev/null 2>&1 || true
       sleep 2
@@ -233,6 +282,21 @@ if ui_has 'loadingapp.createnewwallet'; then
   fi
 else
   echo "  the wallet was created on launch; no start menu"
+  # The boot notice still gates the app. Close it before the sync window.
+  for _ in 1 2 3 4; do
+    ui_dump || break
+    ui_has 'risknotice.acknowledge' || break
+    adb shell input swipe 540 1600 540 500 300 >/dev/null 2>&1 || true
+    sleep 2
+    ui_dump || true
+    ui_tap 'risknotice.acknowledge' || true
+  done
+fi
+
+if [ -z "$NOTICE_CHECKED" ]; then
+  echo "FAIL: the first run never showed the risk notice, so its wording" >&2
+  echo "      was never read. A fresh install must gate on it." >&2
+  exit 1
 fi
 
 # Up to 90 s for the first sync to report something. Basic mode, which is what

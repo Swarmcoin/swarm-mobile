@@ -161,6 +161,16 @@ describe('Utils.getBlockExplorerTxIDURL', () => {
     ).toBe(`https://explore.swarm.green/tx/${txid}`);
   });
 
+  test('the SWARM explorer links a SWARM Mainnet transaction to its own site', () => {
+    expect(
+      Utils.getBlockExplorerTxIDURL(
+        txid,
+        ChainNameEnum.swarmMainnetChainName,
+        BlockExplorerEnum.Swarmexplorer,
+      ),
+    ).toBe(`https://mainnet.explore.swarm.green/tx/${txid}`);
+  });
+
   test('None returns empty string', () => {
     expect(
       Utils.getBlockExplorerTxIDURL(
@@ -171,8 +181,8 @@ describe('Utils.getBlockExplorerTxIDURL', () => {
     ).toBe('');
   });
 
-  // The SWARM explorer only indexes SwarmTestnet. A transaction from any
-  // other chain has no page there, so no link may be offered for it.
+  // Each SWARM network has its own explorer. The upstream Zcash chains and
+  // the Offline empty chain have none, and no link may be offered for them.
   test.each([
     ChainNameEnum.mainChainName,
     ChainNameEnum.testChainName,
