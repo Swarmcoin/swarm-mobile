@@ -2368,7 +2368,7 @@ export class LoadingAppClass extends Component<
               {this.state.riskNoticeGateOpen && (
                 <RiskNotice
                   mode="gate"
-                  chain={this.state.server.chainName}
+                  chain={this.state.server?.chainName}
                   onDismiss={this.acceptRiskNotice}
                 />
               )}

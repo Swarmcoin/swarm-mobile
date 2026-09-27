@@ -18,8 +18,15 @@ type RiskNoticeProps = {
    * from Settings → About, where the button only closes it.
    */
   mode: 'gate' | 'read';
-  /** The chain label whose notice this renders. */
-  chain: string;
+  /**
+   * The chain label whose notice this renders.
+   *
+   * Optional, and it has to be: the gate can be opened by a button pressed
+   * before the settings read that fills the chain in has landed. Absent means
+   * "the network this build is for" — see `riskNoticeParagraphs`. It must
+   * never mean a blank screen where the notice should be.
+   */
+  chain?: string;
   /** Label for the `read` button. The gate's label is the notice's own. */
   closeLabel?: string;
   onDismiss: () => void;

@@ -72,7 +72,7 @@ export default function About({ navigation }: AboutProps) {
       {page && (
         <LegalSheet
           page={page}
-          chain={server.chainName}
+          chain={server?.chainName}
           translate={translate}
           onClose={() => setPage(undefined)}
         />

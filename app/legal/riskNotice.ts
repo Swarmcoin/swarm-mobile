@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
+  DEFAULT_SWARM_PROFILE,
   SwarmProfileIdEnum,
   swarmProfileFor,
 } from '@app/utils/networkProfiles';
@@ -56,11 +57,37 @@ const MAINNET_PARAGRAPHS: readonly string[] = [
   '**Nothing here is advice.** Not financial, not legal, not tax.',
 ];
 
+/**
+ * Which network's notice a chain label asks for, never `undefined`.
+ *
+ * Three cases, and they are not the same case:
+ *
+ *  * a SWARM label names its own network;
+ *  * NO label — `undefined`, `null`, or the empty Offline sentinel — means
+ *    the caller does not know the chain YET. The settings file is read
+ *    asynchronously and the gate can be opened by a button pressed before
+ *    that read lands, so this is a timing state, not a chain. It resolves to
+ *    the network this build is for, because the notice that has to be right
+ *    in that moment is the one for the network the wallet will be on;
+ *  * a label this app has no SWARM profile for — upstream Zcash's `main`,
+ *    `test`, `regtest`, or anything unrecognised — keeps the testnet caution.
+ *    Those wallets are not on a SWARM network at all and the cautious text is
+ *    the honest one for them.
+ */
+const noticeProfileIdFor = (
+  chain: string | undefined | null,
+): SwarmProfileIdEnum => {
+  if (chain === undefined || chain === null || chain === '') {
+    return DEFAULT_SWARM_PROFILE.id;
+  }
+  return swarmProfileFor(chain)?.id ?? SwarmProfileIdEnum.testnet;
+};
+
 /** The notice for the network a chain label names. */
 export const riskNoticeParagraphs = (
-  chain: string | undefined | null,
+  chain?: string | null,
 ): readonly string[] =>
-  swarmProfileFor(chain)?.id === SwarmProfileIdEnum.mainnet
+  noticeProfileIdFor(chain) === SwarmProfileIdEnum.mainnet
     ? MAINNET_PARAGRAPHS
     : TESTNET_PARAGRAPHS;
 

@@ -21,21 +21,28 @@ import {
 import documents from '@app/legal/documents.json';
 import { TranslateType } from '@app/AppState';
 import {
+  DEFAULT_SWARM_PROFILE,
   SwarmProfileIdEnum,
   swarmProfileFor,
 } from '@app/utils/networkProfiles';
 
 type LegalSheetProps = {
   page: LegalLinkIdEnum;
-  /** The chain label whose wording these documents describe. */
-  chain: string;
+  /**
+   * The chain label whose wording these documents describe. Optional for the
+   * same reason as the notice's: a screen may open before the chain is known.
+   */
+  chain?: string;
   translate: (key: string) => TranslateType;
   onClose: () => void;
 };
 
 // A paragraph that differs by network is stored as one string per profile id.
-const paragraphText = (paragraph: unknown, chain: string): string => {
-  const id = swarmProfileFor(chain)?.id ?? SwarmProfileIdEnum.testnet;
+const paragraphText = (paragraph: unknown, chain?: string): string => {
+  const id =
+    chain === undefined || chain === null || chain === ''
+      ? DEFAULT_SWARM_PROFILE.id
+      : (swarmProfileFor(chain)?.id ?? SwarmProfileIdEnum.testnet);
   if (paragraph && typeof paragraph === 'object' && id in paragraph) {
     return String((paragraph as Record<string, string>)[id]);
   }

@@ -7,12 +7,24 @@ appId: ${APP_ID}
 - takeScreenshot: welcome
 - waitForAnimationToEnd:
     timeout: 5000
+# The button is disabled while the boot-time server check runs, and a tap on a
+# disabled button is silently dropped: the walk then waits for a notice that
+# was never asked for. Wait for it to be pressable, not merely drawn.
+- extendedWaitUntil:
+    visible:
+      id: "loadingapp.createnewwallet"
+      enabled: true
+    timeout: 120000
 - tapOn:
     id: "loadingapp.createnewwallet"
     retryTapIfNoChange: true
+# The notice is drawn by the same JavaScript thread that is reading settings,
+# resolving the server and warming the Rust layer, so on a cold runner it can
+# be slow. 30 s was the one impatient wait in a flow whose others are 300 s and
+# 600 s, and it is what failed run 36291652810 on a build that was fine.
 - extendedWaitUntil:
     visible: "Before you start"
-    timeout: 30000
+    timeout: 180000
 - waitForAnimationToEnd:
     timeout: 5000
 - tapOn:
