@@ -1933,7 +1933,7 @@ exports[`Component Settings - test Settings - snapshot 1`] = `
           }
         }
       >
-        Mainnet
+        text translated
       </Text>
     </View>
     <View

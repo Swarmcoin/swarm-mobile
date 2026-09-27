@@ -374,6 +374,19 @@ export const explorerUrlFor = (chain: string | undefined | null): string =>
 export const explorerHostFor = (chain: string | undefined | null): string =>
   serverHost(explorerUrlFor(chain));
 
+const KNOWN_CHAINS: readonly string[] = Object.values(ChainNameEnum);
+
+/**
+ * The translation key that names a chain label on screen, or `undefined` for a
+ * label this app does not know.
+ */
+export const chainNameKey = (
+  chain: string | undefined | null,
+): string | undefined =>
+  chain && KNOWN_CHAINS.includes(chain)
+    ? `settings.value-chainname-${chain}`
+    : undefined;
+
 /**
  * The translation key for the one-line network notice under the app name.
  *
