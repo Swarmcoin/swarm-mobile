@@ -19,7 +19,10 @@
   "terms": {
     "title": "Wallet terms of use",
     "paragraphs": [
-      "Updated 24 September 2026. SWARM Wallet is experimental, self-custody software distributed for testing by S4FE AG. Support is available at swarmofficial@atomicmail.io.",
+      {
+        "swarm-mainnet": "Updated 27 September 2026. SWARM Wallet is self-custody software distributed by S4FE AG. Support is available at swarmofficial@atomicmail.io.",
+        "swarm-testnet": "Updated 24 September 2026. SWARM Wallet is experimental, self-custody software distributed for testing by S4FE AG. Support is available at swarmofficial@atomicmail.io."
+      },
       {
         "swarm-mainnet": "This release connects to SWARM Mainnet, the live SWARM network. The SWM it holds is real and a confirmed transaction is final. You alone hold the keys, and the publisher can neither restore a balance nor reverse a payment.",
         "swarm-testnet": "This build connects to SWARM Testnet. SWM test coins have no monetary value. The test network may reset, change or stop. A test balance creates no entitlement to a coin or network."

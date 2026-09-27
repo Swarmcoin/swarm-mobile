@@ -18,13 +18,8 @@ import {
   riskNoticeParagraphs,
   RISK_NOTICE_TITLE,
 } from '@app/legal';
-import documents from '@app/legal/documents.json';
+import { legalDocument } from '@app/legal/legalDocuments';
 import { TranslateType } from '@app/AppState';
-import {
-  DEFAULT_SWARM_PROFILE,
-  SwarmProfileIdEnum,
-  swarmProfileFor,
-} from '@app/utils/networkProfiles';
 
 type LegalSheetProps = {
   page: LegalLinkIdEnum;
@@ -37,18 +32,6 @@ type LegalSheetProps = {
   onClose: () => void;
 };
 
-// A paragraph that differs by network is stored as one string per profile id.
-const paragraphText = (paragraph: unknown, chain?: string): string => {
-  const id =
-    chain === undefined || chain === null || chain === ''
-      ? DEFAULT_SWARM_PROFILE.id
-      : (swarmProfileFor(chain)?.id ?? SwarmProfileIdEnum.testnet);
-  if (paragraph && typeof paragraph === 'object' && id in paragraph) {
-    return String((paragraph as Record<string, string>)[id]);
-  }
-  return String(paragraph);
-};
-
 export function LegalSheet({
   page,
   chain,
@@ -59,7 +42,7 @@ export function LegalSheet({
   const notices = translate('about.copyright');
   const document =
     page === LegalLinkIdEnum.privacy || page === LegalLinkIdEnum.terms
-      ? documents[page]
+      ? legalDocument(page, chain)
       : page === LegalLinkIdEnum.risks
         ? { title: RISK_NOTICE_TITLE, paragraphs: riskNoticeParagraphs(chain) }
         : {
@@ -100,7 +83,7 @@ export function LegalSheet({
                 selectable
                 style={[styles.paragraph, { color: colors.fgDefault }]}
               >
-                {paragraphText(paragraph, chain).replaceAll('**', '')}
+                {String(paragraph).replaceAll('**', '')}
               </Text>
             ))}
           </ScrollView>
