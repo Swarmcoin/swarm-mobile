@@ -63,14 +63,22 @@ repository:
 
 ## What refuses what
 
-**Addresses** (`app/utils/swarmAddress.ts`). Decided from the string alone, in
-front of the FFI, because this build's vendored `zcash_protocol` gives
-upstream TESTNET's constants SwarmTestnet's unified HRP. So `swarm1…` decodes
-as chain `test` on purpose, and that aliasing must not extend to production. A
-mainnet wallet accepts `swm1…`, `texswm1…`, `zswmsapling1…`, `s1…` and `s3…`;
-it refuses `swarm1…`, `utest1…`, `tm…`, `t2…` (named as SWARM Testnet's) and
-every upstream Zcash encoding (`u1…`, `zs1…`, `t1…`, `t3…`). A testnet wallet
-refuses mainnet's by the same rule.
+**Addresses.** Every recipient check in the app (the Send field, the address
+book, the swap inputs and a scanned QR code) asks the Rust `parse_address` in
+`rust/lib/src/lib.rs` and accepts the address only when the `chain_name` it
+answers is the wallet's own chain (`Utils.isValidAddress`). `parse_address`
+tries the two SWARM chains, `CustomTestnet` and `SwarmMainnet`, and no Zcash
+chain. A mainnet wallet accepts `swm1…`, `texswm1…`, `zswmsapling1…`, `s1…`
+and `s3…`; it refuses `swarm1…`, `utest1…`, `tm…` and `t2…`, which answer
+`swarm-testnet`, and every upstream Zcash encoding (`u1…`, `zs1…`, `t1…`,
+`t3…`), which answers `Invalid address`. A testnet wallet refuses mainnet's by
+the same rule. `rust/lib/src/swarm_prefix_tests.rs` pins these answers and
+`__tests__/swarmMainnet.recipients.unit.test.ts` holds each screen's check to
+them.
+
+The string-only rules in `app/utils/swarmAddress.ts` refuse the same strings
+with a sentence naming the other network. They are tested, and no screen calls
+them yet.
 
 **Servers** (`app/utils/serverIdentity.ts`, wired by
 `app/walletBackend/utils/serverGate.ts`). The indexer is asked which chain it
@@ -130,6 +138,18 @@ run URLs and the artifact hashes.
 - `SWARM Android`: lint, `tsc --noEmit`, the full jest suite, the Rust
   library for `armeabi-v7a`, `arm64-v8a` and `x86_64`, the branding and
   listing guards, and a debug-signed APK.
+- Mainnet recipients, from `0.2.0-mainnet.2`: the Rust job runs
+  `swarm_prefix_tests`, which parse the live FUEL payout address
+  `swm1q4q6yr3r…xqe5gv`, `s1UsiRFq4FrtHUbHobXxssCN7EVCcu9GvFk`, the vendored
+  crate's `s1`/`s3`/`texswm` vectors and the addresses a mainnet wallet
+  derives, and refuse the testnet's and Zcash's. The emulator smoke test types
+  the two mainnet addresses and Zcash's `t1…` into the Send field of the fresh
+  wallet and reads the check or the error the screen shows.
+- Mainnet wording, from `0.2.0-mainnet.2`:
+  `__tests__/mainnetWording.unit.test.ts` reads the risk notice, the privacy
+  policy and the terms as a mainnet wallet shows them, the mainnet profile and
+  every translation that names no other network, and fails on test-network
+  wording. The testnet texts are held to their own sentences.
 - `SWARM iOS`: the Rust xcframework and the simulator build.
 
 ## What this build still gets wrong, and who must fix it
@@ -145,11 +165,33 @@ disagree until the owner publishes the mainnet text.
 the App Store description were not touched.
 
 **The explorer follows the chain.** Each network profile carries its own site:
-`mainnet.explore.swarm.green` on SWARM Mainnet, `explore.swarm.green` on the
-engineering testnet. `Utils.getBlockExplorerTxIDURL` reads the profile and the
-Settings row shows the host of the network the wallet is on. Both hosts
-answered 200 on 2026-09-27. How completely the mainnet site indexes the chain
+`mainnet.explore.swarm.green` on SWARM Mainnet, `testnet.explore.swarm.green`
+on the engineering testnet. `Utils.getBlockExplorerTxIDURL` reads the profile
+and the Settings row shows the host of the network the wallet is on. Until
+`0.2.0-mainnet.2` the transaction link was `<explorer>/tx/<txid>`, which both
+sites answer with 404. It is `<explorer>/transactions/<txid>` now, the path
+both sites serve with 200, checked on 2026-09-27 against a live mainnet and a
+live testnet transaction. How completely the mainnet site indexes the chain
 was not measured.
+
+**The legal pages carry the iOS text.** The privacy policy and the terms
+shown in About describe "the SWARM Wallet iOS beta" and TestFlight on Android
+too. They are reproduced from the vault's iOS legal set and from
+swarm.green/wallet. An Android wording is the owner's to approve.
+
+**The terms on mainnet were reworded in `0.2.0-mainnet.2`.** Their first
+paragraph read "experimental, self-custody software distributed for testing"
+on every network. A mainnet wallet now reads "self-custody software
+distributed by S4FE AG", and the testnet keeps the old sentence. The published
+page at swarm.green/wallet/terms still carries the old sentence.
+
+**Background sync opens a mainnet wallet with the label, not the hint.**
+`BackgroundSyncWorker.kt` (Android) and `AppDelegate.swift` (iOS) read
+`server.chainName` from `settings.json` and pass it to the native loader as
+the chain hint. For `swarm-mainnet` the loader refuses the bare label, so the
+nightly background sync fails on every mainnet wallet and the Sync report
+shows the refusal. The foreground sync is unaffected. The fix is to look the
+hint up in `swarm_network_identity()`, which carries both.
 
 **The Nym mixnet stays off on mainnet.** No mixnet send has been demonstrated
 end to end against any SWARM indexer, and on mainnet a send that silently
