@@ -9,7 +9,8 @@
 # catches the same shape of defect here. The fresh wallet then types two SWARM
 # Mainnet addresses and one Zcash address into its Send field, because the
 # desktop wallet also shipped a mainnet build that refused every mainnet
-# recipient.
+# recipient. The app's sockets are sampled from launch for at least five
+# minutes, and any remote host other than the mainnet indexer fails the run.
 #
 # The default server is the FIRST entry of `app/uris/serverUris.ts`, with a
 # matching copy in `rust/lib/src/lib.rs` (SWARM_MAINNET_SERVER_URI). A build
@@ -29,9 +30,17 @@ DEFAULT_HOST="lwd-main.swarm.green"
 DEFAULT_PORT="8443"
 OUT="smoke-out/$LABEL"
 mkdir -p "$OUT"
-# The log from launch to the last assertion, kept whatever the outcome. The
-# early capture below only covers the first minute after launch.
-trap 'adb logcat -d > "$OUT/logcat-end.txt" 2>&1 || true' EXIT
+# The log from launch to the last assertion is kept whatever the outcome, and
+# the socket sampler stops with the script. The early capture below only
+# covers the first minute after launch.
+SAMPLER_PID=""
+on_exit() {
+  if [ -n "$SAMPLER_PID" ]; then
+    kill "$SAMPLER_PID" 2>/dev/null || true
+  fi
+  adb logcat -d > "$OUT/logcat-end.txt" 2>&1 || true
+}
+trap on_exit EXIT
 
 echo "=== Emulator ($LABEL) ==="
 adb devices
@@ -67,6 +76,23 @@ adb install -g "$APK"
 
 # A fresh log, so anything captured below belongs to this launch.
 adb logcat -c || true
+
+# Every TCP socket the app holds is sampled from launch to the host verdict,
+# at least five minutes, so the run can name each remote host the app reached.
+APP_UID="$(adb shell pm list packages -U "$APP_ID" | tr -d '\r' | sed -n 's/.*uid:\([0-9]*\).*/\1/p' | head -1)"
+SAMPLE_START=$(date +%s)
+SAMPLE_MIN=$(( SAMPLE_START + 300 ))
+SAMPLE_UNTIL=$(( SAMPLE_START + 900 ))
+sample_sockets() {
+  while [ "$(date +%s)" -lt "$SAMPLE_UNTIL" ]; do
+    { echo "# $(date +%s)"; adb shell cat /proc/net/tcp /proc/net/tcp6 2>&1 || true; } \
+      >> "$OUT/net-samples.txt"
+    sleep 2
+  done
+}
+echo "  app uid $APP_UID; its sockets are sampled from $(date -u -d "@$SAMPLE_START" +%H:%M:%S) UTC"
+sample_sockets &
+SAMPLER_PID=$!
 
 echo "=== Launching $APP_ID ==="
 adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1 >/dev/null
@@ -187,6 +213,40 @@ ui_tap() {
     return 0
   fi
   return 1
+}
+
+# Prints every text the current dump shows, top to bottom.
+screen_text() {
+  python3 -c 'import sys, xml.etree.ElementTree as ET
+for node in ET.parse(sys.argv[1]).getroot().iter("node"):
+    text = node.get("text", "").strip()
+    if text:
+        print(text)' "$DUMP"
+}
+
+# Opens the Sync report from the header status icon and keeps what it says.
+capture_sync_report() {
+  local name="$1" icon
+  ui_dump || true
+  for icon in header.checkicon header.playicon header.wifiicon; do
+    if ui_has "$icon" && ui_tap "$icon"; then
+      sleep 3
+      ui_dump || true
+      cp "$DUMP" "$OUT/ui-$name.xml" 2>/dev/null || true
+      screen_text > "$OUT/$name.txt" || true
+      shot "$name"
+      adb shell input swipe 540 1600 540 600 300 >/dev/null 2>&1 || true
+      sleep 2
+      ui_dump || true
+      screen_text >> "$OUT/$name.txt" || true
+      echo "  $name ($(date -u +%H:%M:%S) UTC):"
+      sed 's/^/    | /' "$OUT/$name.txt"
+      adb shell input keyevent KEYCODE_BACK
+      sleep 2
+      return 0
+    fi
+  done
+  echo "  note: no header status icon to open the Sync report from ($name)"
 }
 
 shot() {
@@ -437,6 +497,9 @@ else
   echo "            being pre-set on a fresh install was, and it passed."
 fi
 
+echo "=== Sync report after the connection check ==="
+capture_sync_report sync-report-early
+
 echo "=== SWARM Mainnet recipients in Send ==="
 
 # The desktop wallet shipped mainnet builds whose Send field refused every
@@ -559,6 +622,86 @@ else
   cp "$DUMP" "$OUT/ui-send-unreached.xml" 2>/dev/null || true
   shot send-unreached
 fi
+
+echo "=== The addresses this wallet shows on Receive ==="
+
+# Best effort, never fatal: the fresh wallet's own shielded and transparent
+# addresses, read in full from the expanded-address sheet, so another
+# wallet's parser can be tested against what this build generates. The
+# wallet is a throwaway and is never funded.
+own_address() {
+  local needle="$1" name="$2" pattern="$3" found
+  ui_dump || return 0
+  if ! ui_tap "$needle"; then
+    echo "  note: no $name address on screen"
+    return 0
+  fi
+  sleep 2
+  ui_dump || return 0
+  cp "$DUMP" "$OUT/ui-own-$name.xml" 2>/dev/null || true
+  shot "own-$name"
+  found="$(grep -oE "$pattern" "$DUMP" | head -1 || true)"
+  echo "  $name: ${found:-not read}" | tee -a "$OUT/own-addresses.txt"
+  adb shell input keyevent KEYCODE_BACK
+  sleep 2
+}
+
+ui_dump || true
+if ui_tap 'tab.receive'; then
+  sleep 3
+  shot receive-shielded
+  own_address 'receive.unified-address' shielded 'swm1[02-9ac-hj-np-z]{60,}'
+  ui_dump || true
+  if ui_tap 'Shielded Address'; then
+    ui_dump || true
+    ui_tap 'Transparent Address' || true
+    ui_dump || true
+    ui_tap 'I understand' || true
+    sleep 2
+    shot receive-transparent
+    own_address 's1' transparent 's[13][1-9A-HJ-NP-Za-km-z]{33}'
+  else
+    echo "  note: the address kind picker was not on screen"
+  fi
+  ui_tap 'tab.history' || true
+else
+  echo "  note: the Receive tab was not on screen"
+fi
+
+echo "=== Remote hosts from launch to here ==="
+
+# SWARM Mainnet offers no mixnet, so the app has no business with Nym's
+# validators, gateways or DNS-over-HTTPS resolver, or with the Zcash indexer
+# the Nym health check dials. The indexer is the only remote host allowed.
+while [ "$(date +%s)" -lt "$SAMPLE_MIN" ]; do
+  sleep 5
+done
+kill "$SAMPLER_PID" 2>/dev/null || true
+wait "$SAMPLER_PID" 2>/dev/null || true
+SAMPLER_PID=""
+echo "  sampled $(( $(date +%s) - SAMPLE_START )) s from launch"
+capture_sync_report sync-report-5min
+adb logcat -d > "$OUT/logcat-5min.txt" 2>&1 || true
+NYM_LINES="$(grep -c 'MixnetProxy' "$OUT/logcat-5min.txt" || true)"
+if python3 scripts/swarm_remote_hosts.py "$OUT/net-samples.txt" "$APP_UID" \
+    "$DEFAULT_HOST:$DEFAULT_PORT" > "$OUT/remote-hosts.txt"; then
+  HOSTS_RC=0
+else
+  HOSTS_RC=$?
+fi
+sed 's/^/  /' "$OUT/remote-hosts.txt"
+echo "  Nym proxy log lines (MixnetProxy) since launch: $NYM_LINES"
+if [ "$NYM_LINES" != "0" ]; then
+  echo "FAIL: the Nym transport ran on SWARM Mainnet." >&2
+  grep -m 20 'MixnetProxy' "$OUT/logcat-5min.txt" >&2 || true
+  exit 1
+fi
+case "$HOSTS_RC" in
+  0) echo "ok: in five minutes the app reached $DEFAULT_HOST:$DEFAULT_PORT and no other host" ;;
+  2) echo "NOT PROVEN: no socket of the app was read, see $OUT/net-samples.txt" ;;
+  *) echo "FAIL: the app reached a host other than $DEFAULT_HOST:$DEFAULT_PORT." >&2
+     exit 1 ;;
+esac
 
 if [ -n "$CONNECTION_FAILURE" ]; then
   echo "FAIL: $CONNECTION_FAILURE" >&2
