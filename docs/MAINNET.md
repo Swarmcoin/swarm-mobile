@@ -1,6 +1,6 @@
 # SWARM Wallet on mainnet
 
-Updated 27 September 2026 for the iOS 0.2.0 release.
+Updated 28 September 2026 for the iOS 0.2.0 release.
 
 ## The contract
 
@@ -62,7 +62,7 @@ and `swarm1…` addresses. Its genesis is
 `045993f5c91ea160c7ebda573dd97b0016816bca68d395bfff202779b88e2a28`.
 Its balances belong to that network.
 
-## Verification
+## Build 1044 verification
 
 The release source is `ba055bba39d1b28472425223053004ff249f5437`.
 
@@ -89,6 +89,19 @@ existing S4FE AG signing setup. The App Store and
 TestFlight descriptions describe the mainnet iPhone wallet. The test notes
 explain how an existing tester opens mainnet onboarding.
 
-Nym transport remains disabled on both SWARM networks pending a confirmed
-payment through that transport. Funded mainnet payment testing requires a
-physical-device test after installation.
+## Latest mainnet changes
+
+The release branch includes upstream changes through `cf56befc8`.
+Recipient checks cover unified, transparent, TEX and Sapling addresses on
+mainnet. They reject addresses from a different network. Transaction links
+use the explorers' `/transactions/<txid>` route. Settings names the selected
+SWARM network, and the terms use its corresponding text.
+
+The backend now prevents Nym transport startup on either SWARM network and
+sets the native transmit policy to clearnet. Earlier builds disabled the Nym
+controls while the backend could still start the transport. The new regression
+tests cover startup and reconnection. Android's runtime check records remote
+hosts from launch and permits the production indexer on port 8443.
+
+Funded mainnet payment testing requires a physical-device test after
+installation. The next signed iOS build is being prepared with these changes.

@@ -29,7 +29,7 @@ scripts/store/
 | App Store | screenshot | 1 to 10 per size class | same |
 | App Store | `name.txt` ≤ 30, `subtitle.txt` ≤ 30, `keywords.txt` ≤ 100, `promotional_text.txt` ≤ 170, `description.txt` ≤ 4,000, `release_notes.txt` ≤ 4,000 | Apple's field limits | App Store Connect help |
 | App Store | support and privacy URLs | must be `https://` and must exist before submission | Apple, guideline 2.1 |
-| Play | icon | 512×512, 32-bit PNG, opaque | Play Console help |
+| Play | icon | 512×512, no alpha channel (a full square with no transparency; Play masks the corners itself) | Play Console help; Google Play icon design specifications |
 | Play | feature graphic | 1024×500, 24-bit PNG or JPEG, opaque | same |
 | Play | phone screenshot | 2 to 8 per locale, each side 320–3840 px, long side at most twice the short side | same |
 | Play | `title.txt` ≤ 30, `short_description.txt` ≤ 80, `full_description.txt` ≤ 4,000, `changelogs/<n>.txt` ≤ 500 | Play's field limits | same |

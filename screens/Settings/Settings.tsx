@@ -89,7 +89,7 @@ import BottomSheet, {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { hasRecoveryWalletInfo } from '@app/services/recoveryWalletInfo';
-import { explorerHostFor } from '@app/utils/networkProfiles';
+import { chainNameKey, explorerHostFor } from '@app/utils/networkProfiles';
 import { useFullSheetSnapPoints } from '@app/hooks/useFullSheetSnapPoints';
 import { useKeyboardHeight } from '@app/hooks/useKeyboardHeight';
 import { useDismissSheetsOnBlur } from '@app/hooks/useDismissSheetsOnBlur';
@@ -526,6 +526,12 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
   // its version is not readable without connecting, so it's left empty for a
   // not-yet-connected server and the version row is hidden.
   const [selectedInfo, setSelectedInfo] = useState<InfoType>(info);
+  const networkLabel = (chain: string): string => {
+    const key = chainNameKey(chain);
+    return key
+      ? (translate(key) as string)
+      : `${translate('info.unknown') as string} (${chain})`;
+  };
   // Whether the selected server responded: null = not checked / checking,
   // true = reachable, false = unreachable or invalid URI.
   const [selectedServerActive, setSelectedServerActive] = useState<
@@ -2429,17 +2435,7 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
                   label: translate('info.network') as string,
                   value: !selectedInfo.chainName
                     ? '-'
-                    : selectedInfo.chainName === ChainNameEnum.mainChainName
-                      ? 'Mainnet'
-                      : selectedInfo.chainName === ChainNameEnum.testChainName
-                        ? 'Testnet'
-                        : selectedInfo.chainName ===
-                            ChainNameEnum.regtestChainName
-                          ? 'Regtest'
-                          : (translate('info.unknown') as string) +
-                            ' (' +
-                            selectedInfo.chainName +
-                            ')',
+                    : networkLabel(selectedInfo.chainName),
                 },
                 {
                   label: translate('info.serverblock') as string,

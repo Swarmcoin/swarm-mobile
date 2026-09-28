@@ -30,7 +30,8 @@ export type WalletBackendConfig = {
   onMixnetViewChanged: (view: MixnetView) => void;
   startMixnetTransport: StartMixnetTransport;
   transmitPolicy: TransmitPolicy;
-  // Tests inject false to keep the coordinator unstarted.
+  // Whether this build ships the Nym transport; tests inject false. The
+  // backend starts it only on a chain that offers the mixnet.
   mixnetSupported: boolean;
   keepAwake: (keep: boolean) => void;
   readOnly: boolean;
