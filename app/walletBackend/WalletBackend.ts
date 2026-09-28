@@ -3,7 +3,8 @@ import { WalletBackendConfig } from './config/WalletBackendConfig';
 import { RPCPerformanceLevelEnum } from './enums/RPCPerformanceLevelEnum';
 import { DataService } from './modules/DataService';
 import { MixnetCoordinator } from './modules/MixnetCoordinator';
-import { TransmitPolicy } from './utils/mixnetUtils';
+import { mixnetAvailableOnChain } from './transforms/mixnetAvailability';
+import { TransmitPolicy, setTransmitPolicy } from './utils/mixnetUtils';
 import { SyncCoordinator } from './modules/SyncCoordinator';
 import { TransactionService } from './modules/TransactionService';
 import { WalletLifecycleService } from './modules/WalletLifecycleService';
@@ -38,13 +39,34 @@ export default class WalletBackend {
     this.walletLifecycle = new WalletLifecycleService(this.syncCoordinator);
   }
 
+  // Whether the Nym transport may run for the chain the wallet is on now.
+  private mixnetOffered(): boolean {
+    return (
+      this.config.mixnetSupported &&
+      mixnetAvailableOnChain(this.config.server.chainName)
+    );
+  }
+
   // The mixnet bootstrap is not awaited because it takes tens of seconds.
+  // Where the mixnet is not offered nothing starts it, and each session is
+  // told to transmit over clearnet: the library refuses a send under its
+  // default policy, the mixnet, until a transport is ready.
   async configure() {
-    if (this.config.mixnetSupported && !this.mixnetArmed) {
+    if (!this.mixnetOffered()) {
+      await this.transmitOverClearnet();
+    } else if (!this.mixnetArmed) {
       this.mixnetArmed = true;
       this.mixnetCoordinator.ensureForConnectedSession();
     }
     return this.syncCoordinator.configure();
+  }
+
+  private async transmitOverClearnet(): Promise<void> {
+    try {
+      await setTransmitPolicy('clearnet');
+    } catch (error) {
+      this.config.onError(`Transmit policy: ${error}`);
+    }
   }
   async clearTimers() {
     return this.syncCoordinator.clearTimers();
@@ -71,6 +93,9 @@ export default class WalletBackend {
   }
 
   async reenableMixnet() {
+    if (!this.mixnetOffered()) {
+      return;
+    }
     return this.mixnetCoordinator.reenable();
   }
   async setTransmitPolicy(policy: TransmitPolicy) {
