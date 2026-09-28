@@ -198,6 +198,20 @@ end to end against any SWARM indexer, and on mainnet a send that silently
 leaves the mixnet is a real payment. `mixnetAvailability.ts` lists neither
 SWARM chain.
 
+Until `0.2.0-mainnet.3` that list hid the mixnet's switches and nothing more.
+`WalletBackend.configure()` started the Nym transport on every chain: the
+emulator log of run 36364054489 shows the app reaching `validator.nymtech.net`,
+`cloudflare-dns.com` and a Nym gateway, sending the SDK's attach health check
+through the mixnet to the Zcash indexer `zec.rocks:443`, and then streaming
+cover traffic, about 80 KiB/s down and 140 KiB/s up, for as long as the app
+ran. From `0.2.0-mainnet.3` the backend starts the transport only on a chain
+the list offers, re-enabling it is a no-op elsewhere, and each session on a
+SWARM chain is told to transmit over clearnet. The library's default policy is
+the mixnet, under which it refuses a send until a transport is ready, and the
+transport's start was what used to set clearnet. The emulator smoke test
+samples the app's sockets from launch for at least five minutes and fails on
+any remote host other than `lwd-main.swarm.green:8443`.
+
 ## Not done here, and why
 
 **TestFlight.** The signed-archive job in `.github/workflows/swarm-ios.yml`
