@@ -82,12 +82,17 @@ See `docs/ios/TESTFLIGHT-MAINNET-2026-09-27.md` for the signed release status.
 
 ## Distribution
 
-[Build 1044](https://github.com/Swarm-Official/swarm-mobile/actions/runs/36320428820)
+[Build 1050](https://github.com/Swarm-Official/swarm-mobile/actions/runs/36373320306)
 is available to the SWARM Internal TestFlight group as version 0.2.0.
 Apple processing and all five release jobs passed. The release uses the
 existing S4FE AG signing setup. The App Store and
 TestFlight descriptions describe the mainnet iPhone wallet. The test notes
 explain how an existing tester opens mainnet onboarding.
+
+See `docs/ios/TESTFLIGHT-MAINNET-2026-09-28.md` for the signed package checksum,
+Apple build ID and simulator evidence. Build 1050 passed 710 JavaScript tests,
+95 snapshots and the hosted native checks. The simulator completed wallet
+creation, Send, Receive, wallet switching and reopening after a restart.
 
 ## Latest mainnet changes
 
@@ -103,5 +108,5 @@ controls while the backend could still start the transport. The new regression
 tests cover startup and reconnection. Android's runtime check records remote
 hosts from launch and permits the production indexer on port 8443.
 
-Funded mainnet payment testing requires a physical-device test after
-installation. The next signed iOS build is being prepared with these changes.
+Build 1050 includes these changes and is available in TestFlight. Funded
+mainnet payment testing requires a physical-device test after installation.
