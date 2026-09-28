@@ -186,13 +186,19 @@ on every network. A mainnet wallet now reads "self-custody software
 distributed by S4FE AG", and the testnet keeps the old sentence. The published
 page at swarm.green/wallet/terms still carries the old sentence.
 
-**Background sync opens a mainnet wallet with the label, not the hint.**
-`BackgroundSyncWorker.kt` (Android) and `AppDelegate.swift` (iOS) read
-`server.chainName` from `settings.json` and pass it to the native loader as
-the chain hint. For `swarm-mainnet` the loader refuses the bare label, so the
-nightly background sync fails on every mainnet wallet and the Sync report
-shows the refusal. The foreground sync is unaffected. The fix is to look the
-hint up in `swarm_network_identity()`, which carries both.
+**Background sync opened a mainnet wallet with the label, not the hint,
+until `0.2.0-mainnet.4`.** `BackgroundSyncWorker.kt` (Android) and
+`AppDelegate.swift` (iOS) read `server.chainName` from `settings.json` and
+passed it to the native loader as the chain hint. For `swarm-mainnet` the
+loader refuses the bare label, so the nightly background sync failed on every
+mainnet wallet. The foreground sync was unaffected. Both loaders now look the
+hint up in `swarm_network_identity()`, which lists each SWARM network's label
+beside its hint, and pass any label it does not list through unchanged, as
+`nativeChainHint` does in JS. `SwarmChainHintTest` (JVM, run by the
+`Kotlin JVM unit tests` job) tests the Android mapping, and
+`__tests__/backgroundSyncChainHint.unit.test.ts` fails if either loader passes
+the stored label to the library again. The fix has not been watched running on
+a device: WorkManager does not run a periodic task before its schedule.
 
 **A fresh wallet's first sync shows no progress for minutes.** The mainnet
 indexer collects every requested block below height ~1000 before it sends the
