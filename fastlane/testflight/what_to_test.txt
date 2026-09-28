@@ -1,5 +1,7 @@
 SWARM Wallet 0.2.0 connects to SWARM Mainnet.
 
+This update includes the latest mainnet recipient checks, working transaction explorer links, clear network names in Settings, and mainnet terms. It prevents the Nym transport from starting on SWARM networks and uses the direct SWARM connection for payments.
+
 For an existing installation, open the wallet selector and choose "Create or restore on SWARM Mainnet". Save the recovery phrase for the new wallet. Existing testnet wallets remain in the selector with their original balances and network. Testnet balances do not become mainnet funds.
 
 Check wallet creation and restoration, the swm1 receive address and QR code, address copying, QR scanning, Send, transaction history, memos, the address book, and device authentication. Check that each saved wallet reopens after closing the app and that switching wallets selects its network.
