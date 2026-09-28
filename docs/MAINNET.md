@@ -194,6 +194,14 @@ nightly background sync fails on every mainnet wallet and the Sync report
 shows the refusal. The foreground sync is unaffected. The fix is to look the
 hint up in `swarm_network_identity()`, which carries both.
 
+**A fresh wallet's first sync shows no progress for minutes.** The mainnet
+indexer collects every requested block below height ~1000 before it sends the
+first one, and the first sync session of a fresh wallet times out on it. The
+condition is lwd-main's, it affects the desktop wallet too, and the fix belongs
+to the indexer. Every emulator run from 00:05 UTC on 2026-09-28 met it,
+including a re-run of the green `e64b06024` build. The smoke test reports it as
+a warning and fails on every other check.
+
 **The Nym mixnet stays off on mainnet.** No mixnet send has been demonstrated
 end to end against any SWARM indexer, and on mainnet a send that silently
 leaves the mixnet is a real payment. `mixnetAvailability.ts` lists neither
