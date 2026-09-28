@@ -260,7 +260,7 @@ class BackgroundSyncWorker(private val context: Context, workerParams: WorkerPar
             val settingsString = settingsBytes.toString(Charsets.UTF_8)
             val jsonObject = JSONObject(settingsString)
             val serveruri = jsonObject.getJSONObject("server").getString("uri")
-            val chainhint = jsonObject.getJSONObject("server").getString("chainName")
+            val chainName = jsonObject.getJSONObject("server").getString("chainName")
             if (serveruri.isEmpty()) {
                 Log.i(
                     "SCHEDULED_TASK_RUN",
@@ -269,6 +269,7 @@ class BackgroundSyncWorker(private val context: Context, workerParams: WorkerPar
                 shouldSync = false
                 return@use
             }
+            val chainhint = chainHintFor(chainName, uniffi.zingo.swarmNetworkIdentity())
             Log.i(
                 "SCHEDULED_TASK_RUN",
                 "Opening the wallet file - No App active - serveruri: $serveruri chain: $chainhint"

@@ -658,7 +658,7 @@ extension AppDelegate {
               let jsonObject = try? JSONSerialization.jsonObject(with: contentData, options: []) as? [String: Any],
               let server = jsonObject["server"] as? [String: Any],
               let serveruri = server["uri"] as? String,
-              let chainhint = server["chainName"] as? String else {
+              let chainName = server["chainName"] as? String else {
             NSLog("Error: Unable to parse JSON object from file at path \(fileName)")
             return .failed("unable to parse settings.json")
         }
@@ -668,15 +668,28 @@ extension AppDelegate {
             return .offline
         }
 
-        NSLog("Opening the wallet file - No App active - serveruri: \(serveruri) chain: \(chainhint)")
         let rpcmodule = RPCModule()
         do {
+          let chainhint = try swarmChainHint(for: chainName)
+          NSLog("Opening the wallet file - No App active - serveruri: \(serveruri) chain: \(chainhint)")
           _ = try rpcmodule.fnLoadExistingWallet(serveruri: serveruri, chainhint: chainhint, performancelevel: "Medium", minconfirmations: "3")
         } catch {
           NSLog("Error: Unable to load the wallet. error: \(error.localizedDescription)")
           return .failed(error.localizedDescription)
         }
         return .loaded
+    }
+
+    /// The chain hint the library's network identity lists for `label`, or the label itself for a chain it does not list.
+    private func swarmChainHint(for label: String) throws -> String {
+        let identity = try swarmNetworkIdentity()
+        guard let data = identity.data(using: .utf8),
+              let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let networks = json["networks"] as? [[String: Any]] else {
+            throw NSError(domain: "SwarmChainHint", code: 1, userInfo: [NSLocalizedDescriptionKey: "the network identity lists no networks"])
+        }
+        let network = networks.first { $0["chain_label"] as? String == label }
+        return network?["chain_hint"] as? String ?? label
     }
 
     func cancelExecutingTask() {

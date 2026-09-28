@@ -454,6 +454,8 @@ dependencies {
 
     // JVM unit tests for pure logic (no device or emulator)
     testImplementation("junit:junit:4.13.2")
+    // The platform org.json is a stub on the JVM. SwarmChainHintTest parses real JSON.
+    testImplementation("org.json:json:20231013")
 
     // JUnit test runners; the instrumented sources use the JUnit 4 API and
     // the androidx.test runner/rules directly.
