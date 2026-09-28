@@ -29,6 +29,9 @@ DEFAULT_HOST="lwd-main.swarm.green"
 DEFAULT_PORT="8443"
 OUT="smoke-out/$LABEL"
 mkdir -p "$OUT"
+# The log from launch to the last assertion, kept whatever the outcome. The
+# early capture below only covers the first minute after launch.
+trap 'adb logcat -d > "$OUT/logcat-end.txt" 2>&1 || true' EXIT
 
 echo "=== Emulator ($LABEL) ==="
 adb devices
@@ -416,16 +419,17 @@ if [ "$SERVER_SEEN" != "yes" ]; then
 fi
 echo "ok: a fresh install already holds $DEFAULT_SERVER, with no user action"
 
+# A missing sync state fails the run after the Send check, which reads the
+# address parser and needs no sync.
+CONNECTION_FAILURE=""
 if [ "$SERVER_REACHABLE" = "yes" ]; then
   case "$STATUS" in
     header.checkicon|header.playicon|header.wifiicon|"sync text")
       echo "ok: the app reports a connected state ($STATUS)" ;;
     header.offlineicon)
-      echo "FAIL: the server answers this runner, and the app says Offline." >&2
-      exit 1 ;;
+      CONNECTION_FAILURE="the server answers this runner, and the app says Offline." ;;
     *)
-      echo "FAIL: the server answers this runner, and the app reports no sync state." >&2
-      exit 1 ;;
+      CONNECTION_FAILURE="the server answers this runner, and the app reports no sync state." ;;
   esac
 else
   echo "NOT PROVEN: $DEFAULT_SERVER does not answer this runner (HTTP $HTTP_CODE),"
@@ -526,6 +530,11 @@ else
   echo "NOT PROVEN: the Send field was not reached, so no recipient was typed."
   cp "$DUMP" "$OUT/ui-send-unreached.xml" 2>/dev/null || true
   shot send-unreached
+fi
+
+if [ -n "$CONNECTION_FAILURE" ]; then
+  echo "FAIL: $CONNECTION_FAILURE" >&2
+  exit 1
 fi
 
 echo "=== SWARM smoke test passed ($LABEL) ==="
