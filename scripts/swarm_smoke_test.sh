@@ -472,25 +472,53 @@ clear_recipient() {
   sleep 2
 }
 
-# Types `address` into the emptied field and sets VERDICT to what the screen
-# shows. The last character goes in on its own, after the verdicts on the
-# partial address have settled, so the one left on screen is the verdict on
-# the whole address. A refusal is read until the window closes, because the
+# Prints the text the Send address field holds in the current dump.
+send_field_text() {
+  python3 -c 'import sys, xml.etree.ElementTree as ET
+for node in ET.parse(sys.argv[1]).getroot().iter("node"):
+    if node.get("resource-id") == "send.addressplaceholder":
+        print(node.get("text", ""))
+        break' "$DUMP"
+}
+
+# Types `address` a few characters at a time. The field is a controlled
+# input, and a 108-character burst of key events lost 25 of them in run
+# 36364054489.
+type_address() {
+  local address="$1" chunk="$2" i
+  for ((i = 0; i < ${#address}; i += chunk)); do
+    adb shell input text "${address:i:chunk}"
+    sleep 1
+  done
+}
+
+# Types `address` into the emptied field, checks that the field holds exactly
+# that string, and sets VERDICT to what the screen then shows. A prefix of an
+# address never passes its checksum, so a check mark is the verdict on the
+# whole address. A refusal is read until the window closes, because the
 # partial address was refused a moment earlier.
 recipient_verdict() {
-  local address="$1" label="$2"
+  local address="$1" label="$2" typed="" chunk
   VERDICT="field not reached"
-  clear_recipient || return 0
-  adb shell input text "${address%?}"
-  sleep 4
-  adb shell input text "${address: -1}"
-  VERDICT="none shown"
-  for _ in $(seq 1 10); do
+  for chunk in 6 2; do
+    clear_recipient || return 0
+    type_address "$address" "$chunk"
     sleep 2
     ui_dump || continue
-    if ui_has 'send.address.check'; then VERDICT="accepted"; break; fi
-    if ui_has 'send.address.error'; then VERDICT="refused"; fi
+    typed="$(send_field_text)"
+    if [ "$typed" = "$address" ]; then break; fi
   done
+  if [ "$typed" != "$address" ]; then
+    VERDICT="input mismatch, the field holds '$typed'"
+  else
+    VERDICT="none shown"
+    for _ in $(seq 1 10); do
+      if ui_has 'send.address.check'; then VERDICT="accepted"; break; fi
+      if ui_has 'send.address.error'; then VERDICT="refused"; fi
+      sleep 2
+      ui_dump || true
+    done
+  fi
   cp "$DUMP" "$OUT/ui-send-$label.xml" 2>/dev/null || true
   shot "send-$label"
   echo "  $label $address: $VERDICT" | tee -a "$OUT/send-verdicts.txt"
