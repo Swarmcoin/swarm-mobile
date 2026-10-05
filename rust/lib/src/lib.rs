@@ -90,16 +90,16 @@ pub const SWARM_DEFAULT_SERVER_URI: &str = SWARM_TESTNET_SERVER_URI;
 pub const SWARM_MAINNET_LABEL: &str = SWARM_MAINNET_NAME;
 
 /// SWARM: the genesis block hash of the production network, in the display
-/// order a node prints, as the launch ceremony produced it.
+/// order a node prints, as the 2026-10-02 restart produced it.
 ///
 /// `ChainType::SwarmMainnet` carries this hash and the SDK gives it no default,
 /// deliberately: a wallet that cannot name its chain's first block cannot tell
 /// a real SWARM server from any other chain answering to the same label.
 pub const SWARM_MAINNET_GENESIS: &str =
-    "01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd";
+    "01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2";
 
 /// SWARM: the production indexer, and the server a mainnet wallet starts on.
-pub const SWARM_MAINNET_SERVER_URI: &str = "https://lwd-main.swarm.green:8443";
+pub const SWARM_MAINNET_SERVER_URI: &str = "https://lwd-main.swarm.green:443";
 
 /// The chain HINT for SWARM production: the label, a colon, and the genesis.
 ///

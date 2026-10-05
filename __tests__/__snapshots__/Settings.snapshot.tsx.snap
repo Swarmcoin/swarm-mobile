@@ -859,7 +859,7 @@ exports[`Component Settings - test Settings - snapshot 1`] = `
                     }
                   }
                 >
-                  https://lwd-main.swarm.green:8443
+                  https://lwd-main.swarm.green:443
                 </Text>
               </View>
               <
@@ -1895,7 +1895,7 @@ exports[`Component Settings - test Settings - snapshot 1`] = `
           }
         }
       >
-        https://lwd-main.swarm.green:8443
+        https://lwd-main.swarm.green:443
       </Text>
     </View>
     <View
@@ -2185,7 +2185,7 @@ exports[`Component Settings - test Settings - snapshot 1`] = `
             }
           }
         >
-          https://lwd-main.swarm.green:8443
+          https://lwd-main.swarm.green:443
         </Text>
       </View>
     </View>

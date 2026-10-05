@@ -41,8 +41,9 @@ concurrency:
 
 env:
   # The SWARM app version. This round is the fifth MAINNET build: the wallet
-  # opens on SWARM Mainnet (https://lwd-main.swarm.green:8443, genesis
-  # 01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd) and the
+  # opens on SWARM Mainnet (https://lwd-main.swarm.green:443, genesis
+  # 01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2, the chain
+  # restarted on 2026-10-02) and the
   # engineering testnet is a second, clearly-labelled choice. See docs/MAINNET.md.
   # 0.2.0-mainnet.1 was versionCode 4, 0.2.0-mainnet.2 versionCode 5,
   # 0.2.0-mainnet.3 versionCode 6 and 0.2.0-mainnet.4 versionCode 7. A version
@@ -968,7 +969,7 @@ jobs:
       # The APK carries an x86_64 slice, so a stock x86_64 emulator image runs
       # it. Beyond installing, launching and rendering, the test drives the
       # first launch to a wallet and asserts the app already holds
-      # https://lwd-main.swarm.green:8443 with nothing configured by hand - the
+      # https://lwd-main.swarm.green:443 with nothing configured by hand - the
       # defect the desktop wallet shipped as "NOT CONNECTED - No server
       # configured". Whether that server answers the runner is measured in the
       # script rather than assumed either way.

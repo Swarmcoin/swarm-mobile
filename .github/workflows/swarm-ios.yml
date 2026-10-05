@@ -682,7 +682,7 @@ jobs:
       # Earlier unsigned runs reached the iOS passcode sheet, then stayed on
       # "Creating a new wallet" because keychain queries lacked simulator
       # entitlements. The TCP check in run 35909981590 reached
-      # lwd-main.swarm.green:8443. These captures document the runner state. The composer
+      # lwd-main.swarm.green:443. These captures document the runner state. The composer
       # can produce Apple's 6.9-inch class after real wallet screens are captured:
       #   python scripts/store/build_store_art.py --preset ios69 \
       #     --raw <captures> --out fastlane/screenshots/en-US
@@ -748,7 +748,7 @@ jobs:
           print('server.uri       =', uri)
           print('server.chainName =', chain)
           bad = 0
-          expected_uri = 'https://lwd-main.swarm.green:8443'
+          expected_uri = 'https://lwd-main.swarm.green:443'
           if uri != expected_uri:
               print("::error::the fresh install's default server is %r, expected %s. A reviewer would have to choose one" % (uri, expected_uri))
               bad = 1
@@ -1123,7 +1123,7 @@ jobs:
             echo "| simulator device | \`${{ steps.sim.outputs.devicetype }}\` |"
             echo "| bundle identifier | \`${{ steps.launch.outputs.bundle_id }}\` |"
             echo "| running 40 s after launch | \`${{ steps.launch.outputs.alive }}\` |"
-            echo "| default server (fresh install) | \`https://lwd-main.swarm.green:8443\`, asserted from the app container |"
+            echo "| default server (fresh install) | \`https://lwd-main.swarm.green:443\`, asserted from the app container |"
             echo "| wallet created with no user action | \`${{ steps.freshinstall.outputs.wallet_created }}\` |"
             echo "| reached the indexer on the wire | \`${{ steps.wire.outputs.proved }}\` |"
             echo "| Maestro walked to the home screen | \`${{ steps.maestro.outputs.ok }}\` |"

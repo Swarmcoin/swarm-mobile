@@ -53,7 +53,7 @@ const answers: Record<string, object> = {
 };
 
 const mainnetServer: ServerType = {
-  uri: 'https://lwd-main.swarm.green:8443',
+  uri: 'https://lwd-main.swarm.green:443',
   chainName: ChainNameEnum.swarmMainnetChainName,
 };
 

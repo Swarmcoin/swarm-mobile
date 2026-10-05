@@ -143,7 +143,7 @@ type LoadingAppProps = {
 };
 
 // The network a fresh install opens on: the FIRST entry of `serverUris`,
-// which is https://lwd-main.swarm.green:8443 on chain `swarm-mainnet`.
+// which is https://lwd-main.swarm.green:443 on chain `swarm-mainnet`.
 const SERVER_DEFAULT_0: ServerType = {
   uri: serverUris(() => {})[0].uri,
   chainName: serverUris(() => {})[0].chainName,

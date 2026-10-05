@@ -25,9 +25,9 @@ set -euo pipefail
 APK="${1:?usage: swarm_smoke_test.sh <apk> [label]}"
 LABEL="${2:-apk}"
 APP_ID="green.swarm.wallet"
-DEFAULT_SERVER="https://lwd-main.swarm.green:8443"
+DEFAULT_SERVER="https://lwd-main.swarm.green:443"
 DEFAULT_HOST="lwd-main.swarm.green"
-DEFAULT_PORT="8443"
+DEFAULT_PORT="443"
 # The SWARM price service: a fresh mainnet install reads the SWM price there
 # once a minute while the wallet screen is open.
 PRICE_HOST="wallet.swarm.green"
@@ -691,7 +691,7 @@ capture_sync_report sync-report-5min
 adb logcat -d > "$OUT/logcat-5min.txt" 2>&1 || true
 NYM_LINES="$(grep -c 'MixnetProxy' "$OUT/logcat-5min.txt" || true)"
 if python3 scripts/swarm_remote_hosts.py "$OUT/net-samples.txt" "$APP_UID" \
-    "$DEFAULT_HOST:$DEFAULT_PORT" "$PRICE_HOST:$PRICE_PORT"     > "$OUT/remote-hosts.txt"; then
+    "$DEFAULT_HOST:$DEFAULT_PORT" "$PRICE_HOST:$PRICE_PORT" > "$OUT/remote-hosts.txt"; then
   HOSTS_RC=0
 else
   HOSTS_RC=$?

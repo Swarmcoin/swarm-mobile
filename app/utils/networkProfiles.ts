@@ -42,21 +42,30 @@ export enum SwarmProfileIdEnum {
  * The genesis block hash of the SWARM production network, in the display order
  * a node prints.
  *
- * Produced by the launch ceremony and reproduced from the running chain. This
+ * SWARM Mainnet was restarted from this block on 2026-10-02 at 15:41:37 UTC
+ * (network/swarm-mainnet-r2/manifest.json in the SWARM project). This
  * is the value the wallet holds its indexer to and the value that goes into
  * the Rust chain hint; the native layer embeds the same constant
  * (`rust/lib/src/lib.rs`, `SWARM_MAINNET_GENESIS`) and a unit test asserts the
  * two are the same string.
  */
 export const SWARM_MAINNET_GENESIS =
-  '01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd';
+  '01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2';
 
 /** The genesis of the engineering testnet, for the same purpose. */
 export const SWARM_TESTNET_GENESIS =
   '045993f5c91ea160c7ebda573dd97b0016816bca68d395bfff202779b88e2a28';
 
 /** Where a SWARM production wallet looks for its indexer. */
-export const SWARM_MAINNET_SERVER = 'https://lwd-main.swarm.green:8443';
+export const SWARM_MAINNET_SERVER = 'https://lwd-main.swarm.green:443';
+
+/** The genesis of the SWARM Mainnet chain abandoned on 2026-10-02. */
+export const SWARM_MAINNET_ABANDONED_GENESIS =
+  '01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd';
+
+/** The indexer of the abandoned chain, rewritten to the current one wherever it is stored. */
+export const SWARM_MAINNET_ABANDONED_SERVER =
+  'https://lwd-main.swarm.green:8443';
 
 /** Where an engineering-testnet wallet looks for its indexer. */
 export const SWARM_TESTNET_SERVER = 'https://lwd.swarm.green:443';
@@ -225,7 +234,9 @@ export const swarmProfileFor = (
 export const isProfileSelectable = (
   profile: SwarmNetworkProfile | undefined,
 ): boolean =>
-  !!profile && typeof profile.genesis === 'string' && profile.genesis.length > 0;
+  !!profile &&
+  typeof profile.genesis === 'string' &&
+  profile.genesis.length > 0;
 
 /** The profiles a selector may actually offer today. */
 export const selectableSwarmProfiles = (): readonly SwarmNetworkProfile[] =>

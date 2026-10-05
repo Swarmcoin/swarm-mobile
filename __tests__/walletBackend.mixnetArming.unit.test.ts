@@ -42,7 +42,7 @@ function backendOn(chainName: ChainNameEnum) {
     mixnetSupported: true,
     keepAwake: jest.fn(),
     readOnly: false,
-    server: { uri: 'https://lwd-main.swarm.green:8443', chainName },
+    server: { uri: 'https://lwd-main.swarm.green:443', chainName },
     performanceLevel: RPCPerformanceLevelEnum.Medium,
   };
   return { backend: new WalletBackend(config), config, startMixnetTransport };

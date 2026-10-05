@@ -37,7 +37,7 @@ describe('the SWARM networks', () => {
     ]);
     expect(DEFAULT_SWARM_PROFILE).toBe(SWARM_MAINNET_PROFILE);
     expect(serverUris(() => {})[0]).toMatchObject({
-      uri: 'https://lwd-main.swarm.green:8443',
+      uri: 'https://lwd-main.swarm.green:443',
       chainName: ChainNameEnum.swarmMainnetChainName,
       default: true,
     });
@@ -46,7 +46,7 @@ describe('the SWARM networks', () => {
   test('no upstream Zcash server is offered anywhere', () => {
     const uris = serverUris(() => {}).map(s => s.uri);
     expect(uris).toEqual([
-      'https://lwd-main.swarm.green:8443',
+      'https://lwd-main.swarm.green:443',
       'https://lwd.swarm.green:443',
     ]);
     for (const uri of uris) {
@@ -156,7 +156,7 @@ describe('the server this wallet will talk to', () => {
     expect(
       checkServerIdentityForChain('swarm-mainnet', {
         chain_name: 'swarm-mainnet',
-        server_uri: 'https://lwd-main.swarm.green:8443',
+        server_uri: 'https://lwd-main.swarm.green:443',
       }),
     ).toEqual({ ok: true });
   });

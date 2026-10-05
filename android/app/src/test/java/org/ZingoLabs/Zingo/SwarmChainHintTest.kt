@@ -12,7 +12,7 @@ import org.junit.Test
  * keys and genesis.
  */
 class SwarmChainHintTest {
-    private val genesis = "01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd"
+    private val genesis = "01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2"
 
     private val identity = """
         {
@@ -27,7 +27,7 @@ class SwarmChainHintTest {
             },
             {
               "chain_label": "swarm-mainnet",
-              "chain_hint": "swarm-mainnet:01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd",
+              "chain_hint": "swarm-mainnet:01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2",
               "display_name": "SWARM Mainnet",
               "is_production": true
             }

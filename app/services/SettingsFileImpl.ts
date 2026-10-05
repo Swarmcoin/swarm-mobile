@@ -16,6 +16,10 @@ import {
 import { serverUris } from '@app/uris';
 import { isEqual } from 'lodash';
 import { RPCPerformanceLevelEnum } from '@app/walletBackend/enums/RPCPerformanceLevelEnum';
+import {
+  SWARM_MAINNET_ABANDONED_SERVER,
+  SWARM_MAINNET_SERVER,
+} from '@app/utils/networkProfiles';
 
 export default class SettingsFileImpl {
   static async getFileName() {
@@ -98,6 +102,13 @@ export default class SettingsFileImpl {
             } as ServerType;
           }
         }
+      }
+      // The abandoned mainnet indexer moved to :443 with the 2026-10-02 restart.
+      if (settings.server.uri === SWARM_MAINNET_ABANDONED_SERVER) {
+        settings.server = {
+          uri: SWARM_MAINNET_SERVER,
+          chainName: ChainNameEnum.swarmMainnetChainName,
+        };
       }
       if (!settings.hasOwnProperty(SettingsNameEnum.basicFirstViewSeed)) {
         // by default we assume the user saw the seed,
