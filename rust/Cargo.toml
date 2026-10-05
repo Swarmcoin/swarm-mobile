@@ -23,17 +23,18 @@ resolver = "2"
 # SWARM SDK with legacy unified-address decoding, canonical SWARM encoding and
 # the SWARM PRODUCTION network identity: `ChainType::SwarmMainnet(SwarmMainnetGenesis)`,
 # `NetworkType::SwarmMain` and `BranchId::SwarmMain`. The revision is the head of
-# branch `codex/mainnet-sdk-identity-20260925` in Swarm-Official/privacy-zingolib,
+# branch `codex/mainnet-sdk-identity-20260925` in Swarmcoin/privacy-zingolib
+# (the account was Swarm-Official until its 2026-10-04 rename),
 # the same pin the desktop wallet's addon builds against (privacy-wallet
 # native/BUILD-NOTES-MAINNET.md). Moving this rev backwards removes SWARM
 # production from the build: the chain hint `swarm-mainnet:<genesis>` stops
 # resolving and every mainnet wallet becomes unopenable.
-zingolib = { git = "https://github.com/Swarm-Official/privacy-zingolib", rev = "d9f1a5b888067724b61b2fae46307ed56b4b1e0a", features = [
+zingolib = { git = "https://github.com/Swarmcoin/privacy-zingolib", rev = "d9f1a5b888067724b61b2fae46307ed56b4b1e0a", features = [
     "nym",
     "perspective",
 ] }
-pepper-sync = { git = "https://github.com/Swarm-Official/privacy-zingolib", rev = "d9f1a5b888067724b61b2fae46307ed56b4b1e0a" }
-zingolib_testutils = { git = "https://github.com/Swarm-Official/privacy-zingolib", rev = "d9f1a5b888067724b61b2fae46307ed56b4b1e0a" }
+pepper-sync = { git = "https://github.com/Swarmcoin/privacy-zingolib", rev = "d9f1a5b888067724b61b2fae46307ed56b4b1e0a" }
+zingolib_testutils = { git = "https://github.com/Swarmcoin/privacy-zingolib", rev = "d9f1a5b888067724b61b2fae46307ed56b4b1e0a" }
 regchest_utils = { git = "https://github.com/zingolabs/zingo-regchest", branch = "dev" }
 zingomobile_utils = { path = "zingomobile_utils" }
 

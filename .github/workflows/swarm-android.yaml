@@ -224,7 +224,7 @@ jobs:
             echo "ERROR: the SDK pin still points at zingolabs/zingolib" >&2
             exit 1
           fi
-          grep -q 'Swarm-Official/privacy-zingolib' rust/Cargo.toml
+          grep -q 'github.com/Swarmcoin/privacy-zingolib' rust/Cargo.toml
 
       - name: Verify SWARM address compatibility
         working-directory: rust
@@ -374,7 +374,7 @@ jobs:
           echo "rev=$REV" >> "$GITHUB_OUTPUT"
           # The genesis hash is one constant in the SDK. Read it from the exact
           # revision this APK is built against, so the manifest cannot drift.
-          curl -fsSL "https://raw.githubusercontent.com/Swarm-Official/privacy-zingolib/$REV/zingolib/src/config.rs" -o /tmp/config.rs
+          curl -fsSL "https://raw.githubusercontent.com/Swarmcoin/privacy-zingolib/$REV/zingolib/src/config.rs" -o /tmp/config.rs
           GEN="$(grep -A4 'pub const SWARM_TESTNET_GENESIS:' /tmp/config.rs | grep -oE '"[0-9a-fA-F]{64}"' | head -1 | tr -d '"')"
           PLACEHOLDER_NAME="$(grep -A4 'pub const SWARM_TESTNET_GENESIS:' /tmp/config.rs | grep -c 'SWARM_TESTNET_GENESIS_PLACEHOLDER' || true)"
           if [ -z "${GEN:-}" ]; then
@@ -543,10 +543,10 @@ jobs:
                 genesis_is_placeholder: process.env.GENESIS_PLACEHOLDER === "true",
               },
               source: {
-                app_repo: "https://github.com/Swarm-Official/swarm-mobile",
+                app_repo: "https://github.com/Swarmcoin/swarm-mobile",
                 app_sha: process.env.GITHUB_SHA,
                 app_ref: process.env.GITHUB_REF,
-                sdk_repo: "https://github.com/Swarm-Official/privacy-zingolib",
+                sdk_repo: "https://github.com/Swarmcoin/privacy-zingolib",
                 sdk_sha: process.env.SDK_REV,
                 upstream: "https://github.com/zingolabs/zingo-mobile (MIT)",
               },
@@ -659,7 +659,7 @@ jobs:
           set -eu
           REV="$(grep -m1 -oE 'privacy-zingolib", rev = "[0-9a-f]+' rust/Cargo.toml | grep -oE '[0-9a-f]{40}')"
           echo "rev=$REV" >> "$GITHUB_OUTPUT"
-          curl -fsSL "https://raw.githubusercontent.com/Swarm-Official/privacy-zingolib/$REV/zingolib/src/config.rs" -o /tmp/config.rs
+          curl -fsSL "https://raw.githubusercontent.com/Swarmcoin/privacy-zingolib/$REV/zingolib/src/config.rs" -o /tmp/config.rs
           GEN="$(grep -A4 'pub const SWARM_TESTNET_GENESIS:' /tmp/config.rs | grep -oE '"[0-9a-fA-F]{64}"' | head -1 | tr -d '"')"
           PLACEHOLDER_NAME="$(grep -A4 'pub const SWARM_TESTNET_GENESIS:' /tmp/config.rs | grep -c 'SWARM_TESTNET_GENESIS_PLACEHOLDER' || true)"
           if [ -z "${GEN:-}" ]; then
@@ -849,10 +849,10 @@ jobs:
                 genesis_is_placeholder: process.env.GENESIS_PLACEHOLDER === "true",
               },
               source: {
-                app_repo: "https://github.com/Swarm-Official/swarm-mobile",
+                app_repo: "https://github.com/Swarmcoin/swarm-mobile",
                 app_sha: process.env.GITHUB_SHA,
                 app_ref: process.env.GITHUB_REF,
-                sdk_repo: "https://github.com/Swarm-Official/privacy-zingolib",
+                sdk_repo: "https://github.com/Swarmcoin/privacy-zingolib",
                 sdk_sha: process.env.SDK_REV,
                 upstream: "https://github.com/zingolabs/zingo-mobile (MIT)",
               },
