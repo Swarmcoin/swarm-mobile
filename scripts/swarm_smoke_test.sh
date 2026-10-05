@@ -28,6 +28,10 @@ APP_ID="green.swarm.wallet"
 DEFAULT_SERVER="https://lwd-main.swarm.green:8443"
 DEFAULT_HOST="lwd-main.swarm.green"
 DEFAULT_PORT="8443"
+# The SWARM price service: a fresh mainnet install reads the SWM price there
+# once a minute while the wallet screen is open.
+PRICE_HOST="wallet.swarm.green"
+PRICE_PORT="443"
 OUT="smoke-out/$LABEL"
 mkdir -p "$OUT"
 # The log from launch to the last assertion is kept whatever the outcome, and
@@ -674,7 +678,8 @@ echo "=== Remote hosts from launch to here ==="
 
 # SWARM Mainnet offers no mixnet, so the app has no business with Nym's
 # validators, gateways or DNS-over-HTTPS resolver, or with the Zcash indexer
-# the Nym health check dials. The indexer is the only remote host allowed.
+# the Nym health check dials. The indexer and the SWARM price service are the
+# only remote hosts allowed.
 while [ "$(date +%s)" -lt "$SAMPLE_MIN" ]; do
   sleep 5
 done
@@ -686,7 +691,7 @@ capture_sync_report sync-report-5min
 adb logcat -d > "$OUT/logcat-5min.txt" 2>&1 || true
 NYM_LINES="$(grep -c 'MixnetProxy' "$OUT/logcat-5min.txt" || true)"
 if python3 scripts/swarm_remote_hosts.py "$OUT/net-samples.txt" "$APP_UID" \
-    "$DEFAULT_HOST:$DEFAULT_PORT" > "$OUT/remote-hosts.txt"; then
+    "$DEFAULT_HOST:$DEFAULT_PORT" "$PRICE_HOST:$PRICE_PORT"     > "$OUT/remote-hosts.txt"; then
   HOSTS_RC=0
 else
   HOSTS_RC=$?
@@ -699,9 +704,9 @@ if [ "$NYM_LINES" != "0" ]; then
   exit 1
 fi
 case "$HOSTS_RC" in
-  0) echo "ok: in five minutes the app reached $DEFAULT_HOST:$DEFAULT_PORT and no other host" ;;
+  0) echo "ok: in five minutes the app reached only $DEFAULT_HOST:$DEFAULT_PORT and $PRICE_HOST:$PRICE_PORT" ;;
   2) echo "NOT PROVEN: no socket of the app was read, see $OUT/net-samples.txt" ;;
-  *) echo "FAIL: the app reached a host other than $DEFAULT_HOST:$DEFAULT_PORT." >&2
+  *) echo "FAIL: the app reached a host other than $DEFAULT_HOST:$DEFAULT_PORT and $PRICE_HOST:$PRICE_PORT." >&2
      exit 1 ;;
 esac
 

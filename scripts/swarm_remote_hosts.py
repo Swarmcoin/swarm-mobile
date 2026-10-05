@@ -19,6 +19,7 @@ import sys
 WATCHED = [
     "lwd-main.swarm.green",
     "lwd.swarm.green",
+    "wallet.swarm.green",
     "mainnet.explore.swarm.green",
     "testnet.explore.swarm.green",
     "explore.swarm.green",
