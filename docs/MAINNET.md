@@ -128,7 +128,10 @@ Neither the mainnet.2 nor the mainnet.3 bytes were distributed.
 Next (not yet versioned, branch `price-display/mobile`): the wallet shows an
 indicative SWM price in US dollars on SWARM Mainnet, read from
 `https://wallet.swarm.green/api/price/swm`, with a Settings switch that stops
-the request. The release number and `versionCode` are the release's to choose.
+the request, and a separate SWM price page opened from the price card. The SDK
+pin now names `Swarmcoin/privacy-zingolib` at the same revision, because the
+Swarm-Official account no longer resolves. The release number and
+`versionCode` are the release's to choose.
 The application id `green.swarm.wallet`, the Android namespace
 `org.ZingoLabs.Zingo`, the iOS bundle identifier and the App Store record are
 **unchanged**: this is the same app, on the network it was built for.
