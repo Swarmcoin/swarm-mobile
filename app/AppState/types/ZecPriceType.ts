@@ -1,5 +1,6 @@
 import type {
   SwmPool,
+  SwmPriceDetails,
   SwmPriceSource,
 } from '@app/walletBackend/modules/SwmPriceService';
 
@@ -14,4 +15,5 @@ export default interface ZecPriceType {
   relayStale?: boolean;
   restored?: boolean;
   pool?: SwmPool;
+  details?: SwmPriceDetails;
 }

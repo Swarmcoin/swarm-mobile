@@ -17,14 +17,21 @@ const poolOf = (node: unknown): SwmPool | undefined =>
   typeof node.chain === 'string' &&
   typeof node.dex === 'string' &&
   typeof node.id === 'string'
-    ? { chain: node.chain, dex: node.dex, id: node.id }
+    ? {
+        chain: node.chain,
+        dex: node.dex,
+        id: node.id,
+        feePct: typeof node.feePct === 'number' ? node.feePct : undefined,
+        createdUnix:
+          typeof node.createdUnix === 'number' ? node.createdUnix : undefined,
+      }
     : undefined;
 
-/** Keeps the last good reading on the device. */
+/** Keeps the last good reading on the device, without the price page's details. */
 export async function saveSwmPrice(price: ZecPriceType): Promise<void> {
   await AsyncStorage.setItem(
     SWM_PRICE_KEY,
-    JSON.stringify({ ...price, restored: false }),
+    JSON.stringify({ ...price, details: undefined, restored: false }),
   );
 }
 

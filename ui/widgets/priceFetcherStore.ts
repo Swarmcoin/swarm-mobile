@@ -160,6 +160,7 @@ export function priceFromReading(
     generatedUnix: reading.generatedUnix,
     relayStale: reading.stale,
     pool: reading.pool,
+    details: reading.details,
     restored: false,
   };
 }

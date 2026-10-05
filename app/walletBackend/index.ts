@@ -22,10 +22,12 @@ export { scanInProgress } from './utils/syncProgress';
 export { fetchSwmPrice, parseSwmPrice } from './modules/SwmPriceService';
 export type {
   SwmPool,
+  SwmPriceDetails,
   SwmPriceErrorKey,
   SwmPriceOutcome,
   SwmPriceReading,
   SwmPriceSource,
+  SwmSourceReading,
 } from './modules/SwmPriceService';
 export {
   cancelIronwoodMigration,

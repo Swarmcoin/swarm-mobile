@@ -106,13 +106,14 @@ describe('priceFreshness', () => {
 });
 
 describe('the kept reading', () => {
-  test('Tests that a saved reading loads back marked restored when the app starts again.', async () => {
+  test('Tests that a saved reading loads back marked restored when the app starts again. The page details wait for the first fetch.', async () => {
     await saveSwmPrice(mockSwmPrice(NOW));
     const [key, raw] = setItem.mock.calls[0];
     expect(key).toBe('swm-price/last');
     getItem.mockResolvedValue(raw);
     await expect(loadSwmPrice()).resolves.toEqual({
       ...mockSwmPrice(NOW),
+      details: undefined,
       restored: true,
     });
   });

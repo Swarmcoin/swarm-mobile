@@ -6,6 +6,7 @@ import {
   SWM_PRICE_URL,
 } from '@app/walletBackend/modules/SwmPriceService';
 import swmRelayFixture from '../__mocks__/dataMocks/swmPriceRelay.json';
+import swmRelayLive from '../__mocks__/dataMocks/swmPriceRelayLive.json';
 
 const swmRelayBody = JSON.stringify(swmRelayFixture);
 
@@ -48,9 +49,44 @@ describe('parseSwmPrice', () => {
           chain: 'base',
           dex: 'uniswap-v4',
           id: '0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
+          feePct: 0.9,
+          createdUnix: 1790812800,
+        },
+        details: {
+          priceEth: 0.000195976,
+          changePct1h: 0,
+          changePct6h: 28.75,
+          hourlyFromUnix: 1791205200,
+          dailyUsd: [0.3112, 0.3305, 0.4021, 0.5259, 0.6151, 0.8411],
+          dailyFromUnix: 1790812800,
+          transactions24h: { buys: 9, sells: 0 },
+          liquidityUsd: 3761.34,
+          volume24hUsd: 378.11,
+          fdvUsd: 8411.43,
+          sources: [
+            { id: 'geckoterminal', ok: true, priceUsd: 0.84114343 },
+            { id: 'dexscreener', ok: true, priceUsd: 0.8602 },
+          ],
         },
       },
     });
+  });
+
+  test('Tests that the live relay body of 2026-10-05 19:01 UTC parses into a reading. It predates the daily series.', () => {
+    const outcome = parseSwmPrice(JSON.stringify(swmRelayLive));
+    expect(outcome.kind).toBe('swmPrice');
+    if (outcome.kind !== 'swmPrice') {
+      return;
+    }
+    expect(outcome.reading.priceUsd).toBe(0.84114343498587);
+    expect(outcome.reading.sparklineUsd).toHaveLength(48);
+    expect(outcome.reading.details.priceEth).toBe(0.000195976178807639);
+    expect(outcome.reading.details.changePct6h).toBe(24.56);
+    expect(outcome.reading.details.dailyUsd).toBeUndefined();
+    expect(outcome.reading.details.sources.map(src => src.ok)).toEqual([
+      true,
+      true,
+    ]);
   });
 
   test.each([
@@ -100,8 +136,94 @@ describe('parseSwmPrice', () => {
         generatedUnix: 1791223633,
         stale: false,
         pool: undefined,
+        details: expect.objectContaining({ changePct1h: undefined }),
       },
     });
+  });
+
+  test('Tests that the page fields read as absent when the relay leaves them out. The price still parses.', () => {
+    const outcome = parseSwmPrice(
+      JSON.stringify({
+        schema: 'swarm-price/1',
+        symbol: 'SWM',
+        quote: 'USD',
+        price_usd: '0.84',
+        generated_unix: 1791223633,
+      }),
+    );
+    expect(outcome.kind === 'swmPrice' && outcome.reading.details).toEqual({
+      priceEth: undefined,
+      changePct1h: undefined,
+      changePct6h: undefined,
+      hourlyFromUnix: undefined,
+      dailyUsd: undefined,
+      dailyFromUnix: undefined,
+      transactions24h: undefined,
+      liquidityUsd: undefined,
+      volume24hUsd: undefined,
+      fdvUsd: undefined,
+      sources: [],
+    });
+  });
+
+  test('Tests that each page field with a wrong type drops alone when the relay sends it.', () => {
+    const outcome = parseSwmPrice(
+      withBody({
+        price_eth: 0.0002,
+        change_pct: { h1: '1', h6: null, h24: 36.72 },
+        hourly_from_unix: -5,
+        daily_usd: [0.3, -1],
+        daily_from_unix: 'yesterday',
+        transactions_24h: null,
+        liquidity_usd: -3,
+        volume_24h_usd: 'lots',
+        fdv_usd: Infinity,
+        pool: {
+          chain: 'base',
+          dex: 'uniswap-v4',
+          id: '0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
+          fee_pct: '0.9',
+          created_unix: 0,
+        },
+        sources: [
+          { id: 'geckoterminal', ok: true, price_usd: 0.84 },
+          { id: 'dexscreener', ok: false, price_usd: '0.86' },
+          { id: 'coingecko', ok: true, price_usd: '0.9' },
+          'junk',
+        ],
+      }),
+    );
+    expect(outcome.kind).toBe('swmPrice');
+    if (outcome.kind !== 'swmPrice') {
+      return;
+    }
+    expect(outcome.reading.changePct24h).toBe(36.72);
+    expect(outcome.reading.pool?.feePct).toBeUndefined();
+    expect(outcome.reading.pool?.createdUnix).toBeUndefined();
+    expect(outcome.reading.details).toEqual({
+      priceEth: undefined,
+      changePct1h: undefined,
+      changePct6h: undefined,
+      hourlyFromUnix: undefined,
+      dailyUsd: undefined,
+      dailyFromUnix: undefined,
+      transactions24h: undefined,
+      liquidityUsd: undefined,
+      volume24hUsd: undefined,
+      fdvUsd: undefined,
+      sources: [
+        { id: 'geckoterminal', ok: true, priceUsd: undefined },
+        { id: 'dexscreener', ok: false, priceUsd: undefined },
+      ],
+    });
+  });
+
+  test('Tests that the daily series keeps the newest 30 closes when the relay sends more.', () => {
+    const points = Array.from({ length: 40 }, (_, i) => i + 1);
+    const outcome = parseSwmPrice(withBody({ daily_usd: points }));
+    expect(
+      outcome.kind === 'swmPrice' && outcome.reading.details.dailyUsd,
+    ).toEqual(points.slice(10));
   });
 
   test('Tests that the sparkline keeps the newest 48 points when the relay sends more.', () => {

@@ -5,6 +5,7 @@ export const SWM_PRICE_URL = 'https://wallet.swarm.green/api/price/swm';
 export const SWM_PRICE_TIMEOUT_MS = 8_000;
 export const SWM_PRICE_MAX_CHARS = 64 * 1024;
 const SPARKLINE_MAX_POINTS = 48;
+const DAILY_MAX_POINTS = 30;
 
 const DECIMAL = /^\d{1,12}(\.\d{1,18})?$/;
 const POOL_ID = /^0x[0-9a-f]{64}$/i;
@@ -22,6 +23,28 @@ export type SwmPool = {
   chain: string;
   dex: string;
   id: string;
+  feePct?: number;
+  createdUnix?: number;
+};
+
+export type SwmSourceReading = {
+  id: SwmPriceSource;
+  ok: boolean;
+  priceUsd?: number;
+};
+
+export type SwmPriceDetails = {
+  priceEth?: number;
+  changePct1h?: number;
+  changePct6h?: number;
+  hourlyFromUnix?: number;
+  dailyUsd?: number[];
+  dailyFromUnix?: number;
+  transactions24h?: { buys: number; sells: number };
+  liquidityUsd?: number;
+  volume24hUsd?: number;
+  fdvUsd?: number;
+  sources: SwmSourceReading[];
 };
 
 export type SwmPriceReading = {
@@ -32,6 +55,7 @@ export type SwmPriceReading = {
   generatedUnix: number;
   stale: boolean;
   pool?: SwmPool;
+  details: SwmPriceDetails;
 };
 
 export type SwmPriceOutcome =
@@ -48,14 +72,72 @@ const finite = (n: unknown): n is number =>
 const sourceOf = (id: unknown): SwmPriceSource | undefined =>
   id === 'geckoterminal' || id === 'dexscreener' ? id : undefined;
 
-const sparklineOf = (points: unknown): number[] | undefined => {
+const seriesOf = (points: unknown, max: number): number[] | undefined => {
   if (!Array.isArray(points) || points.length < 2) {
     return undefined;
   }
   if (!points.every(p => finite(p) && p > 0)) {
     return undefined;
   }
-  return points.slice(-SPARKLINE_MAX_POINTS);
+  return points.slice(-max);
+};
+
+const amountOf = (n: unknown): number | undefined =>
+  finite(n) && n >= 0 ? n : undefined;
+
+const unixOf = (n: unknown): number | undefined =>
+  finite(n) && n > 0 ? n : undefined;
+
+const countOf = (n: unknown): number | undefined =>
+  Number.isInteger(n) && finite(n) && n >= 0 ? n : undefined;
+
+const decimalOf = (text: unknown): number | undefined =>
+  typeof text === 'string' && DECIMAL.test(text) && Number(text) > 0
+    ? Number(text)
+    : undefined;
+
+const transactionsOf = (
+  node: unknown,
+): { buys: number; sells: number } | undefined => {
+  if (!isObject(node)) {
+    return undefined;
+  }
+  const buys = countOf(node.buys);
+  const sells = countOf(node.sells);
+  return buys === undefined || sells === undefined
+    ? undefined
+    : { buys, sells };
+};
+
+const sourcesOf = (nodes: unknown): SwmSourceReading[] =>
+  Array.isArray(nodes)
+    ? nodes.flatMap(node => {
+        const id = isObject(node) ? sourceOf(node.id) : undefined;
+        if (!isObject(node) || !id) {
+          return [];
+        }
+        const ok = node.ok === true;
+        return [
+          { id, ok, priceUsd: ok ? decimalOf(node.price_usd) : undefined },
+        ];
+      })
+    : [];
+
+const detailsOf = (doc: Json): SwmPriceDetails => {
+  const change = isObject(doc.change_pct) ? doc.change_pct : {};
+  return {
+    priceEth: decimalOf(doc.price_eth),
+    changePct1h: finite(change.h1) ? change.h1 : undefined,
+    changePct6h: finite(change.h6) ? change.h6 : undefined,
+    hourlyFromUnix: unixOf(doc.hourly_from_unix),
+    dailyUsd: seriesOf(doc.daily_usd, DAILY_MAX_POINTS),
+    dailyFromUnix: unixOf(doc.daily_from_unix),
+    transactions24h: transactionsOf(doc.transactions_24h),
+    liquidityUsd: amountOf(doc.liquidity_usd),
+    volume24hUsd: amountOf(doc.volume_24h_usd),
+    fdvUsd: amountOf(doc.fdv_usd),
+    sources: sourcesOf(doc.sources),
+  };
 };
 
 const poolOf = (pool: unknown): SwmPool | undefined => {
@@ -70,7 +152,16 @@ const poolOf = (pool: unknown): SwmPool | undefined => {
   ) {
     return undefined;
   }
-  return { chain: pool.chain, dex: pool.dex, id: pool.id.toLowerCase() };
+  return {
+    chain: pool.chain,
+    dex: pool.dex,
+    id: pool.id.toLowerCase(),
+    feePct:
+      finite(pool.fee_pct) && pool.fee_pct >= 0 && pool.fee_pct < 100
+        ? pool.fee_pct
+        : undefined,
+    createdUnix: unixOf(pool.created_unix),
+  };
 };
 
 /** Parses one relay body into a reading, or the key of what is wrong with it. */
@@ -107,11 +198,12 @@ export function parseSwmPrice(body: string): SwmPriceOutcome {
     reading: {
       priceUsd,
       changePct24h: finite(h24) ? h24 : undefined,
-      sparklineUsd: sparklineOf(doc.sparkline_usd),
+      sparklineUsd: seriesOf(doc.sparkline_usd, SPARKLINE_MAX_POINTS),
       source: sourceOf(doc.source),
       generatedUnix: doc.generated_unix,
       stale: doc.stale === true,
       pool: poolOf(doc.pool),
+      details: detailsOf(doc),
     },
   };
 }
