@@ -14,11 +14,13 @@ import NetInfo, { NetInfoConfiguration } from '@react-native-community/netinfo';
 // Android the native side answers the question itself (the OS's
 // NET_CAPABILITY_VALIDATED), so the JS probe never runs there.
 //
-// SWARM Wallet contacts no host but the wallet server the user chose (privacy
-// policy, section 4), and nothing in the app reads `isInternetReachable`: the
-// boot sequence (LoadingApp), the start menu, the send path, the header and
-// every screen branch on `isConnected`, `type` and `isConnectionExpensive`,
-// all of which come straight from the OS. So the probe is switched off, not
+// SWARM Wallet talks to the wallet server the user chose and, on SWARM Mainnet
+// with "Show SWM price (USD)" on, to the SWARM price service at
+// wallet.swarm.green (privacy policy, sections 3 and 7). Nothing in the app
+// reads `isInternetReachable`: the boot sequence (LoadingApp), the start
+// menu, the send path, the header and every screen branch on `isConnected`,
+// `type` and `isConnectionExpensive`, all of which come straight from the
+// OS. So the probe is switched off, not
 // redirected: pointing it at lwd.swarm.green would only turn a Google
 // heartbeat into a SWARM one that tells the server every minute that a
 // wallet is open, and would hammer the server every 5 s should the HEAD ever
