@@ -16,9 +16,7 @@ import {
 } from '@ui/widgets/priceFetcherStore';
 import { formatChangePct, formatSwmPrice } from '@ui/widgets/swmPriceFormat';
 import {
-  CHAIN_NAMES,
   changeTone,
-  DEX_NAMES,
   freshnessColor,
   priceAgeText,
   SOURCE_NAMES,
@@ -60,8 +58,6 @@ const PriceRow = React.memo(
     const change = zecPrice.changePct24h;
     const { arrow, color: changeColor } = changeTone(colors, change);
     const meta = [
-      CHAIN_NAMES[zecPrice.pool?.chain ?? 'base'],
-      DEX_NAMES[zecPrice.pool?.dex ?? 'uniswap-v4'],
       zecPrice.source ? SOURCE_NAMES[zecPrice.source] : undefined,
       unavailable && lastErrorKey
         ? (translate(lastErrorKey) as string)

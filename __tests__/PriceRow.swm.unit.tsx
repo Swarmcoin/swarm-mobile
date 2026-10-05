@@ -63,7 +63,7 @@ test('Tests that the card shows the price, the 24 h change, the sparkline and it
   );
   expect(view.getByTestId('price.freshness.fresh')).toBeTruthy();
   expect(view.getByTestId('price.meta')).toHaveTextContent(
-    'Base · Uniswap v4 · GeckoTerminal · updated 12 s ago',
+    'GeckoTerminal · updated 12 s ago',
   );
 });
 
@@ -100,7 +100,7 @@ test('Tests that the meta line says "as of" with the time when the reading is be
   });
   expect(view.getByTestId('price.freshness.ageing')).toBeTruthy();
   expect(view.getByTestId('price.meta')).toHaveTextContent(
-    `Base · Uniswap v4 · GeckoTerminal · as of ${clock}`,
+    `GeckoTerminal · as of ${clock}`,
   );
   expect(colorOf(view.getByTestId('price.value'))).toBe(
     mockTheme.colors.fgDefault,

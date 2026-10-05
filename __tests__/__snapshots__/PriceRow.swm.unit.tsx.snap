@@ -238,7 +238,7 @@ exports[`Tests that the snapshot of the card matches when the reading is the spe
     }
     testID="price.meta"
   >
-    Base · Uniswap v4 · GeckoTerminal · updated 12 s ago
+    GeckoTerminal · updated 12 s ago
   </Text>
 </View>
 `;

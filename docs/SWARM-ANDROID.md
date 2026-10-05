@@ -79,9 +79,9 @@ it. The testnet shows no price.
 The price card in the header and the USD balance under the total open the
 **SWM price** page: the price in USD and ETH, the 1 h, 6 h and 24 h changes, a
 24 h, 48 h or 30 day chart that reads out a value under the finger, the
-balance at that price, pool liquidity, volume, fully diluted value, trades and
-fee, the GeckoTerminal and DexScreener readings with links to their pool pages,
-the pool id and the token contract with copy controls, and the same switch.
+balance at that price, 24 h volume, fully diluted value, trades and pool fee,
+the GeckoTerminal and DexScreener readings with links to their pool pages, the
+pool id and the token contract with copy controls, and the same switch.
 
 ---
 

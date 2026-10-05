@@ -6,8 +6,6 @@ import { PRICE_UP } from '@app/theme/tokens';
 import { PriceFreshness } from './priceFetcherStore';
 import { formatClock } from './swmPriceFormat';
 
-export const CHAIN_NAMES: Record<string, string> = { base: 'Base' };
-export const DEX_NAMES: Record<string, string> = { 'uniswap-v4': 'Uniswap v4' };
 export const SOURCE_NAMES: Record<string, string> = {
   geckoterminal: 'GeckoTerminal',
   dexscreener: 'DexScreener',

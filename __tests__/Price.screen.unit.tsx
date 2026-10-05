@@ -87,7 +87,7 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test('Tests that the page shows the price, the ETH price, the three changes, the 24 h chart, the balance, the stats and the sources when the reading is fresh.', () => {
+test('Tests that the page shows the price, the ETH price, the three changes, the 24 h chart, the balance, the stats without liquidity or network, and the sources when the reading is fresh.', () => {
   const view = render(pageUi());
 
   expect(view.getByTestId('price.page.freshness.fresh')).toBeTruthy();
@@ -107,12 +107,14 @@ test('Tests that the page shows the price, the ETH price, the three changes, the
   expect(view.getByTestId('price.chart.high')).toHaveTextContent('$0.8411');
   expect(view.getByTestId('price.chart.low')).toHaveTextContent('$0.5259');
   expect(view.getByTestId('price.chart.latest')).toHaveTextContent('$0.8411');
-  expect(view.getByText('$3,761.34')).toBeTruthy();
+  expect(view.queryByText('$3,761.34')).toBeNull();
+  expect(view.queryByText('LIQUIDITY')).toBeNull();
   expect(view.getByText('$378.11')).toBeTruthy();
   expect(view.getByText('$8,411.43')).toBeTruthy();
   expect(view.getByText('9 / 0')).toBeTruthy();
   expect(view.getByText('0.9 %')).toBeTruthy();
-  expect(view.getByText('Base')).toBeTruthy();
+  expect(view.queryByText('Base')).toBeNull();
+  expect(view.queryByText('NETWORK')).toBeNull();
   expect(view.getByText('$0.8411  ✓')).toBeTruthy();
   expect(view.getByText('$0.8602  ✓')).toBeTruthy();
   expect(view.getByText('0xf1e0…4599')).toBeTruthy();

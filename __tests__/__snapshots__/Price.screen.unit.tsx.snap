@@ -868,42 +868,6 @@ exports[`Tests that the snapshot of the page matches when the reading is the spe
               }
             }
           >
-            LIQUIDITY
-          </Text>
-          <Text
-            style={
-              [
-                {
-                  "color": "#c3c3c3",
-                  "fontFamily": "JetBrainsMono-Regular",
-                },
-                {
-                  "fontSize": 13,
-                },
-              ]
-            }
-          >
-            $3,761.34
-          </Text>
-        </View>
-        <View
-          style={
-            {
-              "gap": 4,
-              "width": "50%",
-            }
-          }
-        >
-          <Text
-            style={
-              {
-                "color": "#888888",
-                "fontFamily": "JetBrainsMono-Medium",
-                "fontSize": 10,
-                "letterSpacing": 2,
-              }
-            }
-          >
             24 H VOLUME
           </Text>
           <Text
@@ -1028,42 +992,6 @@ exports[`Tests that the snapshot of the page matches when the reading is the spe
             }
           >
             0.9 %
-          </Text>
-        </View>
-        <View
-          style={
-            {
-              "gap": 4,
-              "width": "50%",
-            }
-          }
-        >
-          <Text
-            style={
-              {
-                "color": "#888888",
-                "fontFamily": "JetBrainsMono-Medium",
-                "fontSize": 10,
-                "letterSpacing": 2,
-              }
-            }
-          >
-            NETWORK
-          </Text>
-          <Text
-            style={
-              [
-                {
-                  "color": "#c3c3c3",
-                  "fontFamily": "JetBrainsMono-Regular",
-                },
-                {
-                  "fontSize": 13,
-                },
-              ]
-            }
-          >
-            Base
           </Text>
         </View>
       </View>

@@ -33,7 +33,6 @@ import {
   formatUsd,
 } from '@ui/widgets/swmPriceFormat';
 import {
-  CHAIN_NAMES,
   changeTone,
   freshnessColor,
   priceAgeText,
@@ -219,7 +218,6 @@ export default function Price({
   const usdOr = (n: number | undefined) =>
     n === undefined ? dash : `$${formatUsd(n)}`;
   const stats: [string, string][] = [
-    [t('price.page.liquidity'), usdOr(details?.liquidityUsd)],
     [t('price.page.volume'), usdOr(details?.volume24hUsd)],
     [t('price.page.fdv'), usdOr(details?.fdvUsd)],
     [
@@ -234,7 +232,6 @@ export default function Price({
         ? dash
         : formatPct(zecPrice.pool.feePct),
     ],
-    [t('price.page.network'), CHAIN_NAMES[zecPrice.pool?.chain ?? 'base']],
   ];
   const ids: [string, string, string][] = [
     ['pool', t('price.page.pool'), shownPoolId(zecPrice)],
