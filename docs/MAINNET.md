@@ -120,18 +120,18 @@ addresses on both SWARM networks, and reports both profiles from
 
 ## Versions
 
-Android `0.2.0` (`versionCode` 7, `SWARM_VERSION` `0.2.0-mainnet.4`); iOS
+Android `0.2.0` (`versionCode` 8, `SWARM_VERSION` `0.2.0-mainnet.5`); iOS
 `MARKETING_VERSION` `0.2.0`. `0.2.0-mainnet.1` was `versionCode` 4,
-`0.2.0-mainnet.2` `versionCode` 5 and `0.2.0-mainnet.3` `versionCode` 6.
-Neither the mainnet.2 nor the mainnet.3 bytes were distributed.
+`0.2.0-mainnet.2` `versionCode` 5, `0.2.0-mainnet.3` `versionCode` 6 and
+`0.2.0-mainnet.4` `versionCode` 7. Neither the mainnet.2 nor the mainnet.3
+bytes were distributed.
 
-Next (not yet versioned, branch `price-display/mobile`): the wallet shows an
+`0.2.0-mainnet.5` (branch `price-display/mobile`): the wallet shows an
 indicative SWM price in US dollars on SWARM Mainnet, read from
 `https://wallet.swarm.green/api/price/swm`, with a Settings switch that stops
 the request, and a separate SWM price page opened from the price card. The SDK
 pin now names `Swarmcoin/privacy-zingolib` at the same revision, because the
-Swarm-Official account no longer resolves. The release number and
-`versionCode` are the release's to choose.
+Swarm-Official account no longer resolves.
 The application id `green.swarm.wallet`, the Android namespace
 `org.ZingoLabs.Zingo`, the iOS bundle identifier and the App Store record are
 **unchanged**: this is the same app, on the network it was built for.
