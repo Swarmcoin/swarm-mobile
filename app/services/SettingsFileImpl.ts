@@ -249,6 +249,9 @@ export default class SettingsFileImpl {
       if (!settings.hasOwnProperty(SettingsNameEnum.nym)) {
         settings.nym = false;
       }
+      if (typeof settings.showSwmPrice !== 'boolean') {
+        settings.showSwmPrice = true;
+      }
       if (!settings.hasOwnProperty(SettingsNameEnum.ironwoodOnboardSeen)) {
         // the wallet hasn't shown the "Meet Ironwood" onboarding yet; it
         // launches once, the first time spendable Orchard funds are detected.

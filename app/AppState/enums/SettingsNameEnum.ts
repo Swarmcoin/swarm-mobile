@@ -14,6 +14,7 @@ export enum SettingsNameEnum {
   performanceLevel = 'performanceLevel',
   blockExplorer = 'blockExplorer',
   nym = 'nym',
+  showSwmPrice = 'showSwmPrice',
 
   // internal management
   firstInstall = 'firstInstall',

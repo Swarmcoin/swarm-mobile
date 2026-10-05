@@ -1,9 +1,12 @@
 jest.mock('@app/walletBackend', () => ({
   __esModule: true,
-  getZecPrice: jest.fn().mockResolvedValue({ price: -1, error: 'refused' }),
+  fetchSwmPrice: jest
+    .fn()
+    .mockResolvedValue({ kind: 'error', errorKey: 'price.error-network' }),
 }));
 
 import 'react-native';
+import { mockMainnetInfo } from '../__mocks__/dataMocks/mockSwmPrice';
 import React from 'react';
 import { ReactTestRendererJSON } from 'react-test-renderer';
 import { render, waitFor } from '@testing-library/react-native';
@@ -18,31 +21,19 @@ import {
   defaultAppContextLoaded,
 } from '@app/context';
 import { SelectServerEnum } from '@app/AppState';
-import { mockInfo } from '../__mocks__/dataMocks/mockInfo';
-import { MixnetView } from '@app/walletBackend/transforms/mixnetView';
 
 beforeEach(() => {
   priceFetcherStore.resetForTests();
 });
-
-const READY_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.ready',
-  socks5Addr: '127.0.0.1:1080',
-  narration: null,
-  sendBlocked: false,
-  recovery: 'none',
-  reconnecting: false,
-};
 
 type Ctx = typeof defaultAppContextLoaded;
 const makeCtx = (over?: Partial<Ctx>): Ctx => ({
   ...defaultAppContextLoaded,
   translate: (k: string) => k,
   zecPrice: { zecPrice: 0, date: 0 },
-  nym: true,
-  info: mockInfo,
+  info: mockMainnetInfo,
   selectServer: SelectServerEnum.auto,
-  mixnetView: READY_VIEW,
+  showSwmPrice: true,
   ...over,
 });
 
@@ -112,7 +103,7 @@ test('a current price reaches screen readers as a label too', () => {
 test('a paused surface reaches screen readers as paused, not current', () => {
   const pausedCtx = makeCtx({
     zecPrice: { zecPrice: 33.33, date: Date.now() },
-    mixnetView: { ...READY_VIEW, statusKey: 'mixnet.status.died' },
+    showSwmPrice: false,
   });
   const view = render(fetcherUi(pausedCtx));
   expect(view.getByLabelText('price-ring-paused')).toBeTruthy();
@@ -140,38 +131,7 @@ test('a price that never arrived renders no ring', async () => {
   );
 });
 
-test('a switched-off transport shows no ring', () => {
-  const view = render(
-    fetcherUi(
-      makeCtx({
-        mixnetView: {
-          statusKey: 'mixnet.status.off',
-          socks5Addr: null,
-          narration: null,
-          sendBlocked: false,
-          recovery: 'reenable',
-          reconnecting: false,
-        },
-      }),
-    ),
-  );
-  expect(view.queryByTestId('pricefetcher.ring')).toBeNull();
-});
-
-test('a refusing transport hides the ring for the same reason', () => {
-  const view = render(
-    fetcherUi(
-      makeCtx({
-        mixnetView: {
-          statusKey: 'mixnet.status.died',
-          socks5Addr: null,
-          narration: null,
-          sendBlocked: true,
-          recovery: 'reenable',
-          reconnecting: false,
-        },
-      }),
-    ),
-  );
+test('a switched-off price setting shows no ring', () => {
+  const view = render(fetcherUi(makeCtx({ showSwmPrice: false })));
   expect(view.queryByTestId('pricefetcher.ring')).toBeNull();
 });

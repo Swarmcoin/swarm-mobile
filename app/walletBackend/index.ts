@@ -19,6 +19,14 @@ export {
   routeStartMigration,
 } from './utils/migrationRouting';
 export { scanInProgress } from './utils/syncProgress';
+export { fetchSwmPrice, parseSwmPrice } from './modules/SwmPriceService';
+export type {
+  SwmPool,
+  SwmPriceErrorKey,
+  SwmPriceOutcome,
+  SwmPriceReading,
+  SwmPriceSource,
+} from './modules/SwmPriceService';
 export {
   cancelIronwoodMigration,
   changeServer,
@@ -44,7 +52,6 @@ export {
   getTotalValueToAddress,
   getVersionInfo,
   getWalletKind,
-  getZecPrice,
   getZenniesDonationAddress,
   isWalletAddress,
   loadExistingWallet,

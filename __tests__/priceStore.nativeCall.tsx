@@ -1,16 +1,21 @@
 jest.mock('@app/walletBackend', () => ({
   __esModule: true,
-  getZecPrice: jest.fn(),
+  fetchSwmPrice: jest.fn(),
 }));
 
 import 'react-native';
+import type { ZecPriceType } from '@app/AppState';
+import {
+  mockMainnetInfo,
+  swmFailed,
+  swmOk,
+} from '../__mocks__/dataMocks/mockSwmPrice';
 import type { AppStateStatus } from 'react-native';
 import React from 'react';
 import { render, renderHook } from '@testing-library/react-native';
 import PriceFetcher, { PriceTrafficDriver } from '@ui/widgets/PriceFetcher';
 import QuoteRefreshRing from '@ui/primitives/QuoteRefreshRing';
 import {
-  PRICE_REFRESH_MAX_MS,
   priceFetcherStore,
   usePriceStale,
 } from '@ui/widgets/priceFetcherStore';
@@ -19,42 +24,22 @@ import {
   defaultAppContextLoaded,
 } from '@app/context';
 import { SelectServerEnum } from '@app/AppState';
-import { getZecPrice } from '@app/walletBackend';
-import { mockInfo } from '../__mocks__/dataMocks/mockInfo';
-import { MixnetView } from '@app/walletBackend/transforms/mixnetView';
+import { fetchSwmPrice, SwmPriceOutcome } from '@app/walletBackend';
 
-const price = getZecPrice as jest.MockedFunction<typeof getZecPrice>;
-
-const READY_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.ready',
-  socks5Addr: '127.0.0.1:1080',
-  narration: null,
-  sendBlocked: false,
-  recovery: 'none',
-  reconnecting: false,
-};
-const DIED_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.died',
-  socks5Addr: null,
-  narration: null,
-  sendBlocked: true,
-  recovery: 'reenable',
-  reconnecting: false,
-};
+const price = fetchSwmPrice as jest.MockedFunction<typeof fetchSwmPrice>;
 
 type Ctx = typeof defaultAppContextLoaded;
 const makeCtx = (over?: Partial<Ctx>): Ctx => ({
   ...defaultAppContextLoaded,
   translate: (k: string) => k,
   zecPrice: { zecPrice: 0, date: 0 },
-  nym: true,
-  info: mockInfo,
+  info: mockMainnetInfo,
   selectServer: SelectServerEnum.auto,
-  mixnetView: READY_VIEW,
+  showSwmPrice: true,
   ...over,
 });
 
-const surfaceUi = (ctx: Ctx, setZecPrice: (p: number, d: number) => void) => (
+const surfaceUi = (ctx: Ctx, setZecPrice: (p: ZecPriceType) => void) => (
   <ContextAppLoadedProvider value={{ ...ctx, setZecPrice }}>
     <PriceTrafficDriver />
     <PriceFetcher />
@@ -90,13 +75,13 @@ afterEach(() => {
 
 test('a market-less surface renders no ring at all', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
   const view = render(
     surfaceUi(
       makeCtx({
-        mixnetView: READY_VIEW,
+        showSwmPrice: true,
         selectServer: SelectServerEnum.offline,
       }),
       setZecPrice,
@@ -126,7 +111,7 @@ test('a session detached mid-flight leaves no loading behind', async () => {
   jest.useFakeTimers();
   price
     .mockImplementationOnce(() => new Promise(() => {}))
-    .mockResolvedValue({ price: 42, error: '' });
+    .mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
   const view = render(surfaceUi(makeCtx(), setZecPrice));
@@ -138,12 +123,14 @@ test('a session detached mid-flight leaves no loading behind', async () => {
   render(surfaceUi(makeCtx(), setZecPrice));
   await jest.advanceTimersByTimeAsync(0);
   expect(price).toHaveBeenCalledTimes(2);
-  expect(setZecPrice).toHaveBeenCalledWith(42, expect.any(Number));
+  expect(setZecPrice).toHaveBeenCalledWith(
+    expect.objectContaining({ zecPrice: 42 }),
+  );
 });
 
 test('a price landing while the app is away is recorded', async () => {
   jest.useFakeTimers();
-  let land: (v: { price: number; error: string }) => void = () => {};
+  let land: (v: SwmPriceOutcome) => void = () => {};
   price.mockImplementationOnce(
     () =>
       new Promise(resolve => {
@@ -157,15 +144,17 @@ test('a price landing while the app is away is recorded', async () => {
   expect(price).toHaveBeenCalledTimes(1);
 
   fireAppState('background');
-  land({ price: 42, error: '' });
+  land(swmOk(42));
   await jest.advanceTimersByTimeAsync(0);
 
-  expect(setZecPrice).toHaveBeenCalledWith(42, expect.any(Number));
+  expect(setZecPrice).toHaveBeenCalledWith(
+    expect.objectContaining({ zecPrice: 42 }),
+  );
 });
 
 test('a parked return the landing declines is consumed, not doubled', async () => {
   jest.useFakeTimers();
-  let land: (v: { price: number; error: string }) => void = () => {};
+  let land: (v: SwmPriceOutcome) => void = () => {};
   price
     .mockImplementationOnce(
       () =>
@@ -173,22 +162,20 @@ test('a parked return the landing declines is consumed, not doubled', async () =
           land = resolve;
         }),
     )
-    .mockResolvedValue({ price: -1, error: 'refused' });
+    .mockResolvedValue(swmFailed());
   const setZecPrice = jest.fn();
 
-  const view = render(
-    surfaceUi(makeCtx({ mixnetView: READY_VIEW }), setZecPrice),
-  );
+  const view = render(surfaceUi(makeCtx({ showSwmPrice: true }), setZecPrice));
   await jest.advanceTimersByTimeAsync(0);
   expect(price).toHaveBeenCalledTimes(1);
 
   priceFetcherStore.foregroundReturned();
-  view.rerender(surfaceUi(makeCtx({ mixnetView: DIED_VIEW }), setZecPrice));
-  land({ price: -1, error: 'refused' });
+  view.rerender(surfaceUi(makeCtx({ showSwmPrice: false }), setZecPrice));
+  land(swmFailed());
   await jest.advanceTimersByTimeAsync(0);
 
   await jest.advanceTimersByTimeAsync(6_000);
-  view.rerender(surfaceUi(makeCtx({ mixnetView: READY_VIEW }), setZecPrice));
+  view.rerender(surfaceUi(makeCtx({ showSwmPrice: true }), setZecPrice));
   await jest.advanceTimersByTimeAsync(0);
 
   expect(price).toHaveBeenCalledTimes(3);
@@ -206,13 +193,13 @@ test('the boot fetch renders nothing before the first price', async () => {
   expect(view.queryByTestId('pricefetcher.ring')).toBeNull();
 });
 
-test('the cadence plus fetch latency does not dim', () => {
-  const withinHeadroom = Date.now() - (PRICE_REFRESH_MAX_MS + 10_000);
-  const { result: healthy } = renderHook(() => usePriceStale(withinHeadroom));
+test('a price dims only after five minutes without a fresh read', () => {
+  const inside = Date.now() - (5 * 60_000 - 1_000);
+  const { result: healthy } = renderHook(() => usePriceStale(inside));
   expect(healthy.current).toBe(false);
 
-  const pastHeadroom = Date.now() - (PRICE_REFRESH_MAX_MS + 31_000);
-  const { result: slipped } = renderHook(() => usePriceStale(pastHeadroom));
+  const past = Date.now() - (5 * 60_000 + 1_000);
+  const { result: slipped } = renderHook(() => usePriceStale(past));
   expect(slipped.current).toBe(true);
 });
 

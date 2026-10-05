@@ -1,11 +1,13 @@
 jest.mock('@app/walletBackend', () => ({
   __esModule: true,
-  getZecPrice: jest.fn(),
+  fetchSwmPrice: jest.fn(),
 }));
 
 import * as fs from 'fs';
 import * as path from 'path';
 import 'react-native';
+import type { ZecPriceType } from '@app/AppState';
+import { mockMainnetInfo, swmOk } from '../__mocks__/dataMocks/mockSwmPrice';
 import type { AppStateStatus } from 'react-native';
 import React from 'react';
 import { render } from '@testing-library/react-native';
@@ -21,44 +23,29 @@ import {
   defaultAppContextLoaded,
 } from '@app/context';
 import { SelectServerEnum } from '@app/AppState';
-import { getZecPrice } from '@app/walletBackend';
-import { mockInfo } from '../__mocks__/dataMocks/mockInfo';
-import { MixnetView } from '@app/walletBackend/transforms/mixnetView';
+import { fetchSwmPrice } from '@app/walletBackend';
 
-const price = getZecPrice as jest.MockedFunction<typeof getZecPrice>;
-
-const READY_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.ready',
-  socks5Addr: '127.0.0.1:1080',
-  narration: null,
-  sendBlocked: false,
-  recovery: 'none',
-  reconnecting: false,
-};
+const price = fetchSwmPrice as jest.MockedFunction<typeof fetchSwmPrice>;
 
 type Ctx = typeof defaultAppContextLoaded;
 const makeCtx = (over?: Partial<Ctx>): Ctx => ({
   ...defaultAppContextLoaded,
   translate: (k: string) => k,
   zecPrice: { zecPrice: 0, date: 0 },
-  nym: true,
-  info: mockInfo,
+  info: mockMainnetInfo,
   selectServer: SelectServerEnum.auto,
-  mixnetView: READY_VIEW,
+  showSwmPrice: true,
   ...over,
 });
 
-const surfaceUi = (ctx: Ctx, setZecPrice: (p: number, d: number) => void) => (
+const surfaceUi = (ctx: Ctx, setZecPrice: (p: ZecPriceType) => void) => (
   <ContextAppLoadedProvider value={{ ...ctx, setZecPrice }}>
     <PriceTrafficDriver />
     <PriceFetcher />
   </ContextAppLoadedProvider>
 );
 
-const driverOnlyUi = (
-  ctx: Ctx,
-  setZecPrice: (p: number, d: number) => void,
-) => (
+const driverOnlyUi = (ctx: Ctx, setZecPrice: (p: ZecPriceType) => void) => (
   <ContextAppLoadedProvider value={{ ...ctx, setZecPrice }}>
     <PriceTrafficDriver />
   </ContextAppLoadedProvider>
@@ -87,16 +74,16 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test('a switched-off transport mutes the ring and stops its fill', async () => {
+test('a switched-off price setting mutes the ring and stops its fill', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
   const priceDate = Date.now();
 
   const view = render(
     surfaceUi(
       makeCtx({
-        mixnetView: READY_VIEW,
+        showSwmPrice: true,
         zecPrice: { zecPrice: 42, date: priceDate },
       }),
       setZecPrice,
@@ -110,14 +97,7 @@ test('a switched-off transport mutes the ring and stops its fill', async () => {
   view.rerender(
     surfaceUi(
       makeCtx({
-        mixnetView: {
-          statusKey: 'mixnet.status.off',
-          socks5Addr: null,
-          narration: null,
-          sendBlocked: false,
-          recovery: 'reenable',
-          reconnecting: false,
-        },
+        showSwmPrice: false,
         zecPrice: { zecPrice: 42, date: priceDate },
       }),
       setZecPrice,
@@ -148,10 +128,10 @@ test('an entry flight with no armed deadline never reads full', async () => {
 
 test('the driver writes deps when an input moves, not per render', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setDepsSpy = jest.spyOn(priceFetcherStore, 'setDeps');
   const setZecPrice = jest.fn();
-  const ctx = makeCtx({ mixnetView: READY_VIEW });
+  const ctx = makeCtx({ showSwmPrice: true });
 
   const view = render(driverOnlyUi(ctx, setZecPrice));
   await jest.advanceTimersByTimeAsync(0);
@@ -164,8 +144,9 @@ test('the driver writes deps when an input moves, not per render', async () => {
   setDepsSpy.mockRestore();
 });
 
-test('the snapshot carries exactly its four read fields', () => {
+test('the snapshot carries exactly its five read fields', () => {
   expect(Object.keys(priceFetcherStore.snapshot()).sort()).toEqual([
+    'lastErrorKey',
     'loading',
     'nextFetchAt',
     'nextFetchDelayMs',
@@ -189,6 +170,7 @@ test('no any-casts in the price suites and no null in the store', () => {
     'priceStore.nativeCall.tsx',
     'priceStore.contract.tsx',
     'priceStore.recovery.tsx',
+    'priceStore.freshness.tsx',
     'Send.priceCta.unit.tsx',
     'PriceFetcher.snapshot.tsx',
   ];

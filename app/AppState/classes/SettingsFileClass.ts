@@ -31,6 +31,7 @@ export default class SettingsFileClass {
   blockExplorer: BlockExplorerEnum;
   nym: boolean;
   ironwoodOnboardSeen: boolean;
+  showSwmPrice: boolean;
 
   constructor(
     server: ServerType,
@@ -52,6 +53,7 @@ export default class SettingsFileClass {
     blockExplorer: BlockExplorerEnum,
     nym: boolean,
     ironwoodOnboardSeen: boolean,
+    showSwmPrice: boolean,
   ) {
     this.server = server;
     this.currency = currency;
@@ -72,5 +74,6 @@ export default class SettingsFileClass {
     this.blockExplorer = blockExplorer;
     this.nym = nym;
     this.ironwoodOnboardSeen = ironwoodOnboardSeen;
+    this.showSwmPrice = showSwmPrice;
   }
 }

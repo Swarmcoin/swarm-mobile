@@ -1,9 +1,15 @@
 jest.mock('@app/walletBackend', () => ({
   __esModule: true,
-  getZecPrice: jest.fn(),
+  fetchSwmPrice: jest.fn(),
 }));
 
 import 'react-native';
+import type { ZecPriceType } from '@app/AppState';
+import {
+  mockMainnetInfo,
+  swmFailed,
+  swmOk,
+} from '../__mocks__/dataMocks/mockSwmPrice';
 import type { AppStateStatus } from 'react-native';
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
@@ -16,82 +22,39 @@ import {
   ContextAppLoadedProvider,
   defaultAppContextLoaded,
 } from '@app/context';
-import { SelectServerEnum } from '@app/AppState';
-import { mockInfo } from '../__mocks__/dataMocks/mockInfo';
-import { getZecPrice } from '@app/walletBackend';
-import { MixnetView } from '@app/walletBackend/transforms/mixnetView';
+import { ChainNameEnum, SelectServerEnum } from '@app/AppState';
+import { fetchSwmPrice, SwmPriceOutcome } from '@app/walletBackend';
 
-const READY_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.ready',
-  socks5Addr: '127.0.0.1:1080',
-  narration: null,
-  sendBlocked: false,
-  recovery: 'none',
-  reconnecting: false,
-};
-
-const OFF_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.off',
-  socks5Addr: null,
-  narration: null,
-  sendBlocked: false,
-  recovery: 'reenable',
-  reconnecting: false,
-};
-
-const DIED_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.died',
-  socks5Addr: null,
-  narration: null,
-  sendBlocked: true,
-  recovery: 'reenable',
-  reconnecting: false,
-};
-
-const UNKNOWN_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.unknown',
-  socks5Addr: null,
-  narration: null,
-  sendBlocked: true,
-  recovery: 'reenable',
-  reconnecting: false,
-};
-
-const price = getZecPrice as jest.MockedFunction<typeof getZecPrice>;
+const price = fetchSwmPrice as jest.MockedFunction<typeof fetchSwmPrice>;
 
 type Ctx = typeof defaultAppContextLoaded;
 const makeCtx = (over?: Partial<Ctx>): Ctx => ({
   ...defaultAppContextLoaded,
   translate: (k: string) => k,
   zecPrice: { zecPrice: 0, date: 0 },
-  nym: true,
-  info: mockInfo,
+  info: mockMainnetInfo,
   selectServer: SelectServerEnum.auto,
-  mixnetView: READY_VIEW,
+  showSwmPrice: true,
   ...over,
 });
 
-const surfaceUi = (ctx: Ctx, setZecPrice: (p: number, d: number) => void) => (
+const surfaceUi = (ctx: Ctx, setZecPrice: (p: ZecPriceType) => void) => (
   <ContextAppLoadedProvider value={{ ...ctx, setZecPrice }}>
     {PriceTrafficDriver ? <PriceTrafficDriver /> : <></>}
     <PriceFetcher />
   </ContextAppLoadedProvider>
 );
 
-const driverOnlyUi = (
-  ctx: Ctx,
-  setZecPrice: (p: number, d: number) => void,
-) => (
+const driverOnlyUi = (ctx: Ctx, setZecPrice: (p: ZecPriceType) => void) => (
   <ContextAppLoadedProvider value={{ ...ctx, setZecPrice }}>
     {PriceTrafficDriver ? <PriceTrafficDriver /> : <></>}
   </ContextAppLoadedProvider>
 );
 
-const seedDeps = (setZecPrice: (p: number, d: number) => void) => {
+const seedDeps = (setZecPrice: (p: ZecPriceType) => void) => {
   priceFetcherStore.setDeps({
     setZecPrice,
-    mixnetStatusKey: 'mixnet.status.unknown',
-    priceFetchable: true,
+    priceFetchable: false,
   });
 };
 
@@ -128,7 +91,7 @@ afterEach(() => {
 });
 
 test('remounting display fetchers starts no new fetch', async () => {
-  price.mockResolvedValue({ price: -1, error: 'refused' });
+  price.mockResolvedValue(swmFailed());
   const setZecPrice = jest.fn();
   seedDeps(setZecPrice);
 
@@ -142,8 +105,8 @@ test('remounting display fetchers starts no new fetch', async () => {
   expect(price).toHaveBeenCalledTimes(2);
 });
 
-test('a transport dying mid-flight stops the retry', async () => {
-  let land: (v: { price: number; error: string }) => void = () => {};
+test('the price setting switched off mid-flight stops the retry', async () => {
+  let land: (v: SwmPriceOutcome) => void = () => {};
   price
     .mockImplementationOnce(
       () =>
@@ -151,22 +114,22 @@ test('a transport dying mid-flight stops the retry', async () => {
           land = resolve;
         }),
     )
-    .mockResolvedValue({ price: -1, error: 'refused' });
+    .mockResolvedValue(swmFailed());
   const setZecPrice = jest.fn();
   seedDeps(setZecPrice);
 
   const view = render(surfaceUi(makeCtx(), setZecPrice));
   await waitFor(() => expect(price).toHaveBeenCalledTimes(1));
 
-  view.rerender(surfaceUi(makeCtx({ mixnetView: DIED_VIEW }), setZecPrice));
-  land({ price: -1, error: 'refused' });
+  view.rerender(surfaceUi(makeCtx({ showSwmPrice: false }), setZecPrice));
+  land(swmFailed());
   await flush();
 
   expect(price).toHaveBeenCalledTimes(1);
 });
 
 test('a return shortly after a failed fetch still fetches', async () => {
-  price.mockResolvedValue({ price: -1, error: 'refused' });
+  price.mockResolvedValue(swmFailed());
   const setZecPrice = jest.fn();
   seedDeps(setZecPrice);
 
@@ -181,30 +144,28 @@ test('a return shortly after a failed fetch still fetches', async () => {
   expect(price.mock.calls.length).toBeGreaterThan(2);
 });
 
-test('a died transport pauses the cadence until the status recovers', async () => {
+test('a switched-off price setting pauses the cadence until it is on again', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: -1, error: 'refused' });
+  price.mockResolvedValue(swmFailed());
   const setZecPrice = jest.fn();
   seedDeps(setZecPrice);
 
-  const view = render(
-    surfaceUi(makeCtx({ mixnetView: DIED_VIEW }), setZecPrice),
-  );
+  const view = render(surfaceUi(makeCtx({ showSwmPrice: false }), setZecPrice));
   await jest.advanceTimersByTimeAsync(61_000);
   expect(price).not.toHaveBeenCalled();
 
-  view.rerender(surfaceUi(makeCtx({ mixnetView: READY_VIEW }), setZecPrice));
+  view.rerender(surfaceUi(makeCtx({ showSwmPrice: true }), setZecPrice));
   await jest.advanceTimersByTimeAsync(0);
   expect(price).toHaveBeenCalled();
 });
 
-test('a switched-off transport starts no fetch, the Nym toggle notwithstanding', async () => {
-  price.mockResolvedValue({ price: 42, error: '' });
+test('a switched-off price setting starts no fetch, the Nym toggle notwithstanding', async () => {
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
   for (const nym of [true, false]) {
     const view = render(
-      surfaceUi(makeCtx({ nym, mixnetView: OFF_VIEW }), setZecPrice),
+      surfaceUi(makeCtx({ nym, showSwmPrice: false }), setZecPrice),
     );
     await flush();
     await flush();
@@ -213,11 +174,18 @@ test('a switched-off transport starts no fetch, the Nym toggle notwithstanding',
   }
 });
 
-test('an unknowable transport starts no fetch', async () => {
-  price.mockResolvedValue({ price: 42, error: '' });
+test('a chain with no SWM listing starts no fetch', async () => {
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
-  render(surfaceUi(makeCtx({ mixnetView: UNKNOWN_VIEW }), setZecPrice));
+  render(
+    surfaceUi(
+      makeCtx({
+        info: { ...mockMainnetInfo, chainName: ChainNameEnum.swarmChainName },
+      }),
+      setZecPrice,
+    ),
+  );
   await flush();
   await flush();
   expect(price).not.toHaveBeenCalled();
@@ -225,7 +193,7 @@ test('an unknowable transport starts no fetch', async () => {
 
 test('a route that keeps refusing keeps retrying, not dying', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: -1, error: 'refused' });
+  price.mockResolvedValue(swmFailed());
   const setZecPrice = jest.fn();
 
   render(surfaceUi(makeCtx(), setZecPrice));
@@ -239,18 +207,20 @@ test('a route that keeps refusing keeps retrying, not dying', async () => {
 });
 
 test('the wallet fetches regardless of the displayed currency', async () => {
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
   seedDeps(setZecPrice);
 
   render(driverOnlyUi(makeCtx(), setZecPrice));
   await waitFor(() => expect(price).toHaveBeenCalled(), { timeout: 1500 });
   await waitFor(() =>
-    expect(setZecPrice).toHaveBeenCalledWith(42, expect.any(Number)),
+    expect(setZecPrice).toHaveBeenCalledWith(
+      expect.objectContaining({ zecPrice: 42 }),
+    ),
   );
 });
 
-test('a wedged native call is reused, never multiplied', async () => {
+test('a wedged request is reused, never multiplied', async () => {
   jest.useFakeTimers();
   price.mockImplementation(() => new Promise(() => {}));
   const setZecPrice = jest.fn();
@@ -264,7 +234,7 @@ test('a wedged native call is reused, never multiplied', async () => {
 
 test('the raw active event fetches nothing; the opened gate does', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
   seedDeps(setZecPrice);
 

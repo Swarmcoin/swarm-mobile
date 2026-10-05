@@ -115,8 +115,8 @@ export default interface AppContextLoaded {
   // refresh the different list in the App: history & messages
   doRefresh: (s: ScreenEnum) => void;
 
-  // fetch the ZEC price in USD
-  setZecPrice: (p: number, d: number) => void;
+  // records the latest SWM price reading
+  setZecPrice: (p: ZecPriceType) => void;
 
   // donation address
   zenniesDonationAddress: string;
@@ -146,6 +146,7 @@ export default interface AppContextLoaded {
   recoveryWalletInfoOnDevice: boolean;
   performanceLevel: RPCPerformanceLevelEnum;
   blockExplorer: BlockExplorerEnum;
+  showSwmPrice: boolean;
   // The persisted send-route preference; the transport runs either way.
   nym: boolean;
   setNymOption: (value: boolean) => Promise<void>;

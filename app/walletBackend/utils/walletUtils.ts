@@ -15,49 +15,7 @@ import RPCModule from '@app/RPCModule';
 import { callFfi, FfiResult } from '@app/walletBackend/ffi';
 import { serverUris } from '@app/uris';
 import { nativeChainHint } from '@app/utils/networkProfiles';
-import { RPCZecPriceType } from '@app/walletBackend/types/RPCZecPriceType';
 import { RPCSeedType } from '@app/walletBackend/types/RPCSeedType';
-
-/**
- * Fetches the current ZEC/USD price from the zingolib price oracle.
- *
- * Price sentinel values:
- *   0   — initial/default (no price data yet)
- *  -1   — error inside zingolib (a typed FFI rejection, or an oracle error)
- *  -2   — malformed/empty success payload
- *  > 0  — real USD price
- */
-export async function getZecPrice(): Promise<{
-  price: number;
-  error: string;
-}> {
-  const result = await callFfi(RPCModule.zecPriceInfo());
-  if (!result.ok) {
-    return { price: -1, error: result.error.message };
-  }
-  if (!result.value) {
-    return { price: -2, error: 'Internal Error fetching price' };
-  }
-  try {
-    const resultJSON: RPCZecPriceType = JSON.parse(result.value);
-    if (resultJSON.error) {
-      return { price: -1, error: resultJSON.error };
-    }
-    if (!resultJSON.current_price) {
-      // if no exists the field or is empty
-      return { price: 0, error: '' };
-    }
-    if (isNaN(resultJSON.current_price)) {
-      return {
-        price: -1,
-        error: `Error fetching price ${resultJSON.current_price}`,
-      };
-    }
-    return { price: resultJSON.current_price, error: '' };
-  } catch (error) {
-    return { price: -2, error: `Critical Error fetching price ${error}` };
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Wallet lifecycle — create / load / restore / save / delete
@@ -103,7 +61,6 @@ async function applyBroadcastCandidates(
     // so a failure here must not block wallet creation.
   }
 }
-
 
 // THE FFI CHAIN-HINT BOUNDARY.
 //

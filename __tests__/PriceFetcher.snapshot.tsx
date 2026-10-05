@@ -3,7 +3,9 @@
  */
 jest.mock('@app/walletBackend', () => ({
   __esModule: true,
-  getZecPrice: jest.fn().mockResolvedValue({ price: -1, error: 'refused' }),
+  fetchSwmPrice: jest
+    .fn()
+    .mockResolvedValue({ kind: 'error', errorKey: 'price.error-network' }),
 }));
 
 import 'react-native';

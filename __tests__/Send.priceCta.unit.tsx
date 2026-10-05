@@ -11,6 +11,7 @@ jest.mock('@ui/widgets/priceFetcherStore', () => ({
       nextFetchAt: 0,
       nextFetchDelayMs: 0,
       surfaceActive: false,
+      lastErrorKey: undefined,
     })),
     foregroundReturned: jest.fn(),
     fetch: jest.fn(),
@@ -20,6 +21,7 @@ jest.mock('@ui/widgets/priceFetcherStore', () => ({
     nextFetchAt: 0,
     nextFetchDelayMs: 0,
     surfaceActive: false,
+    lastErrorKey: undefined,
   })),
   usePriceHealth: jest.fn(() => 'live'),
 }));
@@ -105,6 +107,7 @@ beforeEach(() => {
     nextFetchAt: 0,
     nextFetchDelayMs: 0,
     surfaceActive: false,
+    lastErrorKey: undefined,
   });
   healthHook.mockImplementation(priceDate =>
     priceDate === 0

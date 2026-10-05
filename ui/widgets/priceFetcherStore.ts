@@ -1,18 +1,27 @@
 import { useEffect, useReducer, useSyncExternalStore } from 'react';
 import { AppState, NativeEventSubscription } from 'react-native';
-import { getZecPrice } from '@app/walletBackend';
-import { MixnetStatusKey } from '@app/walletBackend/transforms/mixnetView';
+import {
+  fetchSwmPrice,
+  SwmPriceErrorKey,
+  SwmPriceOutcome,
+  SwmPriceReading,
+} from '@app/walletBackend';
+import { errorKeyed } from '@app/AppState/types/Result';
+import ZecPriceType from '@app/AppState/types/ZecPriceType';
+import { loadSwmPrice, saveSwmPrice } from '@app/services/swmPriceCache';
 
-export const PRICE_REFRESH_MIN_MS = 45_000;
-export const PRICE_REFRESH_MAX_MS = 75_000;
-const PRICE_FETCH_TIMEOUT_MS = 30_000;
-export const PRICE_STALE_MS = PRICE_REFRESH_MAX_MS + PRICE_FETCH_TIMEOUT_MS;
+export const PRICE_REFRESH_MIN_MS = 55_000;
+export const PRICE_REFRESH_MAX_MS = 65_000;
+const PRICE_FETCH_TIMEOUT_MS = 10_000;
+export const PRICE_FRESH_MS = 5 * 60_000;
+export const PRICE_AGEING_MS = 30 * 60_000;
+export const PRICE_UNAVAILABLE_MS = 60 * 60_000;
+export const PRICE_STALE_MS = PRICE_FRESH_MS;
 const FETCH_BURST_COOLDOWN_MS = 5_000;
-const NATIVE_CALL_TTL_MS = 2 * PRICE_REFRESH_MAX_MS;
+const FLIGHT_TTL_MS = 2 * PRICE_REFRESH_MAX_MS;
 
 type PriceInputs = {
-  setZecPrice: (price: number, date: number) => void;
-  mixnetStatusKey: MixnetStatusKey;
+  setZecPrice: (price: ZecPriceType) => void;
   priceFetchable: boolean;
 };
 
@@ -21,6 +30,7 @@ type PriceSurfaceSnapshot = {
   nextFetchAt: number;
   nextFetchDelayMs: number;
   surfaceActive: boolean;
+  lastErrorKey: SwmPriceErrorKey | undefined;
 };
 
 type Cadence =
@@ -33,11 +43,11 @@ type Cadence =
     }
   | { state: 'due'; deadline: number; delayMs: number };
 
-type NativeFlight =
+type Flight =
   | { state: 'none' }
   | {
       state: 'inFlight';
-      call: Promise<{ price: number; error: string }>;
+      call: Promise<SwmPriceOutcome>;
       startedAt: number;
     };
 
@@ -52,7 +62,8 @@ let appAway = false;
 let lastFetchStartAt = 0;
 let lastSuccessAt = 0;
 let lastReturnFetchAt = 0;
-let nativeFlight: NativeFlight = { state: 'none' };
+let lastErrorKey: SwmPriceErrorKey | undefined;
+let flight: Flight = { state: 'none' };
 const listeners = new Set<() => void>();
 
 let snapshotCache: PriceSurfaceSnapshot = {
@@ -60,6 +71,7 @@ let snapshotCache: PriceSurfaceSnapshot = {
   nextFetchAt: 0,
   nextFetchDelayMs: 0,
   surfaceActive: false,
+  lastErrorKey: undefined,
 };
 
 function emit(): void {
@@ -76,11 +88,7 @@ function clearAuto(): void {
 
 function surfaceMayFetch(): boolean {
   return (
-    deps !== undefined &&
-    deps.mixnetStatusKey === 'mixnet.status.ready' &&
-    deps.priceFetchable &&
-    attachCount > 0 &&
-    !appAway
+    deps !== undefined && deps.priceFetchable && attachCount > 0 && !appAway
   );
 }
 
@@ -104,39 +112,60 @@ function scheduleAuto(): void {
   emit();
 }
 
-// A wedged native call is reused until its TTL, then replaced.
-function startNativeCall(): Promise<{ price: number; error: string }> {
+// A wedged request is reused until its TTL, then replaced.
+function startFlight(): Promise<SwmPriceOutcome> {
   if (
-    nativeFlight.state === 'inFlight' &&
-    Date.now() - nativeFlight.startedAt <= NATIVE_CALL_TTL_MS
+    flight.state === 'inFlight' &&
+    Date.now() - flight.startedAt <= FLIGHT_TTL_MS
   ) {
-    return nativeFlight.call;
+    return flight.call;
   }
-  const launched: Promise<{ price: number; error: string }> =
-    getZecPrice().finally(() => {
-      if (nativeFlight.state === 'inFlight' && nativeFlight.call === launched) {
-        nativeFlight = { state: 'none' };
-      }
-    });
-  nativeFlight = { state: 'inFlight', call: launched, startedAt: Date.now() };
+  const launched: Promise<SwmPriceOutcome> = fetchSwmPrice().finally(() => {
+    if (flight.state === 'inFlight' && flight.call === launched) {
+      flight = { state: 'none' };
+    }
+  });
+  flight = { state: 'inFlight', call: launched, startedAt: Date.now() };
   return launched;
 }
 
-// Resolves -3 on timeout and -2 on a rejected native call.
-async function boundedPrice(): Promise<number> {
+async function boundedPrice(): Promise<SwmPriceOutcome> {
   let bound: ReturnType<typeof setTimeout> | undefined;
-  const expiry = new Promise<{ price: number }>(resolve => {
-    bound = setTimeout(() => resolve({ price: -3 }), PRICE_FETCH_TIMEOUT_MS);
+  const expiry = new Promise<SwmPriceOutcome>(resolve => {
+    bound = setTimeout(
+      () => resolve(errorKeyed('price.error-timeout')),
+      PRICE_FETCH_TIMEOUT_MS,
+    );
   });
   try {
-    const { price } = await Promise.race([startNativeCall(), expiry]);
-    return price;
+    return await Promise.race([startFlight(), expiry]);
   } catch {
-    return -2;
+    return errorKeyed('price.error-network');
   } finally {
     clearTimeout(bound);
   }
 }
+
+/** The display record of one relay reading taken at `date`. */
+export function priceFromReading(
+  reading: SwmPriceReading,
+  date: number,
+): ZecPriceType {
+  return {
+    zecPrice: reading.priceUsd,
+    date,
+    changePct24h: reading.changePct24h,
+    sparklineUsd: reading.sparklineUsd,
+    source: reading.source,
+    generatedUnix: reading.generatedUnix,
+    relayStale: reading.stale,
+    pool: reading.pool,
+    restored: false,
+  };
+}
+
+const retriable = (outcome: SwmPriceOutcome): boolean =>
+  outcome.kind === 'error' && outcome.errorKey === 'price.error-network';
 
 async function doFetch(): Promise<void> {
   if (loading || !surfaceMayFetch() || !deps) {
@@ -149,23 +178,23 @@ async function doFetch(): Promise<void> {
   lastFetchStartAt = Date.now();
   emit();
   try {
-    let price = await boundedPrice();
-    if (
-      price <= 0 &&
-      price !== -3 &&
-      epoch === sessionEpoch &&
-      surfaceMayFetch()
-    ) {
-      price = await boundedPrice();
+    let outcome = await boundedPrice();
+    if (retriable(outcome) && epoch === sessionEpoch && surfaceMayFetch()) {
+      outcome = await boundedPrice();
     }
 
     if (epoch !== sessionEpoch) {
       return;
     }
-    if (price > 0) {
+    if (outcome.kind === 'swmPrice') {
       entryPending = false;
       lastSuccessAt = Date.now();
-      d.setZecPrice(price, lastSuccessAt);
+      lastErrorKey = undefined;
+      const price = priceFromReading(outcome.reading, lastSuccessAt);
+      d.setZecPrice(price);
+      saveSwmPrice(price).catch(() => {});
+    } else {
+      lastErrorKey = outcome.errorKey;
     }
   } finally {
     if (epoch === sessionEpoch) {
@@ -197,6 +226,17 @@ function entryOrSchedule(): void {
   }
 }
 
+// The kept reading shows, greyed, until the first fresh read replaces it.
+function restoreKept(epoch: number): void {
+  loadSwmPrice()
+    .then(kept => {
+      if (kept && epoch === sessionEpoch && lastSuccessAt === 0 && deps) {
+        deps.setZecPrice(kept);
+      }
+    })
+    .catch(() => {});
+}
+
 // Only foregroundReturned ends the pause, because 'active' can be a locked wallet.
 function onAppStateChange(next: string): void {
   if (next === 'background') {
@@ -221,6 +261,7 @@ export const priceFetcherStore = {
     if (attachCount === 1) {
       appAway = AppState.currentState === 'background';
       appStateSub = AppState.addEventListener('change', onAppStateChange);
+      restoreKept(sessionEpoch);
       entryOrSchedule();
     }
     return () => {
@@ -234,7 +275,8 @@ export const priceFetcherStore = {
         lastFetchStartAt = 0;
         lastSuccessAt = 0;
         lastReturnFetchAt = 0;
-        nativeFlight = { state: 'none' };
+        lastErrorKey = undefined;
+        flight = { state: 'none' };
         deps = undefined;
         clearAuto();
       }
@@ -264,12 +306,14 @@ export const priceFetcherStore = {
       nextFetchAt: cadence.state === 'idle' ? 0 : cadence.deadline,
       nextFetchDelayMs: cadence.state === 'idle' ? 0 : cadence.delayMs,
       surfaceActive: surfaceMayFetch(),
+      lastErrorKey,
     };
     if (
       next.loading !== snapshotCache.loading ||
       next.nextFetchAt !== snapshotCache.nextFetchAt ||
       next.nextFetchDelayMs !== snapshotCache.nextFetchDelayMs ||
-      next.surfaceActive !== snapshotCache.surfaceActive
+      next.surfaceActive !== snapshotCache.surfaceActive ||
+      next.lastErrorKey !== snapshotCache.lastErrorKey
     ) {
       snapshotCache = next;
     }
@@ -279,8 +323,9 @@ export const priceFetcherStore = {
     lastFetchStartAt = 0;
     lastSuccessAt = 0;
     lastReturnFetchAt = 0;
+    lastErrorKey = undefined;
     entryPending = false;
-    nativeFlight = { state: 'none' };
+    flight = { state: 'none' };
     loading = false;
     clearAuto();
   },
@@ -324,4 +369,53 @@ export function usePriceHealth(priceDate: number | undefined): PriceHealth {
     return 'absent';
   }
   return stale ? 'stale' : 'live';
+}
+
+export type PriceFreshness =
+  'fresh' | 'ageing' | 'stale' | 'unavailable' | 'absent';
+
+/** Where a reading sits on the fresh, ageing, stale and unavailable scale at `now`. */
+export function priceFreshness(
+  price: ZecPriceType,
+  now: number,
+): PriceFreshness {
+  if (price.date <= 0 || price.zecPrice <= 0) {
+    return 'absent';
+  }
+  const age = now - price.date;
+  if (age > PRICE_UNAVAILABLE_MS) {
+    return 'unavailable';
+  }
+  if (age > PRICE_AGEING_MS || price.relayStale) {
+    return 'stale';
+  }
+  if (age > PRICE_FRESH_MS || price.restored) {
+    return 'ageing';
+  }
+  return 'fresh';
+}
+
+const FRESHNESS_EDGES_MS = [
+  PRICE_FRESH_MS,
+  PRICE_AGEING_MS,
+  PRICE_UNAVAILABLE_MS,
+];
+
+export function usePriceFreshness(price: ZecPriceType): PriceFreshness {
+  const [tick, force] = useReducer((n: number) => n + 1, 0);
+  const { date } = price;
+  useEffect(() => {
+    if (date <= 0) {
+      return;
+    }
+    const untilEdge = FRESHNESS_EDGES_MS.map(
+      edge => date + edge - Date.now(),
+    ).find(ms => ms > 0);
+    if (untilEdge === undefined) {
+      return;
+    }
+    const timer = setTimeout(force, untilEdge + 50);
+    return () => clearTimeout(timer);
+  }, [date, tick]);
+  return priceFreshness(price, Date.now());
 }

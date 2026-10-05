@@ -1,9 +1,11 @@
 jest.mock('@app/walletBackend', () => ({
   __esModule: true,
-  getZecPrice: jest.fn(),
+  fetchSwmPrice: jest.fn(),
 }));
 
 import 'react-native';
+import type { ZecPriceType } from '@app/AppState';
+import { mockMainnetInfo, swmOk } from '../__mocks__/dataMocks/mockSwmPrice';
 import type { AppStateStatus } from 'react-native';
 import React from 'react';
 import { render } from '@testing-library/react-native';
@@ -18,43 +20,22 @@ import {
   defaultAppContextLoaded,
 } from '@app/context';
 import { SelectServerEnum } from '@app/AppState';
-import { getZecPrice } from '@app/walletBackend';
-import { mockInfo } from '../__mocks__/dataMocks/mockInfo';
-import { MixnetView } from '@app/walletBackend/transforms/mixnetView';
+import { fetchSwmPrice } from '@app/walletBackend';
 
-const READY_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.ready',
-  socks5Addr: '127.0.0.1:1080',
-  narration: null,
-  sendBlocked: false,
-  recovery: 'none',
-  reconnecting: false,
-};
-
-const DIED_VIEW: MixnetView = {
-  statusKey: 'mixnet.status.died',
-  socks5Addr: null,
-  narration: null,
-  sendBlocked: true,
-  recovery: 'reenable',
-  reconnecting: false,
-};
-
-const price = getZecPrice as jest.MockedFunction<typeof getZecPrice>;
+const price = fetchSwmPrice as jest.MockedFunction<typeof fetchSwmPrice>;
 
 type Ctx = typeof defaultAppContextLoaded;
 const makeCtx = (over?: Partial<Ctx>): Ctx => ({
   ...defaultAppContextLoaded,
   translate: (k: string) => k,
   zecPrice: { zecPrice: 0, date: 0 },
-  nym: true,
-  info: mockInfo,
+  info: mockMainnetInfo,
   selectServer: SelectServerEnum.auto,
-  mixnetView: READY_VIEW,
+  showSwmPrice: true,
   ...over,
 });
 
-const driverUi = (ctx: Ctx, setZecPrice: (p: number, d: number) => void) => (
+const driverUi = (ctx: Ctx, setZecPrice: (p: ZecPriceType) => void) => (
   <ContextAppLoadedProvider value={{ ...ctx, setZecPrice }}>
     <PriceTrafficDriver />
   </ContextAppLoadedProvider>
@@ -90,7 +71,7 @@ afterEach(() => {
 
 test('a boot fetches at once, price age notwithstanding', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
   render(
@@ -103,25 +84,23 @@ test('a boot fetches at once, price age notwithstanding', async () => {
   expect(price).toHaveBeenCalledTimes(1);
 });
 
-test('the transport turning ready mid-session fetches at once', async () => {
+test('the price setting turning on mid-session fetches at once', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
-  const view = render(
-    driverUi(makeCtx({ mixnetView: DIED_VIEW }), setZecPrice),
-  );
+  const view = render(driverUi(makeCtx({ showSwmPrice: false }), setZecPrice));
   await jest.advanceTimersByTimeAsync(10_000);
   expect(price).not.toHaveBeenCalled();
 
-  view.rerender(driverUi(makeCtx({ mixnetView: READY_VIEW }), setZecPrice));
+  view.rerender(driverUi(makeCtx({ showSwmPrice: true }), setZecPrice));
   await jest.advanceTimersByTimeAsync(0);
   expect(price).toHaveBeenCalledTimes(1);
 });
 
 test('every gate-open return from the background fetches', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
   render(driverUi(makeCtx(), setZecPrice));
@@ -138,7 +117,7 @@ test('every gate-open return from the background fetches', async () => {
 
 test('the next fetch follows the last inside the jitter window', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
   render(driverUi(makeCtx(), setZecPrice));
@@ -156,7 +135,7 @@ test('the next fetch follows the last inside the jitter window', async () => {
 
 test('every tick draws its own delay from the jitter window', async () => {
   jest.useFakeTimers();
-  price.mockResolvedValue({ price: 42, error: '' });
+  price.mockResolvedValue(swmOk(42));
   const setZecPrice = jest.fn();
 
   render(driverUi(makeCtx(), setZecPrice));

@@ -1,6 +1,6 @@
 /**
  * The rewritten walletUtils seams (zingo-mobile#1151): the boolean
- * collapses, the price sentinels, and the backup-restore path. The
+ * collapses and the backup-restore path. The
  * regression pinned hardest here: a rejected restoreExistingWalletBackup
  * must read as failure — before the typed surface, the rejection became
  * "Error: ..." prose that the caller's truthiness check misread as
@@ -21,7 +21,6 @@ jest.mock('@app/RPCModule', () => {
 import RPCModule from '@app/RPCModule';
 import {
   fetchWallet,
-  getZecPrice,
   isWalletAddress,
   resolvedTrue,
   restoreExistingWalletBackup,
@@ -88,25 +87,6 @@ describe('the existence probes contain rejections as false', () => {
     await expect(probe()).resolves.toBe(false);
     bridge[member].mockReturnValueOnce(typedRejection('Save', 'boom'));
     await expect(probe()).resolves.toBe(false);
-  });
-});
-
-describe('getZecPrice maps outcomes to its documented sentinels', () => {
-  it.each([
-    ['a typed rejection', typedRejection('Indexer', 'oracle down'), -1],
-    ['an empty resolution', Promise.resolve(''), -2],
-    ['an { error } body', Promise.resolve('{"error":"no feed"}'), -1],
-    ['a body without a price', Promise.resolve('{}'), 0],
-    ['an unparseable body', Promise.resolve('not json'), -2],
-  ])('%s', async (_case, native, sentinel) => {
-    bridge.zecPriceInfo.mockReturnValueOnce(native);
-    const { price } = await getZecPrice();
-    expect(price).toBe(sentinel);
-  });
-
-  it('a real price crosses the data channel', async () => {
-    bridge.zecPriceInfo.mockResolvedValueOnce('{"current_price": 42.5}');
-    await expect(getZecPrice()).resolves.toEqual({ price: 42.5, error: '' });
   });
 });
 

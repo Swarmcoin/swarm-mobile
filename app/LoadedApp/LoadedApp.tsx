@@ -244,6 +244,7 @@ export default function LoadedApp(props: LoadedAppProps) {
     BlockExplorerEnum.Swarmexplorer,
   );
   const [nym, setNym] = useState<boolean>(false);
+  const [showSwmPrice, setShowSwmPrice] = useState<boolean>(true);
   const [zenniesDonationAddress, setZenniesDonationAddress] =
     useState<string>('');
   const file = useMemo(
@@ -491,6 +492,7 @@ export default function LoadedApp(props: LoadedAppProps) {
       } else {
         await SettingsFileImpl.writeSettings(SettingsNameEnum.nym, false);
       }
+      setShowSwmPrice(settings.showSwmPrice !== false);
 
       // reading background task info
       const backgroundSyncInfoJson = await BackgroundFileImpl.readBackground();
@@ -686,6 +688,7 @@ export default function LoadedApp(props: LoadedAppProps) {
         firstLaunchingMessage={firstLaunchingMessage}
         performanceLevel={performanceLevel}
         blockExplorer={blockExplorer}
+        showSwmPrice={showSwmPrice}
         nym={nym}
       />
     );
@@ -749,6 +752,7 @@ type LoadedAppClassProps = {
   firstLaunchingMessage: LaunchingModeEnum;
   performanceLevel: RPCPerformanceLevelEnum;
   blockExplorer: BlockExplorerEnum;
+  showSwmPrice: boolean;
   nym: boolean;
 };
 
@@ -837,6 +841,7 @@ export class LoadedAppClass extends Component<
       recoveryWalletInfoOnDevice: props.recoveryWalletInfoOnDevice,
       performanceLevel: props.performanceLevel,
       blockExplorer: props.blockExplorer,
+      showSwmPrice: props.showSwmPrice,
       nym: props.nym,
 
       mixnetView: INITIAL_MIXNET_VIEW,
@@ -1548,11 +1553,7 @@ export class LoadedAppClass extends Component<
     this.setSendPageState(newState);
   };
 
-  setZecPrice = (newZecPrice: number, newDate: number) => {
-    const zecPrice = {
-      zecPrice: newZecPrice,
-      date: newDate,
-    } as ZecPriceType;
+  setZecPrice = (zecPrice: ZecPriceType) => {
     if (!isEqual(this.state.zecPrice, zecPrice)) {
       this.setState({ zecPrice });
     }
@@ -2037,6 +2038,13 @@ export class LoadedAppClass extends Component<
     });
   };
 
+  setShowSwmPriceOption = async (value: boolean): Promise<void> => {
+    await SettingsFileImpl.writeSettings(SettingsNameEnum.showSwmPrice, value);
+    this.setState({
+      showSwmPrice: value,
+    });
+  };
+
   setNymOption = async (value: boolean): Promise<void> => {
     try {
       await this.rpc.setTransmitPolicy(value ? 'mixnet' : 'clearnet');
@@ -2365,6 +2373,7 @@ export class LoadedAppClass extends Component<
       recoveryWalletInfoOnDevice: this.state.recoveryWalletInfoOnDevice,
       performanceLevel: this.state.performanceLevel,
       blockExplorer: this.state.blockExplorer,
+      showSwmPrice: this.state.showSwmPrice,
       // The whole Nym surface hangs off these two, and every consumer
       // already renders nothing when `mixnetView` is null: the Settings
       // toggle, the migration gate sheet, the Send toggle and the
