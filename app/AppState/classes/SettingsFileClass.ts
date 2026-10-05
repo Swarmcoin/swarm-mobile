@@ -32,6 +32,8 @@ export default class SettingsFileClass {
   nym: boolean;
   ironwoodOnboardSeen: boolean;
   showSwmPrice: boolean;
+  // The SWARM Mainnet genesis the wallet on this device was last opened on.
+  swarmMainnetGenesis?: string;
 
   constructor(
     server: ServerType,

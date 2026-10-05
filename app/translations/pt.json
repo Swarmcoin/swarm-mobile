@@ -529,6 +529,15 @@
       "open-gecko-acc": "Abrir o pool SWM/ETH no GeckoTerminal"
     }
   },
+  "chainrestart": {
+    "title": "Rede SWARM reiniciada",
+    "notice": "A rede SWARM foi reiniciada em 2 de outubro de 2026. Seus endereços e sua frase de recuperação não mudam; os saldos começam de novo a partir da nova cadeia.",
+    "restore-hint": "O arquivo da carteira não foi alterado. Restaure a carteira com sua frase de recuperação para usá-la na nova cadeia.",
+    "error-keys": "A carteira não conseguiu ler sua frase de recuperação nem sua chave de visualização.",
+    "error-backup": "A carteira não conseguiu fazer uma cópia de segurança do seu arquivo.",
+    "error-rebuild": "Não foi possível reconstruir a carteira na nova cadeia.",
+    "error-addresses": "A carteira reconstruída não mostrou os mesmos endereços, por isso o arquivo anterior foi restaurado."
+  },
   "header": {
     "lastupdate": "às {time}"
   },

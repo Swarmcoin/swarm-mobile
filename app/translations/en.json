@@ -529,6 +529,15 @@
       "open-gecko-acc": "Open the SWM/ETH pool on GeckoTerminal"
     }
   },
+  "chainrestart": {
+    "title": "SWARM network restarted",
+    "notice": "The SWARM network was restarted on 2 October 2026. Your addresses and recovery phrase are unchanged; balances start again from the new chain.",
+    "restore-hint": "The wallet file is unchanged. Restore the wallet from your recovery phrase to use it on the new chain.",
+    "error-keys": "The wallet could not read its recovery phrase or viewing key.",
+    "error-backup": "The wallet could not make a backup copy of its file.",
+    "error-rebuild": "The wallet could not be rebuilt on the new chain.",
+    "error-addresses": "The rebuilt wallet did not show the same addresses, so the old file was put back."
+  },
   "header": {
     "lastupdate": "as of {time}"
   },

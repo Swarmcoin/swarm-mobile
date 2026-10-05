@@ -123,9 +123,11 @@ import { acknowledgeRiskNotice, hasAcknowledgedRiskNotice } from '@app/legal';
 import { AppStackParamList } from '@app/types';
 import { openSavedWallet } from '@app/walletBackend/utils/savedWallets';
 import {
+  SWARM_MAINNET_GENESIS,
   SWARM_MAINNET_PROFILE,
   SWARM_TESTNET_PROFILE,
 } from '@app/utils/networkProfiles';
+import { moveWalletToRestartedChain } from '@app/walletBackend/modules/ChainRestartService';
 
 const en = require('@app/translations/en.json');
 const es = require('@app/translations/es.json');
@@ -1126,6 +1128,14 @@ export class LoadingAppClass extends Component<
             });
             this.addLastSnackbar(walletKindStr);
           }
+          // The wallet's own chain, surfaced by the native result (reliable
+          // even Offline). The server's chain is only a pre-rebuild fallback.
+          const walletChain =
+            (resultJson.chain_name as ChainNameEnum) ||
+            this.state.server.chainName;
+          if (!(await this.onRestartedChain(walletChain, readOnly))) {
+            return;
+          }
           // if the App is restoring another wallet backup...
           // needs to recalculate the Address Book.
           const newWallet =
@@ -1140,10 +1150,7 @@ export class LoadingAppClass extends Component<
             transparentPool,
             newWallet,
             this.state.firstLaunchingMessage,
-            // The wallet's own chain, surfaced by the native result (reliable
-            // even Offline). The server's chain is only a pre-rebuild fallback.
-            (resultJson.chain_name as ChainNameEnum) ||
-              this.state.server.chainName,
+            walletChain,
           );
         } else {
           error = true;
@@ -1162,6 +1169,62 @@ export class LoadingAppClass extends Component<
         Utils.humanizeChainTokens(errorText, this.state.translate),
       );
     }
+  };
+
+  // A mainnet wallet last opened before the 2026-10-02 restart is rebuilt on
+  // the new chain once. False leaves the wallet unopened on the start menu.
+  onRestartedChain = async (
+    walletChain: ChainNameEnum,
+    readOnly: boolean,
+  ): Promise<boolean> => {
+    if (
+      walletChain !== ChainNameEnum.swarmMainnetChainName ||
+      this.state.selectServer === SelectServerEnum.offline
+    ) {
+      return true;
+    }
+    const settings = await SettingsFileImpl.readSettings();
+    if (settings.swarmMainnetGenesis === SWARM_MAINNET_GENESIS) {
+      return true;
+    }
+    const title = this.state.translate('chainrestart.title') as string;
+    const moved = await moveWalletToRestartedChain({
+      readOnly,
+      serverUri: this.state.server.uri,
+      performanceLevel: this.state.performanceLevel,
+      minConfirmations: GlobalConst.minConfirmations.toString(),
+      nowUnix: Math.floor(Date.now() / 1000),
+    });
+    if (moved.kind === 'error') {
+      this.setState({
+        actionButtonsDisabled: false,
+        screen: RouteEnum.StartMenu,
+      });
+      createAlert(
+        this.setBackgroundError,
+        this.addLastSnackbar,
+        title,
+        `${this.state.translate(moved.errorKey) as string} ${
+          this.state.translate('chainrestart.restore-hint') as string
+        }`,
+        false,
+        this.state.translate,
+      );
+      return false;
+    }
+    await SettingsFileImpl.writeSettings(
+      SettingsNameEnum.swarmMainnetGenesis,
+      SWARM_MAINNET_GENESIS,
+    );
+    createAlert(
+      this.setBackgroundError,
+      this.addLastSnackbar,
+      title,
+      this.state.translate('chainrestart.notice') as string,
+      false,
+      this.state.translate,
+    );
+    return true;
   };
 
   // A repairable file is repaired and reloaded, and a broken main that no repair fixes opens the recovery dialog.
@@ -1690,6 +1753,12 @@ export class LoadingAppClass extends Component<
     firstLaunchingMessage: LaunchingModeEnum,
     walletChainName: ChainNameEnum,
   ) => {
+    if (walletChainName === ChainNameEnum.swarmMainnetChainName) {
+      SettingsFileImpl.writeSettings(
+        SettingsNameEnum.swarmMainnetGenesis,
+        SWARM_MAINNET_GENESIS,
+      );
+    }
     this.setState(s => ({ wallet: { ...s.wallet, seed: '', ufvk: '' } }));
     this.props.navigationApp.reset({
       index: 0,

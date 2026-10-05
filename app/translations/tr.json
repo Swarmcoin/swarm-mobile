@@ -529,6 +529,15 @@
       "open-gecko-acc": "SWM/ETH havuzunu GeckoTerminal'de aç"
     }
   },
+  "chainrestart": {
+    "title": "SWARM ağı yeniden başlatıldı",
+    "notice": "SWARM ağı 2 Ekim 2026'da yeniden başlatıldı. Adresleriniz ve kurtarma ifadeniz değişmedi; bakiyeler yeni zincirden yeniden başlar.",
+    "restore-hint": "Cüzdan dosyası değişmedi. Yeni zincirde kullanmak için cüzdanı kurtarma ifadenizle geri yükleyin.",
+    "error-keys": "Cüzdan kurtarma ifadesini veya görüntüleme anahtarını okuyamadı.",
+    "error-backup": "Cüzdan dosyasının yedek kopyasını alamadı.",
+    "error-rebuild": "Cüzdan yeni zincirde yeniden oluşturulamadı.",
+    "error-addresses": "Yeniden oluşturulan cüzdan aynı adresleri göstermedi, bu yüzden eski dosya geri konuldu."
+  },
   "header": {
     "lastupdate": "{time} itibarıyla"
   },

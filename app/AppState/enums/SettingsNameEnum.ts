@@ -22,4 +22,5 @@ export enum SettingsNameEnum {
   version = 'version',
   firstUpdateWithDonation = 'firstUpdateWithDonation',
   ironwoodOnboardSeen = 'ironwoodOnboardSeen',
+  swarmMainnetGenesis = 'swarmMainnetGenesis',
 }

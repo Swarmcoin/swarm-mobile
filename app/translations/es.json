@@ -529,6 +529,15 @@
       "open-gecko-acc": "Abrir el pool SWM/ETH en GeckoTerminal"
     }
   },
+  "chainrestart": {
+    "title": "Red SWARM reiniciada",
+    "notice": "La red SWARM se reinició el 2 de octubre de 2026. Tus direcciones y tu frase de recuperación no cambian; los saldos empiezan de nuevo desde la nueva cadena.",
+    "restore-hint": "El archivo de la billetera no ha cambiado. Restaura la billetera con tu frase de recuperación para usarla en la nueva cadena.",
+    "error-keys": "La billetera no pudo leer su frase de recuperación ni su clave de visualización.",
+    "error-backup": "La billetera no pudo hacer una copia de seguridad de su archivo.",
+    "error-rebuild": "No se pudo reconstruir la billetera en la nueva cadena.",
+    "error-addresses": "La billetera reconstruida no mostró las mismas direcciones, así que se restauró el archivo anterior."
+  },
   "header": {
     "lastupdate": "a las {time}"
   },
