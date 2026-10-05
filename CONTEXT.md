@@ -261,7 +261,7 @@ Vocabulary for the mixnet transport surface. Type names follow zingolib's
 `mixnet/mode.rs` and `mixnet/route.rs`.
 
 **Mixnet Mode**:
-The feature: carrying the send and price surfaces over the Nym mixnet. A
+The feature: carrying the send surface over the Nym mixnet. A
 persisted user opt-in, default off and sticky.
 
 **Indicator**:
@@ -277,24 +277,24 @@ app never sees it.
 
 ## Price surface
 
-Vocabulary for the ZEC/USD display and its fetch lifecycle.
+Vocabulary for the SWM/USD display and its fetch lifecycle.
 
 **Price**:
-The fetched ZEC/USD value the price surface displays.
-_Avoid_: quote (legacy name in the ring components)
+The indicative SWM/USD value the SWARM price service at
+`wallet.swarm.green/api/price/swm` reports from the SWM/ETH pool on Base.
+Only a SWARM Mainnet wallet with "Show SWM price (USD)" on reads it.
+_Avoid_: quote (the pool is small, and the display says it is not one)
+
+**Freshness**:
+The age of the last good reading on the device clock: fresh under five
+minutes, ageing up to thirty ("as of hh:mm", balance greyed), stale beyond
+that or when the service marks its value stale (price greyed), unavailable
+after an hour. A reading restored from the device at start reads ageing
+until the first fetch lands.
 
 **Stale price**:
-A price whose last successful fetch is older than the cadence's longest
-draw plus one fetch bound (ten minutes and thirty seconds of wall
-clock), so a healthy cadence never dims, ceiling draws included.
-Staleness is a fact about the value's accuracy, not about fetch
-mechanics, and it is independent of transport.
-
-**Ready follow-up**:
-The one-shot fetch armed when an unattended fetch is refused during
-bootstrap; it fires when the Indicator turns `ready` and is dropped on a
-`died` status or on the next background transition. A transient `unknown`
-is one failed status poll, not a settled status, and does not drop it.
+A price past the fresh window. Staleness is a fact about the value's
+accuracy, not about fetch mechanics.
 
 ## Biometric gate
 

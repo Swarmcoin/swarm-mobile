@@ -65,9 +65,16 @@ the server back. Someone in basic mode has no way to see which server their
 wallet uses.
 
 The app speaks **only** SWARM: mainnet by default, the engineering testnet if
-you choose it in Settings. There is no ZEC, no fiat price, no currency picker,
-no donation toggle, no exchange or swap, and no public server registry: the app
-never asks a third party which server to trust.
+you choose it in Settings. There is no ZEC, no currency picker, no donation
+toggle, no exchange or swap, and no public server registry: the app never asks
+a third party which server to trust.
+
+On SWARM Mainnet the wallet shows an indicative SWM price in US dollars. It
+reads it once a minute, while the wallet is open, from the SWARM price service
+at `https://wallet.swarm.green/api/price/swm`, which reads the SWM/ETH pool on
+Base from GeckoTerminal and DexScreener. The request carries no address and no
+balance. The switch "Show SWM price (USD)" in Settings, on by default, stops
+it. The testnet shows no price.
 
 ---
 
