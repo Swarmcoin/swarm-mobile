@@ -24,6 +24,7 @@ export enum ScreenEnum {
   Wallets = 'Wallets',
   MixnetDoctor = 'MixnetDoctor',
   Pools = 'Pools',
+  Price = 'Price',
   SyncReport = 'SyncReport',
   Seed = 'Seed',
   Rescan = 'Rescan',

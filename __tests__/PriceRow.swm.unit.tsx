@@ -5,10 +5,10 @@ jest.mock('@app/walletBackend', () => ({
 
 import 'react-native';
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import en from '@app/translations/en.json';
 import { PRICE_UP } from '@app/theme/tokens';
-import PriceRow, { listingUrl } from '@ui/widgets/Header/components/PriceRow';
+import PriceRow from '@ui/widgets/Header/components/PriceRow';
 import Sparkline from '@ui/primitives/Sparkline';
 import { mockSwmPrice } from '../__mocks__/dataMocks/mockSwmPrice';
 import { mockTheme } from '../__mocks__/dataMocks/mockTheme';
@@ -139,29 +139,18 @@ test('Tests that the card has no sparkline or change chip when the relay sends n
   expect(view.queryByTestId('price.change')).toBeNull();
 });
 
-test('Tests that a tap opens the pool on DexScreener in the system browser.', async () => {
-  const RN: typeof import('react-native') = require('react-native');
-  const open = jest.spyOn(RN.Linking, 'openURL').mockResolvedValue(true);
-  const view = render(rowUi(mockSwmPrice(NOW)));
-
+test('Tests that a tap on the card opens the price page.', () => {
+  const onOpen = jest.fn();
+  const view = render(
+    <PriceRow
+      translate={translateEn}
+      zecPrice={mockSwmPrice(NOW)}
+      shown={true}
+      onOpen={onOpen}
+    />,
+  );
   fireEvent.press(view.getByTestId('price.card'));
-  await waitFor(() =>
-    expect(open).toHaveBeenCalledWith(
-      'https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
-    ),
-  );
-  open.mockRestore();
-});
-
-test('Tests that the listing link stays on dexscreener.com when the relay names another chain.', () => {
-  expect(
-    listingUrl({
-      ...mockSwmPrice(NOW),
-      pool: { chain: 'ethereum', dex: 'x', id: '0x' + 'a'.repeat(64) },
-    }),
-  ).toBe(
-    'https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
-  );
+  expect(onOpen).toHaveBeenCalledTimes(1);
 });
 
 test('Tests that the info button and a long press show the note that the price is indicative.', () => {

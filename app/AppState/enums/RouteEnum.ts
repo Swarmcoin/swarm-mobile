@@ -24,6 +24,7 @@ export enum RouteEnum {
   Computing = 'Computing',
   SyncReport = 'SyncReport',
   Pools = 'Pools',
+  Price = 'Price',
   MeetIronwood = 'MeetIronwood',
   MigrationStrategy = 'MigrationStrategy',
   MigrationTransactions = 'MigrationTransactions',

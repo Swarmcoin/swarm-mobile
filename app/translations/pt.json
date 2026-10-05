@@ -503,7 +503,32 @@
     "error-timeout": "O serviço de preços da SWARM não respondeu a tempo.",
     "error-network": "Não foi possível acessar o serviço de preços da SWARM.",
     "error-response": "O serviço de preços da SWARM enviou uma resposta que a carteira não consegue ler.",
-    "error-unavailable": "O serviço de preços da SWARM não tem um preço atual."
+    "error-unavailable": "O serviço de preços da SWARM não tem um preço atual.",
+    "page": {
+      "title": "Preço do SWM",
+      "open-acc": "Abrir a página do preço do SWM",
+      "period-1h": "1 h",
+      "period-6h": "6 h",
+      "period-24h": "24 h",
+      "range-24h": "24 h",
+      "range-48h": "48 h",
+      "range-30d": "30 d",
+      "chart-acc": "Gráfico do preço do SWM. Toque e arraste para ler um valor.",
+      "no-chart": "Ainda não há histórico de preços para este período.",
+      "balance": "SEU SALDO",
+      "liquidity": "Liquidez",
+      "volume": "Volume 24 h",
+      "fdv": "Valor totalmente diluído",
+      "trades": "Compras / vendas 24 h",
+      "fee": "Taxa do pool",
+      "network": "Rede",
+      "sources": "FONTES",
+      "pool": "Pool",
+      "token": "Token",
+      "copy-acc": "Copiar",
+      "copied": "Copiado para a área de transferência",
+      "open-gecko-acc": "Abrir o pool SWM/ETH no GeckoTerminal"
+    }
   },
   "header": {
     "lastupdate": "às {time}"

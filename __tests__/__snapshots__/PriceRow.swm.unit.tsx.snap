@@ -2,8 +2,8 @@
 
 exports[`Tests that the snapshot of the card matches when the reading is the specification example. 1`] = `
 <View
-  accessibilityLabel="Open the SWM/ETH pool on DexScreener"
-  accessibilityRole="link"
+  accessibilityLabel="Open the SWM price page"
+  accessibilityRole="button"
   accessibilityState={
     {
       "busy": undefined,

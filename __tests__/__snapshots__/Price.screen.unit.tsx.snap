@@ -1,0 +1,1509 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Tests that the snapshot of the page matches when the reading is the specification example. 1`] = `
+<View
+  style={
+    [
+      {
+        "flex": 1,
+      },
+      {
+        "backgroundColor": "#011401",
+      },
+    ]
+  }
+>
+  <View>
+    <View
+      style={
+        [
+          {},
+          {
+            "alignItems": "center",
+            "backgroundColor": "#011401",
+            "display": "flex",
+            "minHeight": 50,
+            "paddingBottom": 10,
+            "paddingTop": 0,
+          },
+        ]
+      }
+      testID="header"
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "display": "flex",
+            "flexDirection": "row",
+            "flexWrap": "wrap",
+            "gap": 8,
+            "justifyContent": "center",
+            "marginHorizontal": 5,
+            "marginTop": 12,
+          }
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "left": 0,
+          "paddingBottom": 11.5,
+          "paddingLeft": 20,
+          "paddingRight": 11.5,
+          "paddingTop": 16,
+          "position": "absolute",
+          "top": 0,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 14,
+          }
+        }
+      />
+    </View>
+    <View
+      style={
+        [
+          {},
+          {
+            "padding": 13,
+            "position": "absolute",
+            "right": 0,
+            "top": 0,
+          },
+        ]
+      }
+    >
+      <Image
+        source={
+          {
+            "testUri": "../../../assets/img/swarm-mark.png",
+          }
+        }
+        style={
+          {
+            "borderRadius": 6,
+            "height": 30,
+            "resizeMode": "contain",
+            "width": 30,
+          }
+        }
+      />
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "display": "flex",
+        "flexDirection": "row",
+        "flexWrap": "wrap",
+        "justifyContent": "space-between",
+        "marginVertical": 5,
+        "width": "100%",
+      }
+    }
+  >
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "opacity": 1,
+        }
+      }
+    >
+      <
+        color="#18bd18"
+        icon={
+          {
+            "icon": [
+              320,
+              512,
+              [
+                9001,
+              ],
+              "f053",
+              "M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z",
+            ],
+            "iconName": "chevron-left",
+            "prefix": "fas",
+          }
+        }
+        size={24}
+        style={
+          {
+            "marginHorizontal": 10,
+          }
+        }
+      />
+    </View>
+    <Text
+      style={
+        {
+          "color": "#c3c3c3",
+          "fontFamily": "Sora-SemiBold",
+          "fontSize": 18,
+          "opacity": 0.87,
+          "paddingHorizontal": 5,
+        }
+      }
+    >
+      SWM price
+    </Text>
+    <View
+      style={
+        {
+          "height": 30,
+          "marginHorizontal": 10,
+          "width": 30,
+        }
+      }
+    />
+  </View>
+  <RCTScrollView
+    contentContainerStyle={
+      {
+        "gap": 14,
+        "paddingBottom": 32,
+        "paddingHorizontal": 16,
+      }
+    }
+    testID="price.page"
+  >
+    <View>
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "gap": 8,
+          }
+        }
+      >
+        <View
+          style={
+            [
+              {
+                "borderRadius": 3,
+                "height": 6,
+                "width": 6,
+              },
+              {
+                "backgroundColor": "#18bd18",
+              },
+            ]
+          }
+          testID="price.page.freshness.fresh"
+        />
+        <Text
+          style={
+            [
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Regular",
+              },
+              {
+                "fontSize": 11,
+              },
+            ]
+          }
+          testID="price.page.age"
+        >
+          updated 12 s ago
+        </Text>
+      </View>
+      <View
+        style={
+          {
+            "gap": 6,
+          }
+        }
+      >
+        <Text
+          style={
+            [
+              {
+                "fontFamily": "Sora-SemiBold",
+                "fontSize": 44,
+                "letterSpacing": -0.88,
+              },
+              {
+                "color": "#c3c3c3",
+              },
+            ]
+          }
+          testID="price.page.value"
+        >
+          $0.8411
+          <Text
+            style={
+              [
+                {
+                  "color": "#888888",
+                  "fontFamily": "JetBrainsMono-Regular",
+                },
+                {
+                  "fontSize": 13,
+                },
+              ]
+            }
+          >
+             USD
+          </Text>
+        </Text>
+        <Text
+          style={
+            [
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Regular",
+              },
+              {
+                "fontSize": 13,
+              },
+            ]
+          }
+          testID="price.page.eth"
+        >
+          0.000196 ETH
+        </Text>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "gap": 8,
+              "marginTop": 4,
+            }
+          }
+        >
+          <View
+            style={
+              [
+                {
+                  "alignItems": "baseline",
+                  "borderRadius": 6,
+                  "flexDirection": "row",
+                  "gap": 6,
+                  "paddingHorizontal": 8,
+                  "paddingVertical": 3,
+                },
+                {
+                  "backgroundColor": "#1F1B17",
+                },
+              ]
+            }
+            testID="price.page.change.1h"
+          >
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Medium",
+                    "fontSize": 12,
+                  },
+                  {
+                    "color": "#888888",
+                  },
+                ]
+              }
+            >
+              0.0 %
+            </Text>
+            <Text
+              style={
+                [
+                  {
+                    "color": "#888888",
+                    "fontFamily": "JetBrainsMono-Regular",
+                  },
+                  {
+                    "fontSize": 11,
+                  },
+                ]
+              }
+            >
+              1h
+            </Text>
+          </View>
+          <View
+            style={
+              [
+                {
+                  "alignItems": "baseline",
+                  "borderRadius": 6,
+                  "flexDirection": "row",
+                  "gap": 6,
+                  "paddingHorizontal": 8,
+                  "paddingVertical": 3,
+                },
+                {
+                  "backgroundColor": "#1F1B17",
+                },
+              ]
+            }
+            testID="price.page.change.6h"
+          >
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Medium",
+                    "fontSize": 12,
+                  },
+                  {
+                    "color": "#3DD68C",
+                  },
+                ]
+              }
+            >
+              ▲ 28.8 %
+            </Text>
+            <Text
+              style={
+                [
+                  {
+                    "color": "#888888",
+                    "fontFamily": "JetBrainsMono-Regular",
+                  },
+                  {
+                    "fontSize": 11,
+                  },
+                ]
+              }
+            >
+              6h
+            </Text>
+          </View>
+          <View
+            style={
+              [
+                {
+                  "alignItems": "baseline",
+                  "borderRadius": 6,
+                  "flexDirection": "row",
+                  "gap": 6,
+                  "paddingHorizontal": 8,
+                  "paddingVertical": 3,
+                },
+                {
+                  "backgroundColor": "#1F1B17",
+                },
+              ]
+            }
+            testID="price.page.change.24h"
+          >
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Medium",
+                    "fontSize": 12,
+                  },
+                  {
+                    "color": "#3DD68C",
+                  },
+                ]
+              }
+            >
+              ▲ 36.7 %
+            </Text>
+            <Text
+              style={
+                [
+                  {
+                    "color": "#888888",
+                    "fontFamily": "JetBrainsMono-Regular",
+                  },
+                  {
+                    "fontSize": 11,
+                  },
+                ]
+              }
+            >
+              24h
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          [
+            {
+              "borderRadius": 12,
+              "borderWidth": 1,
+              "gap": 10,
+              "padding": 14,
+            },
+            {
+              "backgroundColor": "#031124",
+              "borderColor": "#05234C",
+            },
+          ]
+        }
+      >
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "gap": 8,
+            }
+          }
+        >
+          <View
+            accessibilityRole="button"
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": false,
+                "expanded": undefined,
+                "selected": true,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              [
+                {
+                  "borderRadius": 8,
+                  "borderWidth": 1,
+                  "paddingHorizontal": 12,
+                  "paddingVertical": 4,
+                },
+                {
+                  "borderColor": "#18bd18",
+                },
+                false,
+              ]
+            }
+            testID="price.page.range.24h"
+          >
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Medium",
+                    "fontSize": 12,
+                  },
+                  {
+                    "color": "#18bd18",
+                  },
+                ]
+              }
+            >
+              24h
+            </Text>
+          </View>
+          <View
+            accessibilityRole="button"
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": false,
+                "expanded": undefined,
+                "selected": false,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              [
+                {
+                  "borderRadius": 8,
+                  "borderWidth": 1,
+                  "paddingHorizontal": 12,
+                  "paddingVertical": 4,
+                },
+                {
+                  "borderColor": "#888888",
+                },
+                false,
+              ]
+            }
+            testID="price.page.range.48h"
+          >
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Medium",
+                    "fontSize": 12,
+                  },
+                  {
+                    "color": "#888888",
+                  },
+                ]
+              }
+            >
+              48h
+            </Text>
+          </View>
+          <View
+            accessibilityRole="button"
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": false,
+                "expanded": undefined,
+                "selected": false,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              [
+                {
+                  "borderRadius": 8,
+                  "borderWidth": 1,
+                  "paddingHorizontal": 12,
+                  "paddingVertical": 4,
+                },
+                {
+                  "borderColor": "#888888",
+                },
+                false,
+              ]
+            }
+            testID="price.page.range.30d"
+          >
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Medium",
+                    "fontSize": 12,
+                  },
+                  {
+                    "color": "#888888",
+                  },
+                ]
+              }
+            >
+              30d
+            </Text>
+          </View>
+        </View>
+        <View
+          testID="price.page.chart.24h"
+        >
+          <Text
+            style={
+              [
+                {
+                  "fontFamily": "JetBrainsMono-Regular",
+                  "fontSize": 11,
+                },
+                {
+                  "height": 16,
+                  "marginBottom": 4,
+                },
+                {
+                  "color": "#c3c3c3",
+                },
+              ]
+            }
+            testID="price.chart.readout"
+          >
+             
+          </Text>
+          <View
+            accessibilityLabel="SWM price chart. Touch and drag to read a value."
+            accessible={true}
+            onLayout={[Function]}
+            onMoveShouldSetResponder={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "height": 190,
+              }
+            }
+            testID="price.page.chart.24h.touch"
+          >
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Regular",
+                    "fontSize": 11,
+                  },
+                  {
+                    "left": 4,
+                    "position": "absolute",
+                  },
+                  {
+                    "top": 0,
+                  },
+                  {
+                    "color": "#888888",
+                  },
+                ]
+              }
+              testID="price.chart.high"
+            >
+              $0.8411
+            </Text>
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Regular",
+                    "fontSize": 11,
+                  },
+                  {
+                    "left": 4,
+                    "position": "absolute",
+                  },
+                  {
+                    "bottom": 0,
+                  },
+                  {
+                    "color": "#888888",
+                  },
+                ]
+              }
+              testID="price.chart.low"
+            >
+              $0.5259
+            </Text>
+            <Text
+              style={
+                [
+                  {
+                    "fontFamily": "JetBrainsMono-Regular",
+                    "fontSize": 11,
+                  },
+                  {
+                    "position": "absolute",
+                  },
+                  {
+                    "color": "#18bd18",
+                    "left": 250,
+                    "top": 10,
+                  },
+                ]
+              }
+              testID="price.chart.latest"
+            >
+              $0.8411
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          [
+            {
+              "borderRadius": 12,
+              "borderWidth": 1,
+              "gap": 10,
+              "padding": 14,
+            },
+            {
+              "backgroundColor": "#031124",
+              "borderColor": "#05234C",
+            },
+          ]
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#888888",
+              "fontFamily": "JetBrainsMono-Medium",
+              "fontSize": 10,
+              "letterSpacing": 2,
+            }
+          }
+        >
+          YOUR BALANCE
+        </Text>
+        <Text
+          style={
+            [
+              {
+                "color": "#c3c3c3",
+                "fontFamily": "JetBrainsMono-Regular",
+              },
+              {
+                "fontSize": 13,
+              },
+            ]
+          }
+          testID="price.page.balance"
+        >
+          1.62345678 SWM ≈ $1.37 USD
+        </Text>
+      </View>
+      <View
+        style={
+          [
+            [
+              {
+                "borderRadius": 12,
+                "borderWidth": 1,
+                "gap": 10,
+                "padding": 14,
+              },
+              {
+                "backgroundColor": "#031124",
+                "borderColor": "#05234C",
+              },
+            ],
+            {
+              "flexDirection": "row",
+              "flexWrap": "wrap",
+              "rowGap": 14,
+            },
+          ]
+        }
+      >
+        <View
+          style={
+            {
+              "gap": 4,
+              "width": "50%",
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Medium",
+                "fontSize": 10,
+                "letterSpacing": 2,
+              }
+            }
+          >
+            LIQUIDITY
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                },
+                {
+                  "fontSize": 13,
+                },
+              ]
+            }
+          >
+            $3,761.34
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "gap": 4,
+              "width": "50%",
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Medium",
+                "fontSize": 10,
+                "letterSpacing": 2,
+              }
+            }
+          >
+            24 H VOLUME
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                },
+                {
+                  "fontSize": 13,
+                },
+              ]
+            }
+          >
+            $378.11
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "gap": 4,
+              "width": "50%",
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Medium",
+                "fontSize": 10,
+                "letterSpacing": 2,
+              }
+            }
+          >
+            FULLY DILUTED VALUE
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                },
+                {
+                  "fontSize": 13,
+                },
+              ]
+            }
+          >
+            $8,411.43
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "gap": 4,
+              "width": "50%",
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Medium",
+                "fontSize": 10,
+                "letterSpacing": 2,
+              }
+            }
+          >
+            BUYS / SELLS 24 H
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                },
+                {
+                  "fontSize": 13,
+                },
+              ]
+            }
+          >
+            9 / 0
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "gap": 4,
+              "width": "50%",
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Medium",
+                "fontSize": 10,
+                "letterSpacing": 2,
+              }
+            }
+          >
+            POOL FEE
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                },
+                {
+                  "fontSize": 13,
+                },
+              ]
+            }
+          >
+            0.9 %
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "gap": 4,
+              "width": "50%",
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#888888",
+                "fontFamily": "JetBrainsMono-Medium",
+                "fontSize": 10,
+                "letterSpacing": 2,
+              }
+            }
+          >
+            NETWORK
+          </Text>
+          <Text
+            style={
+              [
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                },
+                {
+                  "fontSize": 13,
+                },
+              ]
+            }
+          >
+            Base
+          </Text>
+        </View>
+      </View>
+      <View
+        style={
+          [
+            {
+              "borderRadius": 12,
+              "borderWidth": 1,
+              "gap": 10,
+              "padding": 14,
+            },
+            {
+              "backgroundColor": "#031124",
+              "borderColor": "#05234C",
+            },
+          ]
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#888888",
+              "fontFamily": "JetBrainsMono-Medium",
+              "fontSize": 10,
+              "letterSpacing": 2,
+            }
+          }
+        >
+          SOURCES
+        </Text>
+        <View
+          accessibilityLabel="Open the SWM/ETH pool on GeckoTerminal"
+          accessibilityRole="link"
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onBlur={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "minHeight": 36,
+            }
+          }
+          testID="price.page.source.geckoterminal"
+        >
+          <Text
+            style={
+              [
+                {
+                  "fontFamily": "Manrope-Medium",
+                  "fontSize": 14,
+                },
+                {
+                  "color": "#c3c3c3",
+                },
+              ]
+            }
+          >
+            GeckoTerminal
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#c3c3c3",
+                "fontFamily": "JetBrainsMono-Regular",
+              }
+            }
+          >
+            $0.8411  ✓
+          </Text>
+        </View>
+        <View
+          accessibilityLabel="Open the SWM/ETH pool on DexScreener"
+          accessibilityRole="link"
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onBlur={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "minHeight": 36,
+            }
+          }
+          testID="price.page.source.dexscreener"
+        >
+          <Text
+            style={
+              [
+                {
+                  "fontFamily": "Manrope-Medium",
+                  "fontSize": 14,
+                },
+                {
+                  "color": "#c3c3c3",
+                },
+              ]
+            }
+          >
+            DexScreener
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#c3c3c3",
+                "fontFamily": "JetBrainsMono-Regular",
+              }
+            }
+          >
+            $0.8602  ✓
+          </Text>
+        </View>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "minHeight": 36,
+            }
+          }
+        >
+          <Text
+            style={
+              [
+                {
+                  "fontFamily": "Manrope-Medium",
+                  "fontSize": 14,
+                },
+                {
+                  "color": "#c3c3c3",
+                },
+              ]
+            }
+          >
+            Pool
+          </Text>
+          <View
+            accessibilityLabel="Copy Pool"
+            accessibilityRole="button"
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "gap": 8,
+              }
+            }
+            testID="price.page.copy.pool"
+          >
+            <Text
+              style={
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                }
+              }
+            >
+              0xf1e0…4599
+            </Text>
+            <
+              color="#888888"
+              icon={
+                {
+                  "icon": [
+                    448,
+                    512,
+                    [],
+                    "f0c5",
+                    "M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z",
+                  ],
+                  "iconName": "copy",
+                  "prefix": "fas",
+                }
+              }
+              size={14}
+            />
+          </View>
+        </View>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "minHeight": 36,
+            }
+          }
+        >
+          <Text
+            style={
+              [
+                {
+                  "fontFamily": "Manrope-Medium",
+                  "fontSize": 14,
+                },
+                {
+                  "color": "#c3c3c3",
+                },
+              ]
+            }
+          >
+            Token
+          </Text>
+          <View
+            accessibilityLabel="Copy Token"
+            accessibilityRole="button"
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "flexDirection": "row",
+                "gap": 8,
+              }
+            }
+            testID="price.page.copy.token"
+          >
+            <Text
+              style={
+                {
+                  "color": "#c3c3c3",
+                  "fontFamily": "JetBrainsMono-Regular",
+                }
+              }
+            >
+              0xf904…043B
+            </Text>
+            <
+              color="#888888"
+              icon={
+                {
+                  "icon": [
+                    448,
+                    512,
+                    [],
+                    "f0c5",
+                    "M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z",
+                  ],
+                  "iconName": "copy",
+                  "prefix": "fas",
+                }
+              }
+              size={14}
+            />
+          </View>
+        </View>
+      </View>
+      <Text
+        style={
+          [
+            {
+              "fontFamily": "Manrope-Regular",
+              "fontSize": 12,
+              "lineHeight": 17,
+            },
+            {
+              "color": "#888888",
+            },
+          ]
+        }
+        testID="price.page.note"
+      >
+        Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote.
+      </Text>
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "flexDirection": "row",
+            "justifyContent": "space-between",
+          }
+        }
+      >
+        <Text
+          accessibilityRole="text"
+          style={
+            [
+              {
+                "fontFamily": "Manrope-Medium",
+                "fontSize": 15,
+              },
+              {
+                "color": "#c3c3c3",
+              },
+            ]
+          }
+        >
+          Show SWM price (USD)
+        </Text>
+        <View
+          accessibilityRole="switch"
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": true,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onBlur={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          testID="price.page.switch"
+        >
+          <View
+            height={19}
+            width={40}
+          />
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>
+</View>
+`;

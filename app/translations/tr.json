@@ -503,7 +503,32 @@
     "error-timeout": "SWARM fiyat hizmeti zamanında yanıt vermedi.",
     "error-network": "SWARM fiyat hizmetine ulaşılamadı.",
     "error-response": "SWARM fiyat hizmeti, cüzdanın okuyamadığı bir yanıt gönderdi.",
-    "error-unavailable": "SWARM fiyat hizmetinde güncel fiyat yok."
+    "error-unavailable": "SWARM fiyat hizmetinde güncel fiyat yok.",
+    "page": {
+      "title": "SWM fiyatı",
+      "open-acc": "SWM fiyat sayfasını aç",
+      "period-1h": "1 sa",
+      "period-6h": "6 sa",
+      "period-24h": "24 sa",
+      "range-24h": "24 sa",
+      "range-48h": "48 sa",
+      "range-30d": "30 g",
+      "chart-acc": "SWM fiyat grafiği. Bir değeri okumak için dokunup sürükleyin.",
+      "no-chart": "Bu aralık için henüz fiyat geçmişi yok.",
+      "balance": "BAKİYENİZ",
+      "liquidity": "Likidite",
+      "volume": "24 saatlik hacim",
+      "fdv": "Tam seyreltilmiş değer",
+      "trades": "Alım / satım 24 sa",
+      "fee": "Havuz ücreti",
+      "network": "Ağ",
+      "sources": "KAYNAKLAR",
+      "pool": "Havuz",
+      "token": "Token",
+      "copy-acc": "Kopyala",
+      "copied": "Panoya kopyalandı",
+      "open-gecko-acc": "SWM/ETH havuzunu GeckoTerminal'de aç"
+    }
   },
   "header": {
     "lastupdate": "{time} itibarıyla"

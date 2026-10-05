@@ -298,7 +298,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
               translate={translate}
               zecPrice={zecPrice}
               shown={priceShown}
-              addLastSnackbar={context.addLastSnackbar}
+              onOpen={() => navigation.navigate(RouteEnum.Price)}
               onLayout={onPriceRowLayout}
             />
           )}

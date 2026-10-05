@@ -1,31 +1,35 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useReducer, useState } from 'react';
-import { Image, Linking, Pressable, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Image, Pressable, Text, View } from 'react-native';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useTheme } from '@app/theme';
-import { BG_SURFACE_NESTED, PRICE_UP } from '@app/theme/tokens';
+import { BG_SURFACE_NESTED } from '@app/theme/tokens';
 import { fontFamily, typeScale } from '@app/theme/typography';
 import { TranslateType } from '@app/AppState';
 import ZecPriceType from '@app/AppState/types/ZecPriceType';
 import { getSwarmMark } from '@app/utils/ZingoAppData';
 import Sparkline from '@ui/primitives/Sparkline';
 import {
-  PriceFreshness,
   usePriceFetcherStore,
   usePriceFreshness,
 } from '@ui/widgets/priceFetcherStore';
+import { formatChangePct, formatSwmPrice } from '@ui/widgets/swmPriceFormat';
 import {
-  formatChangePct,
-  formatClock,
-  formatSwmPrice,
-} from '@ui/widgets/swmPriceFormat';
+  CHAIN_NAMES,
+  changeTone,
+  DEX_NAMES,
+  freshnessColor,
+  priceAgeText,
+  SOURCE_NAMES,
+  useTick,
+} from '@ui/widgets/swmPriceMeta';
 
 type PriceRowProps = {
   translate: (key: string) => TranslateType;
   zecPrice: ZecPriceType;
   shown: boolean;
-  addLastSnackbar?: (msg: string) => void;
+  onOpen?: () => void;
   onLayout?: (height: number) => void;
 };
 
@@ -37,67 +41,14 @@ const CARD_MARGIN_BOTTOM = 12;
 const CARD_VERTICAL_MARGINS = CARD_MARGIN_TOP + CARD_MARGIN_BOTTOM;
 const META_TICK_MS = 5_000;
 
-const SWM_POOL_ID =
-  '0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599';
-
-const CHAIN_NAMES: Record<string, string> = { base: 'Base' };
-const DEX_NAMES: Record<string, string> = { 'uniswap-v4': 'Uniswap v4' };
-const SOURCE_NAMES: Record<string, string> = {
-  geckoterminal: 'GeckoTerminal',
-  dexscreener: 'DexScreener',
-};
-
-/** The DexScreener page of the pool the price comes from, on the fixed DexScreener host. */
-export const listingUrl = (price: ZecPriceType): string =>
-  `https://dexscreener.com/base/${
-    price.pool?.chain === 'base' ? price.pool.id : SWM_POOL_ID
-  }`;
-
-const ageText = (
-  translate: (key: string) => TranslateType,
-  price: ZecPriceType,
-  freshness: PriceFreshness,
-): string => {
-  if (freshness !== 'fresh') {
-    return (translate('header.lastupdate') as string).replace(
-      '{time}',
-      formatClock(price.date),
-    );
-  }
-  const seconds = Math.max(0, Math.round((Date.now() - price.date) / 1000));
-  return seconds < 60
-    ? (translate('price.updated-seconds') as string).replace(
-        '{n}',
-        String(seconds),
-      )
-    : (translate('price.updated-minutes') as string).replace(
-        '{n}',
-        String(Math.floor(seconds / 60)),
-      );
-};
-
 const PriceRow = React.memo(
-  ({
-    translate,
-    zecPrice,
-    shown,
-    addLastSnackbar,
-    onLayout,
-  }: PriceRowProps) => {
+  ({ translate, zecPrice, shown, onOpen, onLayout }: PriceRowProps) => {
     const { colors } = useTheme();
     const freshness = usePriceFreshness(zecPrice);
     const { lastErrorKey } = usePriceFetcherStore();
     const [noteOpen, setNoteOpen] = useState<boolean>(false);
-    const [, tick] = useReducer((n: number) => n + 1, 0);
-
     const live = shown && freshness !== 'absent';
-    useEffect(() => {
-      if (!live) {
-        return;
-      }
-      const timer = setInterval(tick, META_TICK_MS);
-      return () => clearInterval(timer);
-    }, [live]);
+    useTick(META_TICK_MS, live);
 
     if (!live) {
       return <></>;
@@ -105,46 +56,26 @@ const PriceRow = React.memo(
 
     const unavailable = freshness === 'unavailable';
     const greyed = freshness === 'stale' || unavailable;
-    const dot =
-      freshness === 'fresh'
-        ? colors.fgAccent
-        : freshness === 'ageing'
-          ? colors.fgWarning
-          : colors.bgMuted;
+    const dot = freshnessColor(colors, freshness);
     const change = zecPrice.changePct24h;
-    const changeColor =
-      change === undefined || change === 0
-        ? colors.fgMuted
-        : change > 0
-          ? PRICE_UP
-          : colors.fgDanger;
-    const arrow =
-      change === undefined || change === 0 ? '' : change > 0 ? '▲ ' : '▼ ';
+    const { arrow, color: changeColor } = changeTone(colors, change);
     const meta = [
       CHAIN_NAMES[zecPrice.pool?.chain ?? 'base'],
       DEX_NAMES[zecPrice.pool?.dex ?? 'uniswap-v4'],
       zecPrice.source ? SOURCE_NAMES[zecPrice.source] : undefined,
       unavailable && lastErrorKey
         ? (translate(lastErrorKey) as string)
-        : ageText(translate, zecPrice, freshness),
+        : priceAgeText(translate, zecPrice, freshness),
     ]
       .filter(part => !!part)
       .join(' · ');
 
-    const openListing = async () => {
-      try {
-        await Linking.openURL(listingUrl(zecPrice));
-      } catch {
-        addLastSnackbar?.(translate('price.open-failed') as string);
-      }
-    };
-
     return (
       <Pressable
         testID="price.card"
-        accessibilityRole="link"
-        accessibilityLabel={translate('price.open-acc') as string}
-        onPress={openListing}
+        accessibilityRole="button"
+        accessibilityLabel={translate('price.page.open-acc') as string}
+        onPress={onOpen}
         onLongPress={() => setNoteOpen(!noteOpen)}
         onLayout={e =>
           onLayout?.(e.nativeEvent.layout.height + CARD_VERTICAL_MARGINS)

@@ -78,6 +78,7 @@ export type AppDrawerParamList = {
     { phase?: 'created' | 'failed'; errorMessage?: string } | undefined;
   [RouteEnum.SyncReport]: undefined;
   [RouteEnum.Pools]: undefined;
+  [RouteEnum.Price]: undefined;
   [RouteEnum.MeetIronwood]: undefined;
   [RouteEnum.MigrationStrategy]: undefined;
   [RouteEnum.MigrationTransactions]: undefined;

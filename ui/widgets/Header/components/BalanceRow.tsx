@@ -224,20 +224,26 @@ const BalanceRow: React.FC<BalanceRowProps> = React.memo(
             onLayout={e => onUsdRowLayout?.(e.nativeEvent.layout.height)}
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            <SwmFiatValue
-              testID="header.fiat"
-              accessibilityLabel={translate('price.fiat-acc') as string}
-              price={zecPrice}
-              amount={
-                totalBalance
-                  ? totalBalance.totalIronwoodBalance +
-                    totalBalance.totalOrchardBalance +
-                    totalBalance.totalSaplingBalance +
-                    totalBalance.totalTransparentBalance
-                  : 0
-              }
-              privacy={privacy}
-            />
+            <TouchableOpacity
+              testID="header.fiat-open"
+              accessibilityRole="button"
+              onPress={() => navigation.navigate(RouteEnum.Price)}
+            >
+              <SwmFiatValue
+                testID="header.fiat"
+                accessibilityLabel={translate('price.fiat-acc') as string}
+                price={zecPrice}
+                amount={
+                  totalBalance
+                    ? totalBalance.totalIronwoodBalance +
+                      totalBalance.totalOrchardBalance +
+                      totalBalance.totalSaplingBalance +
+                      totalBalance.totalTransparentBalance
+                    : 0
+                }
+                privacy={privacy}
+              />
+            </TouchableOpacity>
             <View style={{ marginLeft: 5 }}>
               <PriceFetcher />
             </View>

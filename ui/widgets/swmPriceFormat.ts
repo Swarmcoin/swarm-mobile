@@ -46,3 +46,21 @@ export const formatClock = (date: number): string =>
     hour: '2-digit',
     minute: '2-digit',
   });
+
+/** A price in ETH with three significant digits, `0.000196`. */
+export const formatEth = (eth: number): string => {
+  const places = Math.min(2 - Math.floor(Math.log10(eth)), 18);
+  return localize(
+    roundHalfUp(eth, Math.max(places, 0)).toFixed(Math.max(places, 0)),
+  );
+};
+
+/** A coin amount with grouping and two to eight decimals, trailing zeros dropped. */
+export const formatCoin = (amount: number): string => {
+  const fixed = amount.toFixed(8).replace(/0{1,6}$/, '');
+  return localize(fixed);
+};
+
+/** A plain percentage, `0.9 %`. */
+export const formatPct = (pct: number): string =>
+  `${localize(roundHalfUp(pct, 2).toString())} %`;

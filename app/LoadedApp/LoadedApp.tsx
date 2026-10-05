@@ -152,6 +152,7 @@ const Seed = React.lazy(() => import('@screens/Seed'));
 const SyncReport = React.lazy(() => import('@screens/SyncReport'));
 const Rescan = React.lazy(() => import('@screens/Rescan'));
 const Pools = React.lazy(() => import('@screens/Pools'));
+const Price = React.lazy(() => import('@screens/Price'));
 const MeetIronwood = React.lazy(() => import('@screens/MeetIronwood'));
 const MigrationStrategy = React.lazy(
   () => import('@screens/MigrationStrategy'),
@@ -2668,6 +2669,14 @@ export class LoadedAppClass extends Component<
                       name={RouteEnum.Pools}
                       component={Pools}
                     />
+                    <RootNavigator.Screen name={RouteEnum.Price}>
+                      {props => (
+                        <Price
+                          {...props}
+                          setShowSwmPriceOption={this.setShowSwmPriceOption}
+                        />
+                      )}
+                    </RootNavigator.Screen>
                     <RootNavigator.Screen
                       name={RouteEnum.MeetIronwood}
                       component={MeetIronwood}
