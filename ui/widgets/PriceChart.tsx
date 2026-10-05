@@ -5,13 +5,14 @@ import { useTheme } from '@app/theme';
 import { fontFamily } from '@app/theme/typography';
 import { formatSwmPrice } from './swmPriceFormat';
 
-export type ChartPoint = { usd: number; unix: number };
+export type ChartPoint = { usd: number; unix: number; live?: boolean };
 
 type PriceChartProps = {
   points: ChartPoint[];
   height: number;
   color: string;
   formatTime: (unix: number) => string;
+  nowLabel: string;
   accessibilityLabel: string;
   testID?: string;
 };
@@ -59,6 +60,7 @@ const PriceChart = ({
   height,
   color,
   formatTime,
+  nowLabel,
   accessibilityLabel,
   testID,
 }: PriceChartProps) => {
@@ -90,7 +92,9 @@ const PriceChart = ({
         style={[mono, styles.readout, { color: colors.fgDefault }]}
       >
         {readout
-          ? `$${formatSwmPrice(readout.usd)} · ${formatTime(readout.unix)}`
+          ? `$${formatSwmPrice(readout.usd)} · ${
+              readout.live ? nowLabel : formatTime(readout.unix)
+            }`
           : ' '}
       </Text>
       <View

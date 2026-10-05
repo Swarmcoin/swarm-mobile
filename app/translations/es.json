@@ -527,6 +527,7 @@
       "token": "Token",
       "copy-acc": "Copiar",
       "copied": "Copiado al portapapeles",
+      "now": "ahora",
       "open-gecko-acc": "Abrir el pool SWM/ETH en GeckoTerminal"
     }
   },

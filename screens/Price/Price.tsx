@@ -65,17 +65,25 @@ const CHART_HEIGHT = 190;
 const RANGES: readonly ChartRange[] = ['24h', '48h', '30d'];
 const SOURCES: readonly SwmPriceSource[] = ['geckoterminal', 'dexscreener'];
 
+// A series that ends at the live price carries one point after its closes.
 const timed = (
   values: number[] | undefined,
+  endsLive: boolean,
   from: number | undefined,
-  lastUnix: number,
+  generated: number,
   step: number,
 ): ChartPoint[] => {
   if (!values || values.length < 2) {
     return [];
   }
-  const start = from ?? lastUnix - (values.length - 1) * step;
-  return values.map((usd, i) => ({ usd, unix: start + i * step }));
+  const closes = endsLive ? values.length - 1 : values.length;
+  const lastClose = generated - (generated % step) - (endsLive ? step : 0);
+  const start = from ?? lastClose - (closes - 1) * step;
+  return values.map((usd, i) =>
+    endsLive && i === closes
+      ? { usd, unix: generated, live: true }
+      : { usd, unix: start + i * step },
+  );
 };
 
 /** The points each chart range draws, empty when the relay sent too few. */
@@ -83,19 +91,23 @@ export const chartSeries = (
   price: ZecPriceType,
 ): Record<ChartRange, ChartPoint[]> => {
   const generated = price.generatedUnix ?? Math.floor(price.date / 1000);
+  const hourlyLive = !!price.details?.hourlyEndsLive;
   const hourly = timed(
     price.sparklineUsd,
+    hourlyLive,
     price.details?.hourlyFromUnix,
-    generated - (generated % HOUR),
+    generated,
     HOUR,
   );
+  const day = 24 + (hourlyLive ? 1 : 0);
   return {
-    '24h': hourly.length > 24 ? hourly.slice(-24) : hourly,
+    '24h': hourly.length > day ? hourly.slice(-day) : hourly,
     '48h': hourly,
     '30d': timed(
       price.details?.dailyUsd,
+      !!price.details?.dailyEndsLive,
       price.details?.dailyFromUnix,
-      generated - (generated % DAY),
+      generated,
       DAY,
     ),
   };
@@ -359,6 +371,7 @@ export default function Price({
                   height={CHART_HEIGHT}
                   color={greyed ? colors.fgMuted : colors.fgAccent}
                   formatTime={range === '30d' ? dayOf : clockOf}
+                  nowLabel={t('price.page.now')}
                   accessibilityLabel={t('price.page.chart-acc')}
                 />
               ) : (

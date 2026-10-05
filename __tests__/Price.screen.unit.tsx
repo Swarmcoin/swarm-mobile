@@ -257,3 +257,63 @@ test('Tests that the chart series place the hourly closes before the relay hour 
 test('Tests that the snapshot of the page matches when the reading is the specification example.', () => {
   expect(render(pageUi()).toJSON()).toMatchSnapshot();
 });
+
+const liveEnded = (): ZecPriceType => {
+  const closes = Array.from({ length: 48 }, (_, i) => 0.5 + i / 100);
+  const daily = Array.from({ length: 30 }, (_, i) => 0.3 + i / 100);
+  return {
+    ...mockSwmPrice(NOW),
+    zecPrice: 0.8411,
+    generatedUnix: 1791226888,
+    sparklineUsd: [...closes, 0.8411],
+    details: {
+      ...mockSwmDetails,
+      hourlyFromUnix: 1791054000,
+      hourlyEndsLive: true,
+      dailyUsd: [...daily, 0.8411],
+      dailyFromUnix: 1788652800,
+      dailyEndsLive: true,
+    },
+  };
+};
+
+test('Tests that every range ends at the live price when the relay appends it. 24h holds 24 closes and the live point.', () => {
+  const series = chartSeries(liveEnded());
+  expect(series['24h']).toHaveLength(25);
+  expect(series['48h']).toHaveLength(49);
+  expect(series['30d']).toHaveLength(31);
+  (['24h', '48h', '30d'] as const).forEach(r => {
+    const last = series[r][series[r].length - 1];
+    expect(last).toEqual({ usd: 0.8411, unix: 1791226888, live: true });
+    expect(series[r].slice(0, -1).every(p => !p.live)).toBe(true);
+  });
+  expect(series['24h'][0].unix).toBe(1791054000 + 24 * 3600);
+  expect(series['30d'][29].unix).toBe(1788652800 + 29 * 86400);
+});
+
+test('Tests that the closes end an hour before the live point when the relay sends no start hour.', () => {
+  const price = liveEnded();
+  const series = chartSeries({
+    ...price,
+    details: {
+      ...mockSwmDetails,
+      hourlyFromUnix: undefined,
+      hourlyEndsLive: true,
+    },
+  });
+  const hourly = series['48h'];
+  const generated = 1791226888;
+  expect(hourly[47].unix).toBe(generated - (generated % 3600) - 3600);
+  expect(hourly[48].live).toBe(true);
+});
+
+test('Tests that the touch readout says "now" on the live point and a time on a close.', () => {
+  const view = render(pageUi({ zecPrice: liveEnded() }));
+  const touch = view.getByTestId('price.page.chart.24h.touch');
+  fireEvent(touch, 'responderGrant', { nativeEvent: { locationX: 10_000 } });
+  expect(view.getByTestId('price.chart.readout')).toHaveTextContent(
+    '$0.8411 · now',
+  );
+  fireEvent(touch, 'responderMove', { nativeEvent: { locationX: 0 } });
+  expect(view.getByTestId('price.chart.readout')).not.toHaveTextContent(/now$/);
+});

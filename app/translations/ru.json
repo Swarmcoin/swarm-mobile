@@ -527,6 +527,7 @@
       "token": "Токен",
       "copy-acc": "Копировать",
       "copied": "Скопировано в буфер обмена",
+      "now": "сейчас",
       "open-gecko-acc": "Открыть пул SWM/ETH на GeckoTerminal"
     }
   },

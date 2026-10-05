@@ -57,8 +57,10 @@ describe('parseSwmPrice', () => {
           changePct1h: 0,
           changePct6h: 28.75,
           hourlyFromUnix: 1791205200,
+          hourlyEndsLive: false,
           dailyUsd: [0.3112, 0.3305, 0.4021, 0.5259, 0.6151, 0.8411],
           dailyFromUnix: 1790812800,
+          dailyEndsLive: false,
           transactions24h: { buys: 9, sells: 0 },
           liquidityUsd: 3761.34,
           volume24hUsd: 378.11,
@@ -156,8 +158,10 @@ describe('parseSwmPrice', () => {
       changePct1h: undefined,
       changePct6h: undefined,
       hourlyFromUnix: undefined,
+      hourlyEndsLive: false,
       dailyUsd: undefined,
       dailyFromUnix: undefined,
+      dailyEndsLive: false,
       transactions24h: undefined,
       liquidityUsd: undefined,
       volume24hUsd: undefined,
@@ -205,8 +209,10 @@ describe('parseSwmPrice', () => {
       changePct1h: undefined,
       changePct6h: undefined,
       hourlyFromUnix: undefined,
+      hourlyEndsLive: false,
       dailyUsd: undefined,
       dailyFromUnix: undefined,
+      dailyEndsLive: false,
       transactions24h: undefined,
       liquidityUsd: undefined,
       volume24hUsd: undefined,
@@ -218,20 +224,58 @@ describe('parseSwmPrice', () => {
     });
   });
 
-  test('Tests that the daily series keeps the newest 30 closes when the relay sends more.', () => {
+  test('Tests that the daily series keeps the newest 30 closes plus the live price when the relay sends more, and moves its first day on.', () => {
     const points = Array.from({ length: 40 }, (_, i) => i + 1);
-    const outcome = parseSwmPrice(withBody({ daily_usd: points }));
-    expect(
-      outcome.kind === 'swmPrice' && outcome.reading.details.dailyUsd,
-    ).toEqual(points.slice(10));
+    const outcome = parseSwmPrice(
+      withBody({ daily_usd: points, daily_from_unix: 1_000_000 }),
+    );
+    expect(outcome.kind).toBe('swmPrice');
+    if (outcome.kind !== 'swmPrice') {
+      return;
+    }
+    expect(outcome.reading.details.dailyUsd).toEqual(points.slice(9));
+    expect(outcome.reading.details.dailyFromUnix).toBe(1_000_000 + 9 * 86400);
+    expect(outcome.reading.details.dailyEndsLive).toBe(true);
   });
 
-  test('Tests that the sparkline keeps the newest 48 points when the relay sends more.', () => {
+  test('Tests that the sparkline keeps the newest 48 closes plus the live price when the relay sends more, and moves its first hour on.', () => {
     const points = Array.from({ length: 60 }, (_, i) => i + 1);
-    const outcome = parseSwmPrice(withBody({ sparkline_usd: points }));
-    expect(outcome.kind === 'swmPrice' && outcome.reading.sparklineUsd).toEqual(
-      points.slice(12),
+    const outcome = parseSwmPrice(
+      withBody({ sparkline_usd: points, hourly_from_unix: 7_200 }),
     );
+    expect(outcome.kind).toBe('swmPrice');
+    if (outcome.kind !== 'swmPrice') {
+      return;
+    }
+    expect(outcome.reading.sparklineUsd).toEqual(points.slice(11));
+    expect(outcome.reading.details.hourlyFromUnix).toBe(7_200 + 11 * 3600);
+    expect(outcome.reading.details.hourlyEndsLive).toBe(true);
+  });
+
+  test.each([
+    [48, 48, false],
+    [49, 48, true],
+    [25, 24, true],
+    [24, 24, false],
+  ])(
+    'Tests that %i hourly values with sparkline_hours %i read as ending at the live price: %s.',
+    (count, hours, live) => {
+      const points = Array.from({ length: count }, (_, i) => i + 1);
+      const outcome = parseSwmPrice(
+        withBody({ sparkline_usd: points, sparkline_hours: hours }),
+      );
+      expect(
+        outcome.kind === 'swmPrice' && outcome.reading.details.hourlyEndsLive,
+      ).toBe(live);
+    },
+  );
+
+  test('Tests that a daily series of 31 values reads as 30 closes and the live price.', () => {
+    const points = Array.from({ length: 31 }, (_, i) => i + 1);
+    const outcome = parseSwmPrice(withBody({ daily_usd: points }));
+    expect(
+      outcome.kind === 'swmPrice' && outcome.reading.details.dailyEndsLive,
+    ).toBe(true);
   });
 
   test('Tests that the relay stale flag reaches the reading when the relay serves its last good value.', () => {

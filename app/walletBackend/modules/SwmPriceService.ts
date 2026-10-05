@@ -4,8 +4,10 @@ import { ErrorKeyed, errorKeyed } from '@app/AppState/types/Result';
 export const SWM_PRICE_URL = 'https://wallet.swarm.green/api/price/swm';
 export const SWM_PRICE_TIMEOUT_MS = 8_000;
 export const SWM_PRICE_MAX_CHARS = 64 * 1024;
-const SPARKLINE_MAX_POINTS = 48;
-const DAILY_MAX_POINTS = 30;
+const HOURLY_CLOSES = 48;
+const DAILY_CLOSES = 30;
+const HOUR = 3600;
+const DAY = 86400;
 
 const DECIMAL = /^\d{1,12}(\.\d{1,18})?$/;
 const POOL_ID = /^0x[0-9a-f]{64}$/i;
@@ -38,8 +40,10 @@ export type SwmPriceDetails = {
   changePct1h?: number;
   changePct6h?: number;
   hourlyFromUnix?: number;
+  hourlyEndsLive: boolean;
   dailyUsd?: number[];
   dailyFromUnix?: number;
+  dailyEndsLive: boolean;
   transactions24h?: { buys: number; sells: number };
   liquidityUsd?: number;
   volume24hUsd?: number;
@@ -123,15 +127,41 @@ const sourcesOf = (nodes: unknown): SwmSourceReading[] =>
       })
     : [];
 
+const hourlyClosesOf = (doc: Json): number =>
+  Math.min(countOf(doc.sparkline_hours) || HOURLY_CLOSES, HOURLY_CLOSES);
+
+const trimmedOf = (points: unknown, max: number): number =>
+  Array.isArray(points) ? Math.max(points.length - max, 0) : 0;
+
+const shifted = (
+  from: number | undefined,
+  trimmed: number,
+  step: number,
+): number | undefined =>
+  from === undefined ? undefined : from + trimmed * step;
+
 const detailsOf = (doc: Json): SwmPriceDetails => {
   const change = isObject(doc.change_pct) ? doc.change_pct : {};
+  const hourlyCloses = hourlyClosesOf(doc);
+  const hourly = seriesOf(doc.sparkline_usd, hourlyCloses + 1);
+  const daily = seriesOf(doc.daily_usd, DAILY_CLOSES + 1);
   return {
     priceEth: decimalOf(doc.price_eth),
     changePct1h: finite(change.h1) ? change.h1 : undefined,
     changePct6h: finite(change.h6) ? change.h6 : undefined,
-    hourlyFromUnix: unixOf(doc.hourly_from_unix),
-    dailyUsd: seriesOf(doc.daily_usd, DAILY_MAX_POINTS),
-    dailyFromUnix: unixOf(doc.daily_from_unix),
+    hourlyFromUnix: shifted(
+      unixOf(doc.hourly_from_unix),
+      trimmedOf(doc.sparkline_usd, hourlyCloses + 1),
+      HOUR,
+    ),
+    hourlyEndsLive: hourly?.length === hourlyCloses + 1,
+    dailyUsd: daily,
+    dailyFromUnix: shifted(
+      unixOf(doc.daily_from_unix),
+      trimmedOf(doc.daily_usd, DAILY_CLOSES + 1),
+      DAY,
+    ),
+    dailyEndsLive: daily?.length === DAILY_CLOSES + 1,
     transactions24h: transactionsOf(doc.transactions_24h),
     liquidityUsd: amountOf(doc.liquidity_usd),
     volume24hUsd: amountOf(doc.volume_24h_usd),
@@ -198,7 +228,7 @@ export function parseSwmPrice(body: string): SwmPriceOutcome {
     reading: {
       priceUsd,
       changePct24h: finite(h24) ? h24 : undefined,
-      sparklineUsd: seriesOf(doc.sparkline_usd, SPARKLINE_MAX_POINTS),
+      sparklineUsd: seriesOf(doc.sparkline_usd, hourlyClosesOf(doc) + 1),
       source: sourceOf(doc.source),
       generatedUnix: doc.generated_unix,
       stale: doc.stale === true,
