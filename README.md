@@ -16,7 +16,7 @@ it yourself.
 | --- | --- |
 | Network | SWARM Mainnet, light-wallet chain label `swarm-mainnet` |
 | Ticker | SWM |
-| Indexer | `https://lwd-main.swarm.green:8443` |
+| Indexer | `https://lwd-main.swarm.green:443` |
 | Explorer | `https://mainnet.explore.swarm.green/` |
 | Also selectable | SWARM Testnet (engineering), `swarm-testnet`, `https://lwd.swarm.green:443`, `https://explore.swarm.green/` |
 | Android package | `green.swarm.wallet` |

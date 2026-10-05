@@ -9,9 +9,9 @@ what was actually verified. Written on 2026-09-26 on branch
 | Fact | Value |
 | --- | --- |
 | Chain label | `swarm-mainnet` |
-| Chain **hint** (what the Rust FFI takes) | `swarm-mainnet:01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd` |
-| Genesis (display order) | `01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd` |
-| Default indexer | `https://lwd-main.swarm.green:8443` |
+| Chain **hint** (what the Rust FFI takes) | `swarm-mainnet:01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2` |
+| Genesis (display order) | `01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2` (restarted 2026-10-02 15:41:37 UTC) |
+| Default indexer | `https://lwd-main.swarm.green:443` |
 | Unified address HRP | `swm` → `swm1…` |
 | TEX HRP | `texswm` |
 | Sapling HRP | `zswmsapling` |
@@ -20,7 +20,7 @@ what was actually verified. Written on 2026-09-26 on branch
 | gRPC port | 9068 |
 | SDK `ChainType` | `SwarmMainnet(SwarmMainnetGenesis)` |
 | Activation height | 1 |
-| SDK pin | `Swarm-Official/privacy-zingolib` @ `d9f1a5b888067724b61b2fae46307ed56b4b1e0a` |
+| SDK pin | `Swarmcoin/privacy-zingolib` @ `c7464d2ec40a5d619500a9ebee76ac4c39775baa` (tag `swarm-sdk-mainnet-1`) |
 | Block explorer | `https://mainnet.explore.swarm.green/` |
 
 The engineering testnet is unchanged and still selectable, under the name
@@ -96,9 +96,46 @@ named for what it is and otherwise left alone: not synced, not sent from, and
 not silently moved onto a SWARM chain, because its recovery phrase is the only
 thing that opens it and moving it would hide that.
 
+## The 2026-10-02 restart
+
+SWARM Mainnet was restarted on 2026-10-02 at 15:41:37 UTC from genesis
+`01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2`
+(`network/swarm-mainnet-r2/manifest.json` in the SWARM project, sha256
+`40794956b04e958cdfef2a18fdda628355287767c3f8dc6eb20c1e7ecb387325`). The
+indexer moved to `lwd-main.swarm.green:443`. The abandoned chain
+(`01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd`, served on `:8443`) is gone, and `0.2.0-mainnet.4` and earlier
+cannot sync.
+
+From `0.2.0-mainnet.5` the app opens the restarted chain. The SDK pin moved to
+`c7464d2e`, the revision the desktop wallet's relaunch build uses, which reads
+the server's `LightdInfo.genesisHash` and so needs the SWARM fork of
+`lightwallet-protocol` (`Swarmcoin/privacy-lightwallet-protocol-rust`
+`c9c13e46`). The SDK carries no mainnet genesis of its own: the genesis travels
+in the chain hint, and a server stating another genesis is refused.
+
+A wallet made before the restart is moved once, the first time it is opened
+online (`app/walletBackend/modules/ChainRestartService.ts`, called from
+`LoadingApp.onRestartedChain`). The wallet file stores the chain tag, not the
+genesis, so the marker is `swarmMainnetGenesis` in `settings.json`, written
+whenever a mainnet wallet opens on this build. A mainnet wallet without the
+marker has its phrase or viewing key and its receive addresses read, its file
+copied to `wallet.dat.before-network-restart-<unix>.bak` and compared byte for
+byte, and is rebuilt from the same phrase or key with birthday 1. The further
+unified and transparent receive addresses are derived again and every one is
+compared. On any failure the old file goes back and the wallet stays closed
+with a message to restore from the phrase. On success the owner is told once:
+"The SWARM network was restarted on 2 October 2026. Your addresses and
+recovery phrase are unchanged; balances start again from the new chain." A
+stored `:8443` server is rewritten to `:443`.
+
+The move covers the wallet the app opens at start. On iOS, a saved wallet
+opened from the wallet list without a restart of the app is not moved by this
+build.
+
 ## The native layer
 
-`rust/Cargo.toml` pins the SDK at `d9f1a5b8…`, which carries
+`rust/Cargo.toml` pins the SDK at `c7464d2e…` (tag `swarm-sdk-mainnet-1`, one
+commit above `d9f1a5b8…`), which carries
 `ChainType::SwarmMainnet(SwarmMainnetGenesis)`, `NetworkType::SwarmMain` and
 `BranchId::SwarmMain`.
 
@@ -234,7 +271,8 @@ SWARM chain is told to transmit over clearnet. The library's default policy is
 the mixnet, under which it refuses a send until a transport is ready, and the
 transport's start was what used to set clearnet. The emulator smoke test
 samples the app's sockets from launch for at least five minutes and fails on
-any remote host other than `lwd-main.swarm.green:8443`.
+any remote host other than `lwd-main.swarm.green:443` and the SWARM price
+service at `wallet.swarm.green:443`.
 
 ## Not done here, and why
 

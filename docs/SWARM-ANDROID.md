@@ -27,12 +27,12 @@ wallet only — mining happens on a PC with the SWARM Node app.
 | | |
 | --- | --- |
 | Network | SWARM Mainnet, light-wallet chain label `swarm-mainnet` |
-| Genesis | `01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd` |
+| Genesis | `01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2` |
 | Ticker | **SWM** |
 | Addresses | `swm1…` (unified), `s1…` / `s3…` (transparent) |
 | Wallet birthday | Height 1 |
 | Upgrades | Everything through NU6.3 active from height 1 |
-| Indexer | `https://lwd-main.swarm.green:8443` (a lightwalletd-compatible Zaino), or your own |
+| Indexer | `https://lwd-main.swarm.green:443` (a lightwalletd-compatible Zaino), or your own |
 | Explorer | `https://mainnet.explore.swarm.green/` (the engineering testnet's is `https://explore.swarm.green/`) |
 | Android package | `green.swarm.wallet` |
 | Also selectable | **SWARM Testnet (engineering)**, chain label `swarm-testnet`, `https://lwd.swarm.green:443`, addresses `swarm1…`; its coins have no value |
@@ -43,7 +43,7 @@ A fresh install must already know its server; the user configures nothing. The
 value lives in two places, one per language:
 
 - `app/uris/serverUris.ts` — the single TypeScript entry,
-  `uri: 'https://lwd-main.swarm.green:8443'`, the whole list the app ships with.
+  `uri: 'https://lwd-main.swarm.green:443'`, the whole list the app ships with.
   `app/uris/fetchServerList.ts` returns `[]` on purpose, so nothing overrides
   it from the network.
 - `rust/lib/src/lib.rs` — `SWARM_DEFAULT_SERVER_URI`, the native copy, so the
@@ -218,7 +218,7 @@ wallet, and this one now holds real coins.
 - The APK installs on an Android emulator, launches, loads the native wallet
   library, runs its JS bundle and reaches its first screen without crashing.
   This is asserted by `scripts/swarm_smoke_test.sh` on every CI run.
-- A fresh install already holds `https://lwd-main.swarm.green:8443` with
+- A fresh install already holds `https://lwd-main.swarm.green:443` with
   nothing configured by hand. The same smoke test uninstalls first, drives the first
   launch to a wallet with `uiautomator`, and reads the server back off the
   Settings screen. It measures whether the runner can reach that server, and
@@ -239,7 +239,7 @@ wallet, and this one now holds real coins.
 ### Not proven
 
 - **No money has moved.** The smoke test proves the app comes up pointed at
-  `lwd-main.swarm.green:8443`, creates a wallet, shows the mainnet risk notice
+  `lwd-main.swarm.green:443`, creates a wallet, shows the mainnet risk notice
   and reports a connected state. No balance, no send and no receive has been
   exercised against SWARM Mainnet *from this app*.
 - **Nothing on real hardware.** The emulator smoke test runs on x86_64. The
@@ -257,7 +257,7 @@ wallet, and this one now holds real coins.
 ## The genesis gate
 
 Each SWARM network's genesis hash lives in exactly **one** constant in the SDK.
-Mainnet's is `01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd`,
+Mainnet's is `01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2`,
 and the build records it in `release-manifest.json`. The paragraphs below
 describe the same gate on the engineering testnet, whose constant is
 `SWARM_TESTNET_GENESIS` in `zingolib/src/config.rs`. It holds the real hash:
@@ -286,7 +286,7 @@ Every build records what it was made with, in `release-manifest.json`:
 
 ```json
 "network": {
-  "genesis": "01c34428b9e67cdd8345e0b365aaa37dd8d2d65d3869e0e5d77d567f2c39afdd",
+  "genesis": "01b76d8a0f18c502b23ab6605e26296d189aa5770fc4a34155e5c7b250a0eff2",
   "genesis_is_placeholder": false
 }
 ```
@@ -301,7 +301,7 @@ manifest cannot drift from the binary.
 The app fails with one plain sentence rather than a stack trace:
 
 - **The server cannot be reached.** Check the server address in Settings; the
-  default is `https://lwd-main.swarm.green:8443`.
+  default is `https://lwd-main.swarm.green:443`.
 - **The server is on a different chain.** The app refuses it. A server that
   does not report `swarm-mainnet` is not a SWARM Mainnet server, and opening a
   wallet against the wrong chain is how coins get lost.
