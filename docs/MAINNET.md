@@ -163,12 +163,15 @@ Android `0.2.0` (`versionCode` 8, `SWARM_VERSION` `0.2.0-mainnet.5`); iOS
 `0.2.0-mainnet.4` `versionCode` 7. Neither the mainnet.2 nor the mainnet.3
 bytes were distributed.
 
-`0.2.0-mainnet.5` (branch `price-display/mobile`): the wallet shows an
+`0.2.0-mainnet.5` opens the chain restarted on 2026-10-02 (genesis
+`01b76d8a…eff2`, indexer `lwd-main.swarm.green:443`) and moves a wallet made on
+the abandoned chain once (see "The 2026-10-02 restart"). The wallet also shows an
 indicative SWM price in US dollars on SWARM Mainnet, read from
 `https://wallet.swarm.green/api/price/swm`, with a Settings switch that stops
 the request, and a separate SWM price page opened from the price card. The SDK
-pin now names `Swarmcoin/privacy-zingolib` at the same revision, because the
-Swarm-Official account no longer resolves.
+pin names `Swarmcoin/privacy-zingolib`, because the Swarm-Official account no
+longer resolves.
+
 The application id `green.swarm.wallet`, the Android namespace
 `org.ZingoLabs.Zingo`, the iOS bundle identifier and the App Store record are
 **unchanged**: this is the same app, on the network it was built for.
