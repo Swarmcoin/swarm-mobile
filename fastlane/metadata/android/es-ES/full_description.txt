@@ -1,22 +1,23 @@
 SWARM Wallet es la billetera para el teléfono de SWARM Mainnet, la red en vivo de SWARM: dinero privado, de prueba de trabajo, gestionado por su comunidad.
 
-LAS MONEDAS DE AQUÍ SON REALES. Los SWM de SWARM Mainnet tienen valor real, y lo que pierdas se pierde para siempre. Nada en esta aplicación es una oferta, una inversión ni una forma de ganar dinero. Nadie te vende SWM a través de esta aplicación y nadie promete un precio.
+LAS MONEDAS DE AQUÍ SON REALES. Los SWM de SWARM Mainnet tienen valor real, y lo que pierdas se pierde para siempre. Nada en esta aplicación es una oferta, una inversión ni una forma de ganar dinero. Nadie te vende SWM a través de esta aplicación. El precio de SWM que muestra es orientativo y no es una cotización.
 
 Qué puedes hacer
 • Crear una billetera en tu teléfono. Tus palabras de recuperación se quedan contigo; nadie más las tiene.
 • Recibir SWM en una dirección blindada (swm1…) y mostrarla como código QR.
 • Enviar SWM a otra dirección de SWARM, con un memo cifrado opcional.
 • Ver tu saldo y tu historial de transacciones.
+• Ver un precio orientativo de SWM en dólares estadounidenses del servicio de precios de SWARM. Puedes desactivarlo en Ajustes.
 • Bloquear la aplicación con el bloqueo de pantalla o la huella de tu teléfono.
 • Cambiar a SWARM Testnet (ingeniería) en Ajustes si quieres hacer pruebas. Sus monedas no tienen valor y nunca lo tendrán.
 
 Qué no hace esta aplicación
 • No mina. Los teléfonos no minan SWARM; la minería se hace en un ordenador con el programa aparte SWARM Node.
 • No guarda tus monedas por ti. Es de autocustodia: tus claves se generan y se guardan en tu teléfono, y tus palabras de recuperación son la única copia de seguridad.
-• No tiene cuentas, ni registro, ni exchange, ni intercambio, ni precios en moneda fiat, ni anuncios, ni programa de referidos o recompensas.
+• No tiene cuentas, ni registro, ni exchange, ni intercambio, ni anuncios, ni programa de referidos o recompensas.
 
 Privacidad
-La aplicación no tiene analíticas ni rastreo. Habla con un solo servidor para sincronizar bloques y enviar transacciones: el servidor de billetera de SWARM Mainnet (lwd-main.swarm.green) o un servidor que elijas tú. Las transacciones blindadas ocultan remitente, destinatario e importe en la cadena, pero no ocultan tu dirección de internet a ese servidor, y las direcciones transparentes son públicas. La cámara se usa solo para leer códigos QR en tu teléfono. El desbloqueo por huella o bloqueo de pantalla lo gestiona Android y nunca sale del dispositivo. Detalles: https://swarm.green/wallet/privacy/
+La aplicación no tiene analíticas ni rastreo. Habla con un solo servidor para sincronizar bloques y enviar transacciones: el servidor de billetera de SWARM Mainnet (lwd-main.swarm.green) o un servidor que elijas tú. Mientras la billetera está abierta, también pide al servicio de precios de SWARM (wallet.swarm.green) el precio de SWM una vez por minuto. Esa solicitud no lleva ninguna dirección ni ningún saldo, y el interruptor de precio en Ajustes la detiene. Las transacciones blindadas ocultan remitente, destinatario e importe en la cadena, pero no ocultan tu dirección de internet a ese servidor, y las direcciones transparentes son públicas. La cámara se usa solo para leer códigos QR en tu teléfono. El desbloqueo por huella o bloqueo de pantalla lo gestiona Android y nunca sale del dispositivo. Detalles: https://swarm.green/wallet/privacy/
 
 Código abierto
 SWARM Wallet es una bifurcación de Zingo, una billetera con licencia MIT, adaptada a SWARM. Código fuente: https://github.com/Swarm-Official/swarm-mobile
