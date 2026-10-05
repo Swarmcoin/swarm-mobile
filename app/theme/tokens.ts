@@ -84,6 +84,9 @@ export const ON_ACCENT = '#1A0F02';
 /** Nested surface, one step above a card. */
 export const BG_SURFACE_NESTED = '#1F1B17';
 
+/** Success green, used for a price that rose over the period shown. */
+export const PRICE_UP = '#3DD68C';
+
 const base = {
   bgCanvas: '#0A0908',
   bgSurface: '#171411',

@@ -14,9 +14,9 @@
   "biometricsfailed-body": "For security, the application is locked.",
   "biometricsfailed-footer": "Use the authentication method to unlock.",
   "biometricsfailed-button": "Unlock",
-  "price-ring-live": "Not used in this build.",
-  "price-ring-stale": "Not used in this build.",
-  "price-ring-paused": "Not used in this build.",
+  "price-ring-live": "SWM price is current",
+  "price-ring-stale": "SWM price is out of date",
+  "price-ring-paused": "SWM price refresh is paused",
   "biometrics-message": "Please authenticate",
   "biometrics-error": "For security you need to authenticate again to perform this action. You Always can change this in Settings",
   "biometrics-failure-declined": "The authentication was cancelled or failed.",
@@ -389,6 +389,8 @@
     "value-memo-wallet": "wallet",
     "value-memo-all": "all",
     "currency-title": "Not used in this build.",
+    "swmprice-title": "Show SWM price (USD)",
+    "swmprice-help": "The price comes from the SWARM price service (wallet.swarm.green), which reads the SWM/ETH pool on Base from GeckoTerminal and DexScreener. Your addresses and balances are never sent. Switch this off and the wallet makes no price requests.",
     "language-title": "Language",
     "islanguage": "You need to choose a language to save.",
     "sendall-title": "Enable sending all funds",
@@ -487,8 +489,24 @@
     "copy-report": "Copy report",
     "report-copied": "Report copied to clipboard"
   },
+  "price": {
+    "label": "SWM PRICE",
+    "updated-seconds": "updated {n} s ago",
+    "updated-minutes": "updated {n} min ago",
+    "unavailable": "Price unavailable",
+    "change": "{pct} % 24h",
+    "note": "Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote.",
+    "info-acc": "About this price",
+    "open-acc": "Open the SWM/ETH pool on DexScreener",
+    "open-failed": "The listing page could not be opened.",
+    "fiat-acc": "Balance in US dollars",
+    "error-timeout": "The SWARM price service did not answer in time.",
+    "error-network": "The SWARM price service could not be reached.",
+    "error-response": "The SWARM price service sent an answer the wallet cannot read.",
+    "error-unavailable": "The SWARM price service has no current price."
+  },
   "header": {
-    "lastupdate": "Not used in this build."
+    "lastupdate": "as of {time}"
   },
   "info": {
     "version": "Version",
@@ -496,7 +514,7 @@
     "zainod": "Server URL",
     "network": "Network",
     "serverblock": "Server Block Height",
-    "zecprice": "Not used in this build.",
+    "zecprice": "SWM price (USD)",
     "unknown": "Unknown",
     "title": "Server Info",
     "zingolib": "Wallet SDK version"

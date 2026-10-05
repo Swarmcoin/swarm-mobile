@@ -90,6 +90,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { hasRecoveryWalletInfo } from '@app/services/recoveryWalletInfo';
 import { chainNameKey, explorerHostFor } from '@app/utils/networkProfiles';
+import { priceAvailableOnChain } from '@app/utils/priceAvailability';
 import { useFullSheetSnapPoints } from '@app/hooks/useFullSheetSnapPoints';
 import { useKeyboardHeight } from '@app/hooks/useKeyboardHeight';
 import { useDismissSheetsOnBlur } from '@app/hooks/useDismissSheetsOnBlur';
@@ -126,6 +127,7 @@ type SettingsProps = NativeStackScreenProps<
   setPerformanceLevelOption: (value: RPCPerformanceLevelEnum) => Promise<void>;
   setBlockExplorerOption: (value: BlockExplorerEnum) => Promise<void>;
   setNymOption: (value: boolean) => Promise<void>;
+  setShowSwmPriceOption: (value: boolean) => Promise<void>;
   toggleMenuDrawer: () => void;
 };
 
@@ -148,6 +150,7 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
   setPerformanceLevelOption,
   setBlockExplorerOption,
   setNymOption,
+  setShowSwmPriceOption,
   toggleMenuDrawer,
 }) => {
   const context = useContext(ContextAppLoaded);
@@ -171,6 +174,7 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
     performanceLevel: performanceLevelContext,
     blockExplorer: blockExplorerContext,
     nym: nymContext,
+    showSwmPrice: showSwmPriceContext,
     mixnetView,
     foregroundEpoch,
     readOnly,
@@ -340,6 +344,8 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
   const [blockExplorer, setBlockExplorer] =
     useState<BlockExplorerEnum>(blockExplorerContext);
   const [nym, setNym] = useState<boolean>(nymContext);
+  const [showSwmPrice, setShowSwmPrice] =
+    useState<boolean>(showSwmPriceContext);
 
   const [autoIcon, setAutoIcon] = useState<IconDefinition>(farCircle);
   const [listIcon, setListIcon] = useState<IconDefinition>(farCircle);
@@ -726,7 +732,8 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
       recoveryWalletInfoOnDeviceContext === recoveryWalletInfoOnDevice &&
       performanceLevelContext === performanceLevel &&
       blockExplorerContext === blockExplorer &&
-      nymContext === nym
+      nymContext === nym &&
+      showSwmPriceContext === showSwmPrice
     ) {
       setDisabledButton(true);
     } else {
@@ -757,6 +764,8 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
     blockExplorerContext,
     nym,
     nymContext,
+    showSwmPrice,
+    showSwmPriceContext,
     securityContext,
     selectServer,
     selectServerContext,
@@ -813,7 +822,8 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
       recoveryWalletInfoOnDeviceContext === recoveryWalletInfoOnDevice &&
       performanceLevelContext === performanceLevel &&
       blockExplorerContext === blockExplorer &&
-      nymContext === nym
+      nymContext === nym &&
+      showSwmPriceContext === showSwmPrice
     ) {
       addLastSnackbar(translate('settings.nochanges') as string);
       return;
@@ -1025,6 +1035,9 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
       if (nymContext !== nym) {
         await setNymOption(nym);
       }
+      if (showSwmPriceContext !== showSwmPrice) {
+        await setShowSwmPriceOption(showSwmPrice);
+      }
       // Language: applied in place. Belongs with the light settings now
       // that the i18n update propagates without an app reset. Apply it
       // before phase 5 so any snackbar that surfaces during the server
@@ -1137,6 +1150,7 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
       setPerformanceLevel(performanceLevelContext);
       setBlockExplorer(blockExplorerContext);
       setNym(nymContext);
+      setShowSwmPrice(showSwmPriceContext);
     }
     // `goBack()` pops Settings off the stack — using `navigate(HomeStack)`
     // would push HomeStack on top while leaving the already-authenticated
@@ -1677,9 +1691,64 @@ const Settings: React.FunctionComponent<SettingsProps> = ({
                 </TouchableOpacity>
               </View>
 
-              {/* SWARM: the fiat-currency picker stood here. This wallet has
-                  no price feed and SWM is a test coin with no value, so the
-                  only honest currency setting is none at all. */}
+              {priceAvailableOnChain(walletChainName) && (
+                <View style={{ marginHorizontal: 25, marginVertical: 15 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        flex: 1,
+                      }}
+                    >
+                      <BoldText>
+                        {translate('settings.swmprice-title') as string}
+                      </BoldText>
+                      <TouchableOpacity
+                        testID="settings.swmprice-info"
+                        onPress={() =>
+                          setOpenInfoSection(
+                            openInfoSection === 'swmprice' ? null : 'swmprice',
+                          )
+                        }
+                        style={{ marginLeft: 6 }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faInfoCircle}
+                          size={14}
+                          color={colors.fgDefault}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <TouchableOpacity
+                      testID="settings.swmprice"
+                      accessibilityRole="switch"
+                      accessibilityState={{ checked: showSwmPrice }}
+                      onPress={() => setShowSwmPrice(!showSwmPrice)}
+                    >
+                      {showSwmPrice ? (
+                        <SettingSwitchOn width={40} height={19} />
+                      ) : (
+                        <SwitchOff width={40} height={19} />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                  {openInfoSection === 'swmprice' && (
+                    <View
+                      style={{
+                        backgroundColor: '#040E1D',
+                        borderRadius: 8,
+                        padding: 10,
+                        marginTop: 8,
+                      }}
+                    >
+                      <FadeText style={{ textAlign: 'center' }}>
+                        {translate('settings.swmprice-help') as string}
+                      </FadeText>
+                    </View>
+                  )}
+                </View>
+              )}
 
               {/* SECTION: Privacy & Security */}
               {mode !== ModeEnum.basic &&

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { CurrencyEnum, SelectServerEnum } from '@app/AppState';
 import PriceRow from './PriceRow';
-import { mockInfo, mockZecPrice } from '../../../../.storybook/storyMocks';
+import { mockSwmPrice } from '../../../../.storybook/storyMocks';
 import { mockTranslate } from '../../../../.storybook/storyDecorators';
 
 const meta: Meta<typeof PriceRow> = {
@@ -9,10 +8,8 @@ const meta: Meta<typeof PriceRow> = {
   component: PriceRow,
   args: {
     translate: mockTranslate,
-    currency: CurrencyEnum.USDCurrency,
-    zecPrice: mockZecPrice,
-    info: mockInfo,
-    selectServer: SelectServerEnum.auto,
+    zecPrice: mockSwmPrice,
+    shown: true,
   },
 };
 
@@ -22,4 +19,13 @@ type Story = StoryObj<typeof PriceRow>;
 export const Default: Story = {};
 export const NoPrice: Story = {
   args: { zecPrice: { zecPrice: 0, date: 0 } },
+};
+export const Falling: Story = {
+  args: { zecPrice: { ...mockSwmPrice, changePct24h: -3.2 } },
+};
+export const AsOf: Story = {
+  args: { zecPrice: { ...mockSwmPrice, date: Date.now() - 12 * 60_000 } },
+};
+export const Stale: Story = {
+  args: { zecPrice: { ...mockSwmPrice, relayStale: true } },
 };

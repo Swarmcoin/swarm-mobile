@@ -14,9 +14,9 @@
   "biometricsfailed-body": "Por questões de segurança, o aplicativo está bloqueado.",
   "biometricsfailed-footer": "Use o método de autenticação para desbloquear.",
   "biometricsfailed-button": "Desbloquear",
-  "price-ring-live": "Not used in this build.",
-  "price-ring-stale": "Not used in this build.",
-  "price-ring-paused": "Not used in this build.",
+  "price-ring-live": "Preço do SWM atualizado",
+  "price-ring-stale": "Preço do SWM desatualizado",
+  "price-ring-paused": "Atualização do preço do SWM em pausa",
   "biometrics-message": "Por favor, autentique-se",
   "biometrics-error": "Para sua segurança, você precisa autenticar essa ação novamente para executá-la. Você pode alterar isso em Configurações sempre que desejar.",
   "biometrics-failure-declined": "A autenticação foi cancelada ou falhou.",
@@ -389,6 +389,8 @@
     "value-memo-wallet": "carteira",
     "value-memo-all": "todos",
     "currency-title": "Not used in this build.",
+    "swmprice-title": "Mostrar o preço do SWM (USD)",
+    "swmprice-help": "O preço vem do serviço de preços da SWARM (wallet.swarm.green), que lê o pool SWM/ETH na Base a partir do GeckoTerminal e do DexScreener. Seus endereços e saldos nunca são enviados. Desative esta opção e a carteira não faz nenhuma solicitação de preço.",
     "language-title": "Linguagem",
     "islanguage": "Você precisa escolher um idioma para salvar.",
     "sendall-title": "Ativar o envio de todos os fundos",
@@ -487,8 +489,24 @@
     "copy-report": "Copiar relatório",
     "report-copied": "Relatório copiado para a área de transferência"
   },
+  "price": {
+    "label": "PREÇO SWM",
+    "updated-seconds": "atualizado há {n} s",
+    "updated-minutes": "atualizado há {n} min",
+    "unavailable": "Preço indisponível",
+    "change": "{pct} % 24 h",
+    "note": "Preço indicativo do pool SWM/ETH na Base. O pool é pequeno; operações pequenas o movem. Não é uma cotação.",
+    "info-acc": "Sobre este preço",
+    "open-acc": "Abrir o pool SWM/ETH no DexScreener",
+    "open-failed": "Não foi possível abrir a página da listagem.",
+    "fiat-acc": "Saldo em dólares americanos",
+    "error-timeout": "O serviço de preços da SWARM não respondeu a tempo.",
+    "error-network": "Não foi possível acessar o serviço de preços da SWARM.",
+    "error-response": "O serviço de preços da SWARM enviou uma resposta que a carteira não consegue ler.",
+    "error-unavailable": "O serviço de preços da SWARM não tem um preço atual."
+  },
   "header": {
-    "lastupdate": "Not used in this build."
+    "lastupdate": "às {time}"
   },
   "info": {
     "version": "Versão",
@@ -496,7 +514,7 @@
     "zainod": "URL do servidor",
     "network": "Rede",
     "serverblock": "Altura do Bloco do Servidor",
-    "zecprice": "Not used in this build.",
+    "zecprice": "Preço do SWM (USD)",
     "unknown": "Desconhecido",
     "title": "Informações do Servidor",
     "zingolib": "Wallet SDK version"

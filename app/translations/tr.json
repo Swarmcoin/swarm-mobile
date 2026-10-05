@@ -14,9 +14,9 @@
   "biometricsfailed-body": "Güvenlik Nedeniyle, uygulama kilitlendi.",
   "biometricsfailed-footer": "Kilidi açmak için kimlik doğrulama yöntemini kullanın.",
   "biometricsfailed-button": "Kilidi aç",
-  "price-ring-live": "Not used in this build.",
-  "price-ring-stale": "Not used in this build.",
-  "price-ring-paused": "Not used in this build.",
+  "price-ring-live": "SWM fiyatı güncel",
+  "price-ring-stale": "SWM fiyatı eski",
+  "price-ring-paused": "SWM fiyat yenilemesi duraklatıldı",
   "biometrics-message": "Lütfen kimliğinizi doğrulayın",
   "biometrics-error": "Güvenlik nedeniyle bu işlemi gerçekleştirmek için yeniden kimlik doğrulaması yapmanız gerekiyor. Bu ayarı dilediğiniz zaman Ayarlar bölümünden değiştirebilirsiniz",
   "biometrics-failure-declined": "Kimlik doğrulama iptal edildi veya başarısız oldu.",
@@ -389,6 +389,8 @@
     "value-memo-wallet": "cüzdan",
     "value-memo-all": "hepsi ",
     "currency-title": "Not used in this build.",
+    "swmprice-title": "SWM fiyatını göster (USD)",
+    "swmprice-help": "Fiyat, Base ağındaki SWM/ETH havuzunu GeckoTerminal ve DexScreener üzerinden okuyan SWARM fiyat hizmetinden (wallet.swarm.green) gelir. Adresleriniz ve bakiyeleriniz asla gönderilmez. Bu seçeneği kapatırsanız cüzdan hiçbir fiyat isteği yapmaz.",
     "language-title": "Dil",
     "islanguage": "Kaydetmek için bir dil seçmeniz gerekiyor.",
     "sendall-title": "Tüm fonları göndermeyi etkinleştir",
@@ -487,8 +489,24 @@
     "copy-report": "Raporu kopyala",
     "report-copied": "Rapor panoya kopyalandı"
   },
+  "price": {
+    "label": "SWM FİYATI",
+    "updated-seconds": "{n} sn önce güncellendi",
+    "updated-minutes": "{n} dk önce güncellendi",
+    "unavailable": "Fiyat kullanılamıyor",
+    "change": "{pct} % 24 sa",
+    "note": "Base ağındaki SWM/ETH havuzundan gösterge niteliğinde fiyat. Havuz küçüktür; küçük işlemler fiyatı oynatır. Bu bir fiyat teklifi değildir.",
+    "info-acc": "Bu fiyat hakkında",
+    "open-acc": "SWM/ETH havuzunu DexScreener'da aç",
+    "open-failed": "Listeleme sayfası açılamadı.",
+    "fiat-acc": "ABD doları cinsinden bakiye",
+    "error-timeout": "SWARM fiyat hizmeti zamanında yanıt vermedi.",
+    "error-network": "SWARM fiyat hizmetine ulaşılamadı.",
+    "error-response": "SWARM fiyat hizmeti, cüzdanın okuyamadığı bir yanıt gönderdi.",
+    "error-unavailable": "SWARM fiyat hizmetinde güncel fiyat yok."
+  },
   "header": {
-    "lastupdate": "Not used in this build."
+    "lastupdate": "{time} itibarıyla"
   },
   "info": {
     "version": "Versiyon",
@@ -496,7 +514,7 @@
     "zainod": "Sunucu URL",
     "network": "Ağ",
     "serverblock": "Sunucu Blok Yüksekliği ",
-    "zecprice": "Not used in this build.",
+    "zecprice": "SWM fiyatı (USD)",
     "unknown": "Bilinmeyen ",
     "title": "Sunucu Bilgisi",
     "zingolib": "Wallet SDK version"

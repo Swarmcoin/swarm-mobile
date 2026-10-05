@@ -15,9 +15,21 @@ import { RPCAddressScopeEnum } from '@app/walletBackend/enums/RPCAddressScopeEnu
 import { RPCMixnetIndicatorEnum } from '@app/walletBackend/enums/RPCMixnetIndicatorEnum';
 import { deriveMixnetView } from '@app/walletBackend/transforms/mixnetView';
 
-export const mockZecPrice: ZecPriceType = {
-  zecPrice: 33.75,
-  date: 1_700_000_000_000,
+// A fresh SWM reading shaped like the SWARM price service's answer.
+export const mockSwmPrice: ZecPriceType = {
+  zecPrice: 0.84114343,
+  date: Date.now() - 12_000,
+  changePct24h: 36.72,
+  sparklineUsd: [0.5259, 0.573, 0.6361, 0.6533, 0.7537, 0.8411],
+  source: 'geckoterminal',
+  generatedUnix: 1791223633,
+  relayStale: false,
+  restored: false,
+  pool: {
+    chain: 'base',
+    dex: 'uniswap-v4',
+    id: '0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
+  },
 };
 
 export const mockInfo = {

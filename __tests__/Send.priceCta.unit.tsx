@@ -1,7 +1,7 @@
 jest.mock('@ui/widgets/priceFetcherStore', () => ({
   __esModule: true,
-  PRICE_REFRESH_MAX_MS: 75_000,
-  PRICE_STALE_MS: 75_000 + 30_000,
+  PRICE_REFRESH_MAX_MS: 65_000,
+  PRICE_STALE_MS: 5 * 60_000,
   priceFetcherStore: {
     setDeps: jest.fn(),
     attach: jest.fn(() => () => {}),
@@ -14,7 +14,6 @@ jest.mock('@ui/widgets/priceFetcherStore', () => ({
       lastErrorKey: undefined,
     })),
     foregroundReturned: jest.fn(),
-    fetch: jest.fn(),
   },
   usePriceFetcherStore: jest.fn(() => ({
     loading: false,
@@ -24,36 +23,49 @@ jest.mock('@ui/widgets/priceFetcherStore', () => ({
     lastErrorKey: undefined,
   })),
   usePriceHealth: jest.fn(() => 'live'),
+  usePriceFreshness: jest.fn(() => 'fresh'),
 }));
 
 import 'react-native';
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import Send from '@screens/Send';
 import Confirm from '@screens/Confirm';
-import ZecAmount from '@ui/widgets/ZecAmount';
 import {
   ContextAppLoadedProvider,
   defaultAppContextLoaded,
 } from '@app/context';
-import { CurrencyEnum, ModeEnum, RouteEnum } from '@app/AppState';
 import {
-  usePriceFetcherStore,
+  ChainNameEnum,
+  CurrencyEnum,
+  ModeEnum,
+  RouteEnum,
+  ZecPriceType,
+} from '@app/AppState';
+import {
+  priceFreshness,
+  usePriceFreshness,
   usePriceHealth,
 } from '@ui/widgets/priceFetcherStore';
 import { mockValueTransfers } from '../__mocks__/dataMocks/mockValueTransfers';
 import { mockAddresses } from '../__mocks__/dataMocks/mockAddresses';
 import { mockTranslate } from '../__mocks__/dataMocks/mockTranslate';
-import { mockInfo } from '../__mocks__/dataMocks/mockInfo';
 import { mockTotalBalance } from '../__mocks__/dataMocks/mockTotalBalance';
 import { mockServer } from '../__mocks__/dataMocks/mockServer';
 import mockSendPageState from '../__mocks__/dataMocks/mockSendPageState';
+import {
+  mockMainnetInfo,
+  mockSwmPrice,
+} from '../__mocks__/dataMocks/mockSwmPrice';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppDrawerParamList } from '@app/types';
 import mockNavigation from '../__mocks__/dataMocks/mockNavigation';
 
-const storeHook = usePriceFetcherStore as jest.MockedFunction<
-  typeof usePriceFetcherStore
+const realStore: { priceFreshness: typeof priceFreshness } = jest.requireActual(
+  '@ui/widgets/priceFetcherStore',
+);
+const freshnessHook = usePriceFreshness as jest.MockedFunction<
+  typeof usePriceFreshness
 >;
 const healthHook = usePriceHealth as jest.MockedFunction<typeof usePriceHealth>;
 
@@ -71,19 +83,23 @@ function makeDrawerProps(): NativeStackScreenProps<
   };
 }
 
+type Over = Partial<typeof defaultAppContextLoaded>;
+
 const onFunction = jest.fn();
-const sendUi = (zecPrice: { zecPrice: number; date: number }) => {
-  const state = { ...defaultAppContextLoaded };
-  state.valueTransfers = mockValueTransfers;
-  state.addresses = mockAddresses;
-  state.translate = mockTranslate;
-  state.info = mockInfo;
-  state.server = mockServer;
-  state.totalBalance = mockTotalBalance;
-  state.sendPageState = mockSendPageState;
-  state.currency = CurrencyEnum.USDCurrency;
-  state.mode = ModeEnum.advanced;
-  state.zecPrice = zecPrice;
+const sendUi = (zecPrice: ZecPriceType, over: Over = {}) => {
+  const state = {
+    ...defaultAppContextLoaded,
+    valueTransfers: mockValueTransfers,
+    addresses: mockAddresses,
+    translate: mockTranslate,
+    info: mockMainnetInfo,
+    server: { ...mockServer, chainName: ChainNameEnum.swarmMainnetChainName },
+    totalBalance: mockTotalBalance,
+    sendPageState: mockSendPageState,
+    mode: ModeEnum.advanced,
+    zecPrice,
+    ...over,
+  };
   return (
     <ContextAppLoadedProvider value={state}>
       <Send
@@ -102,17 +118,13 @@ const sendUi = (zecPrice: { zecPrice: number; date: number }) => {
 };
 
 beforeEach(() => {
-  storeHook.mockReturnValue({
-    loading: false,
-    nextFetchAt: 0,
-    nextFetchDelayMs: 0,
-    surfaceActive: false,
-    lastErrorKey: undefined,
-  });
+  freshnessHook.mockImplementation(price =>
+    realStore.priceFreshness(price, Date.now()),
+  );
   healthHook.mockImplementation(priceDate =>
     priceDate === 0
       ? 'absent'
-      : priceDate !== undefined && Date.now() - priceDate > 10 * 60_000 + 30_000
+      : priceDate !== undefined && Date.now() - priceDate > 5 * 60_000
         ? 'stale'
         : 'live',
   );
@@ -120,47 +132,58 @@ beforeEach(() => {
   NativeModules.RPCModule.getDonationAddress = jest.fn(async () => '{}');
 });
 
-test('F8: the in-form USD amounts dim when the price is stale', () => {
-  const view = render(
-    sendUi({ zecPrice: 33.33, date: Date.now() - 11 * 60_000 }),
-  );
+test('Tests that Send shows the amount in USD under the amount field when the wallet is on SWARM Mainnet. The line is read-only.', () => {
+  const view = render(sendUi(mockSwmPrice(Date.now())));
 
-  const { StyleSheet } = require('react-native');
-  const formAmounts = view
-    .getAllByText(/^\$ /)
-    .map(t => StyleSheet.flatten(t.props.style))
-    .filter(
-      (s: { fontSize?: number }) => s.fontSize === 16 || s.fontSize === 14,
-    );
-  expect(formAmounts.length).toBeGreaterThan(0);
-  formAmounts.forEach(s => expect(s.color).toBe('#888888'));
+  expect(view.getByTestId('send.fiat')).toHaveTextContent(/^≈ \$.* USD$/);
+  expect(view.queryByTestId('send.swap-entry')).toBeNull();
 });
 
-test('P8: an absent price hides the in-form USD amounts and the ring', () => {
-  const view = render(sendUi({ zecPrice: 0, date: 0 }));
+test('Tests that Send shows no USD line when the wallet is on SWARM Testnet.', () => {
+  const view = render(
+    sendUi(mockSwmPrice(Date.now()), {
+      info: { ...mockMainnetInfo, chainName: ChainNameEnum.swarmChainName },
+    }),
+  );
+  expect(view.queryByTestId('send.fiat')).toBeNull();
+});
 
-  const { StyleSheet } = require('react-native');
-  const formAmounts = view
-    .queryAllByText(/^\$ /)
-    .map(t => StyleSheet.flatten(t.props.style))
-    .filter(
-      (s: { fontSize?: number }) => s.fontSize === 16 || s.fontSize === 14,
-    );
-  expect(formAmounts).toHaveLength(0);
+test('Tests that Send shows no USD line when the price setting is off.', () => {
+  const view = render(
+    sendUi(mockSwmPrice(Date.now()), { showSwmPrice: false }),
+  );
+  expect(view.queryByTestId('send.fiat')).toBeNull();
+});
+
+test('Tests that Send shows no USD line and no ring when no price ever arrived.', () => {
+  const view = render(sendUi({ zecPrice: 0, date: 0 }));
+  expect(view.queryByTestId('send.fiat')).toBeNull();
   expect(view.queryByTestId('pricefetcher.ring')).toBeNull();
 });
 
-test('N7: the send-confirmation conversions dim on a stale price too', () => {
-  const state = { ...defaultAppContextLoaded };
-  state.translate = mockTranslate;
-  state.info = mockInfo;
-  state.totalBalance = mockTotalBalance;
-  state.server = mockServer;
-  state.sendPageState = mockSendPageState;
-  state.currency = CurrencyEnum.USDCurrency;
-  state.mode = ModeEnum.advanced;
-  state.zecPrice = { zecPrice: 33.33, date: Date.now() - 40 * 60_000 };
-  state.security = { ...state.security, sendConfirm: false };
+test('Tests that Send hides the USD line when the last price is more than an hour old.', () => {
+  const view = render(sendUi(mockSwmPrice(Date.now() - 61 * 60_000)));
+  expect(view.queryByTestId('send.fiat')).toBeNull();
+});
+
+test('Tests that Send masks the USD value when high privacy is on. The price itself stays out of the mask.', () => {
+  const view = render(sendUi(mockSwmPrice(Date.now()), { privacy: true }));
+  expect(view.getByTestId('send.fiat')).toHaveTextContent('≈ $⬢⬢⬢.⬢⬢ USD');
+});
+
+test('Tests that the send-confirmation conversions dim when the price is stale.', () => {
+  const state = {
+    ...defaultAppContextLoaded,
+    translate: mockTranslate,
+    info: mockMainnetInfo,
+    totalBalance: mockTotalBalance,
+    server: mockServer,
+    sendPageState: mockSendPageState,
+    currency: CurrencyEnum.noCurrency,
+    mode: ModeEnum.advanced,
+    zecPrice: mockSwmPrice(Date.now() - 40 * 60_000),
+    security: { ...defaultAppContextLoaded.security, sendConfirm: false },
+  };
   const confirmProps: React.ComponentProps<typeof Confirm> = {
     navigation: mockNavigation,
     route: {
@@ -192,15 +215,38 @@ test('N7: the send-confirmation conversions dim on a stale price too', () => {
   conversions.forEach(s => expect(s.color).toBe('#888888'));
 });
 
-test('H3: the USD-entry derived ZEC amount dims on a stale price', () => {
+test('Tests that Confirm shows no USD conversion when the wallet is on SWARM Testnet.', () => {
+  const state = {
+    ...defaultAppContextLoaded,
+    translate: mockTranslate,
+    info: { ...mockMainnetInfo, chainName: ChainNameEnum.swarmChainName },
+    totalBalance: mockTotalBalance,
+    server: mockServer,
+    sendPageState: mockSendPageState,
+    mode: ModeEnum.advanced,
+    zecPrice: mockSwmPrice(Date.now()),
+    security: { ...defaultAppContextLoaded.security, sendConfirm: false },
+  };
   const view = render(
-    sendUi({ zecPrice: 33.33, date: Date.now() - 11 * 60_000 }),
+    <ContextAppLoadedProvider value={state}>
+      <Confirm
+        navigation={mockNavigation}
+        route={{
+          key: 'Key-1',
+          name: RouteEnum.Confirm,
+          params: {
+            calculatedFee: 0.00001,
+            proposalPools: { source: ['ironwood'], destination: ['ironwood'] },
+            donationAmount: 0,
+            confirmSend: jest.fn(async () => {}),
+            sendAllAmount: false,
+            calculateFeeWithPropose: jest.fn(async () => {}),
+            sendPageState: mockSendPageState,
+            nym: true,
+          },
+        }}
+      />
+    </ContextAppLoadedProvider>,
   );
-
-  fireEvent.press(view.getByTestId('send.swap-entry'));
-  const derived = view
-    .UNSAFE_getAllByType(ZecAmount)
-    .find(z => z.props.testID === 'send.zec-derived');
-  expect(derived).toBeTruthy();
-  expect(derived?.props.color).toBe('#888888');
+  expect(view.queryAllByText(/^\$ /)).toHaveLength(0);
 });

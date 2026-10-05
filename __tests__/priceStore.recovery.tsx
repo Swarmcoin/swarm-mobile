@@ -172,15 +172,17 @@ test('two prices each keep their own stale crossing', () => {
   expect(first.result.current).toBe(true);
 });
 
-test('the muting rule has one spelling, usePriceHealth', () => {
-  const sites = [
-    '../ui/widgets/PriceFetcher.tsx',
-    '../ui/widgets/CurrencyAmount.tsx',
-    '../screens/Send/Send.tsx',
+test('the muting rule reads through usePriceHealth or usePriceFreshness, never usePriceStale', () => {
+  const sites: [string, RegExp][] = [
+    ['../ui/widgets/PriceFetcher.tsx', /usePriceHealth\(/],
+    ['../ui/widgets/CurrencyAmount.tsx', /usePriceHealth\(/],
+    ['../ui/widgets/SwmFiatValue.tsx', /usePriceFreshness\(/],
+    ['../ui/widgets/Header/components/PriceRow.tsx', /usePriceFreshness\(/],
+    ['../ui/widgets/Header/components/BalanceRow.tsx', /usePriceFreshness\(/],
   ];
-  sites.forEach(site => {
+  sites.forEach(([site, rule]) => {
     const source = fs.readFileSync(path.join(__dirname, site), 'utf8');
-    expect(source).toMatch(/usePriceHealth\(/);
+    expect(source).toMatch(rule);
     expect(source).not.toMatch(/usePriceStale\(/);
   });
 

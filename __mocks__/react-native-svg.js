@@ -7,3 +7,6 @@ export const Polygon = () => null;
 export const Rect = () => null;
 export const G = () => null;
 export const Circle = () => null;
+export const Defs = () => null;
+export const LinearGradient = () => null;
+export const Stop = () => null;

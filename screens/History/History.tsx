@@ -28,8 +28,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleUp, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  ChainNameEnum,
-  CurrencyEnum,
   FilterEnum,
   GlobalConst,
   isIronwoodActive,
@@ -73,6 +71,7 @@ import { FiltersIcon } from '@ui/primitives/Icons/FiltersIcon';
 import { getSwarmMark } from '@app/utils/ZingoAppData';
 import Button, { ButtonTypeEnum } from '@ui/primitives/Button';
 import { networkNoticeKey } from '@app/utils/networkProfiles';
+import { useSwmPriceShown } from '@app/hooks/useSwmPriceShown';
 
 const ViewTypes = {
   WITH_MONTH: 0,
@@ -117,6 +116,7 @@ const History: React.FunctionComponent<HistoryProps> = ({
 }) => {
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const context = useContext(ContextAppLoaded);
+  const priceShown = useSwmPriceShown();
   const {
     translate,
     valueTransfers,
@@ -127,7 +127,6 @@ const History: React.FunctionComponent<HistoryProps> = ({
     doRefresh,
     zenniesDonationAddress,
     setPrivacyOption,
-    currency,
     totalBalance,
     readOnly,
     info,
@@ -319,16 +318,13 @@ const History: React.FunctionComponent<HistoryProps> = ({
   const BALANCE_SNAP_BUMP = 10;
 
   useEffect(() => {
-    const isMainChain = server.chainName === ChainNameEnum.mainChainName;
-    const withUsd = isMainChain && currency === CurrencyEnum.USDCurrency;
-    if (!withUsd) {
+    if (!priceShown) {
       setUsdRowH(0);
     }
-  }, [currency, server.chainName]);
+  }, [priceShown]);
 
   const snapEntries = useMemo<{ id: SnapId; value: number | string }[]>(() => {
-    const isMainChain = server.chainName === ChainNameEnum.mainChainName;
-    const withUsd = isMainChain && currency === CurrencyEnum.USDCurrency;
+    const withUsd = priceShown;
     // Until the layout reports the actual container + header heights, fall
     // back to percentages.
     if (containerH <= 0 || headerH <= 0) {
@@ -377,15 +373,7 @@ const History: React.FunctionComponent<HistoryProps> = ({
     }
     entries.push({ id: 'max', value: snapMax });
     return entries;
-  }, [
-    currency,
-    server.chainName,
-    containerH,
-    headerH,
-    usdRowH,
-    priceRowH,
-    bannerH,
-  ]);
+  }, [priceShown, containerH, headerH, usdRowH, priceRowH, bannerH]);
 
   const historySnapPoints = useMemo(
     () => snapEntries.map(e => e.value),

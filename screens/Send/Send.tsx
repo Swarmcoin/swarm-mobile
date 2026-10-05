@@ -43,7 +43,6 @@ import SelectBottomSheet from '@ui/widgets/SelectBottomSheet';
 import SwarmMark from '../../assets/img/swarm-mark.svg';
 import FadeText from '@ui/primitives/FadeText';
 import BoldText from '@ui/primitives/BoldText';
-import Swap from '../../assets/img/swap.svg';
 import NymOn from '../../assets/img/nym-on.svg';
 import NymOff from '../../assets/img/nym-off.svg';
 import NymSwitchOn from '../../assets/img/nym-switch-on.svg';
@@ -56,8 +55,8 @@ import {
 import ErrorText from '@ui/primitives/ErrorText';
 import RegText from '@ui/primitives/RegText';
 import ZecAmount from '@ui/widgets/ZecAmount';
-import CurrencyAmount from '@ui/widgets/CurrencyAmount';
-import { usePriceHealth } from '@ui/widgets/priceFetcherStore';
+import SwmFiatValue from '@ui/widgets/SwmFiatValue';
+import { useSwmPriceShown } from '@app/hooks/useSwmPriceShown';
 import Button, { ButtonTypeEnum } from '@ui/primitives/Button';
 import AppSheet from '@ui/primitives/AppSheet';
 import AppSheetModal from '@ui/primitives/AppSheetModal';
@@ -66,7 +65,6 @@ import {
   SendPageStateClass,
   ToAddrClass,
   ModeEnum,
-  CurrencyEnum,
   ChainNameEnum,
   GlobalConst,
   ServerUrisType,
@@ -170,7 +168,6 @@ const Send: React.FunctionComponent<SendProps> = ({
     selectServer,
     zenniesDonationAddress,
     //security,
-    currency,
     zingolibVersion,
     setPrivacyOption,
     mixnetView,
@@ -179,9 +176,7 @@ const Send: React.FunctionComponent<SendProps> = ({
     reenableMixnet,
   } = context;
   const { colors } = useTheme();
-  // USD entry derives the ZEC actually sent from the price, so that
-  // figure carries the same stale/absent dim as the USD conversions.
-  const priceMuted = usePriceHealth(zecPrice.date) !== 'live';
+  const priceShown = useSwmPriceShown();
 
   const [enabling, setEnabling] = useState<boolean>(false);
   const nymPhase =
@@ -230,7 +225,6 @@ const Send: React.FunctionComponent<SendProps> = ({
   const [updatingToField, setUpdatingToField] = useState<boolean>(false);
   const [donationAddress, setDonationAddress] = useState<boolean>(false);
   const [negativeMaxAmount, setNegativeMaxAmount] = useState<boolean>(false);
-  const [inputZec, setInputZec] = useState<boolean>(true);
   //const [sendAllClick, setSendAllClick] = useState<boolean>(false);
   const [proposeSendLastError, setProposeSendLastError] = useState<string>('');
   const [spendableBalanceLastError, setSpendableBalanceLastError] =
@@ -296,16 +290,13 @@ const Send: React.FunctionComponent<SendProps> = ({
   const BALANCE_SNAP_BUMP = 10;
 
   useEffect(() => {
-    const isMainChain = server.chainName === ChainNameEnum.mainChainName;
-    const withUsd = isMainChain && currency === CurrencyEnum.USDCurrency;
-    if (!withUsd) {
+    if (!priceShown) {
       setUsdRowH(0);
     }
-  }, [currency, server.chainName]);
+  }, [priceShown]);
 
   const sendSnapPoints = useMemo(() => {
-    const isMainChain = server.chainName === ChainNameEnum.mainChainName;
-    const withUsd = isMainChain && currency === CurrencyEnum.USDCurrency;
+    const withUsd = priceShown;
     if (containerH <= 0 || headerH <= 0) {
       return withUsd ? ['85%', '89%', '93%'] : ['89%', '93%'];
     }
@@ -327,7 +318,7 @@ const Send: React.FunctionComponent<SendProps> = ({
     }
     points.push(snapMax);
     return points;
-  }, [currency, server.chainName, containerH, headerH, usdRowH, priceRowH]);
+  }, [priceShown, containerH, headerH, usdRowH, priceRowH]);
 
   const priceSnapIndex = priceRowH > 0 ? 0 : null;
   const onPriceSnapChange = usePriceSnapAutoClose(
@@ -1522,11 +1513,7 @@ const Send: React.FunctionComponent<SendProps> = ({
                   >
                     <View
                       accessible={true}
-                      accessibilityLabel={
-                        inputZec
-                          ? (translate('send.zec-acc') as string)
-                          : (translate('send.usd-acc') as string)
-                      }
+                      accessibilityLabel={translate('send.zec-acc') as string}
                       style={{
                         flex: 1,
                         flexDirection: 'row',
@@ -1538,91 +1525,45 @@ const Send: React.FunctionComponent<SendProps> = ({
                         minHeight: 48,
                       }}
                     >
-                      {inputZec ? (
-                        <SwarmMark
-                          width={26}
-                          height={20}
-                          style={{ marginLeft: 10 }}
-                        />
-                      ) : (
-                        <BoldText
-                          style={{
-                            marginLeft: 10,
-                            fontSize: 22,
-                            color: colors.fgDefault,
-                          }}
-                        >
-                          $
-                        </BoldText>
-                      )}
-                      {inputZec ? (
-                        <TextInput
-                          testID="send.amount"
-                          placeholder={`0${decimalSeparator}00000`}
-                          placeholderTextColor={colors.fgMuted}
-                          keyboardType="numeric"
-                          style={{
-                            flex: 1,
-                            color:
-                              validAmount === -1 || validAmount === -2
-                                ? colors.fgDanger
-                                : colors.fgDefault,
-                            fontWeight: '600',
-                            fontSize: 16,
-                            minHeight: 48,
-                            marginLeft: 5,
-                            backgroundColor: 'transparent',
-                          }}
-                          value={amountText}
-                          onChangeText={(text: string) =>
-                            updateToField(
-                              null,
-                              text.substring(0, 20),
-                              null,
-                              null,
-                              null,
-                            )
-                          }
-                          editable={true}
-                          maxLength={20}
-                        />
-                      ) : (
-                        <TextInput
-                          placeholder={`0${decimalSeparator}00`}
-                          placeholderTextColor={colors.fgMuted}
-                          keyboardType="numeric"
-                          style={{
-                            flex: 1,
-                            color:
-                              validAmount === -1 || validAmount === -2
-                                ? colors.fgDanger
-                                : colors.fgDefault,
-                            fontWeight: '600',
-                            fontSize: 16,
-                            minHeight: 48,
-                            marginLeft: 5,
-                            backgroundColor: 'transparent',
-                          }}
-                          value={amountCurrencyText}
-                          onChangeText={(text: string) =>
-                            updateToField(
-                              null,
-                              null,
-                              text.substring(0, 15),
-                              null,
-                              null,
-                            )
-                          }
-                          editable={true}
-                          maxLength={15}
-                        />
-                      )}
-                      {(inputZec ? amountText : amountCurrencyText) ? (
+                      <SwarmMark
+                        width={26}
+                        height={20}
+                        style={{ marginLeft: 10 }}
+                      />
+                      <TextInput
+                        testID="send.amount"
+                        placeholder={`0${decimalSeparator}00000`}
+                        placeholderTextColor={colors.fgMuted}
+                        keyboardType="numeric"
+                        style={{
+                          flex: 1,
+                          color:
+                            validAmount === -1 || validAmount === -2
+                              ? colors.fgDanger
+                              : colors.fgDefault,
+                          fontWeight: '600',
+                          fontSize: 16,
+                          minHeight: 48,
+                          marginLeft: 5,
+                          backgroundColor: 'transparent',
+                        }}
+                        value={amountText}
+                        onChangeText={(text: string) =>
+                          updateToField(
+                            null,
+                            text.substring(0, 20),
+                            null,
+                            null,
+                            null,
+                          )
+                        }
+                        editable={true}
+                        maxLength={20}
+                      />
+                      {amountText ? (
                         <TouchableOpacity
                           onPress={() =>
-                            inputZec
-                              ? updateToField(null, '', null, null, null)
-                              : updateToField(null, null, '', null, null)
+                            updateToField(null, '', null, null, null)
                           }
                         >
                           <FontAwesomeIcon
@@ -1670,94 +1611,32 @@ const Send: React.FunctionComponent<SendProps> = ({
                         </TouchableOpacity>
                       )}
                     </View>
-                    {currency === CurrencyEnum.USDCurrency &&
-                      server.chainName === ChainNameEnum.mainChainName && (
-                        <>
-                          <TouchableOpacity
-                            onPress={() => {
-                              if (
-                                inputZec &&
-                                !amountCurrencyText &&
-                                amountText &&
-                                zecPrice.zecPrice > 0
-                              ) {
-                                const zecVal =
-                                  Utils.parseStringLocaleToNumberFloat(
-                                    amountText,
-                                  );
-                                if (!isNaN(zecVal)) {
-                                  setAmountCurrencyText(
-                                    Utils.parseNumberFloatToStringLocale(
-                                      zecVal * zecPrice.zecPrice,
-                                      2,
-                                    ),
-                                  );
-                                }
-                              }
-                              setInputZec(!inputZec);
-                            }}
-                            disabled={
-                              !zecPrice.zecPrice || zecPrice.zecPrice <= 0
-                            }
-                            style={{ marginHorizontal: 8 }}
-                            testID="send.swap-entry"
-                          >
-                            <Swap
-                              width={28}
-                              height={28}
-                              color={
-                                !zecPrice.zecPrice || zecPrice.zecPrice <= 0
-                                  ? colors.fgAccentDisabled
-                                  : colors.fgAccent
-                              }
-                            />
-                          </TouchableOpacity>
-                          {inputZec ? (
-                            zecPrice.date > 0 && (
-                              <CurrencyAmount
-                                style={{
-                                  marginTop: 0,
-                                  marginBottom: 0,
-                                  fontSize: 16,
-                                }}
-                                priceDate={zecPrice.date}
-                                price={zecPrice.zecPrice}
-                                amtZec={
-                                  Utils.parseStringLocaleToNumberFloat(
-                                    amountText,
-                                  ) || 0
-                                }
-                                currency={currency}
-                                privacy={privacy}
-                              />
-                            )
-                          ) : (
-                            <ZecAmount
-                              style={{ marginLeft: 0 }}
-                              currencyName={info.currencyName}
-                              color={
-                                priceMuted ? colors.fgMuted : colors.fgDefault
-                              }
-                              size={16}
-                              testID="send.zec-derived"
-                              amtZec={
-                                Utils.parseStringLocaleToNumberFloat(
-                                  amountText,
-                                ) || 0
-                              }
-                              privacy={privacy}
-                            />
-                          )}
-                          {zecPrice.date > 0 && (
-                            <View style={{ marginLeft: inputZec ? 5 : 2 }}>
-                              <PriceFetcher
-                                backgroundColor={colors.bgSurface}
-                              />
-                            </View>
-                          )}
-                        </>
-                      )}
                   </View>
+                  {priceShown && zecPrice.date > 0 && (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 4,
+                        marginLeft: 4,
+                      }}
+                    >
+                      <SwmFiatValue
+                        testID="send.fiat"
+                        accessibilityLabel={
+                          translate('price.fiat-acc') as string
+                        }
+                        price={zecPrice}
+                        amount={
+                          Utils.parseStringLocaleToNumberFloat(amountText) || 0
+                        }
+                        privacy={privacy}
+                      />
+                      <View style={{ marginLeft: 2 }}>
+                        <PriceFetcher backgroundColor={colors.bgSurface} />
+                      </View>
+                    </View>
+                  )}
 
                   <View style={{ display: 'flex', flexDirection: 'column' }}>
                     <TouchableOpacity
@@ -1792,33 +1671,21 @@ const Send: React.FunctionComponent<SendProps> = ({
                         >
                           {translate('send.spendable') as string}
                         </RegText>
-                        {inputZec ||
-                        server.chainName !== ChainNameEnum.mainChainName ? (
-                          <ZecAmount
-                            style={{ marginLeft: 0 }}
-                            currencyName={info.currencyName}
-                            color={
-                              stillConfirming ||
-                              negativeMaxAmount ||
-                              (spendableBalanceLastError &&
-                                mode === ModeEnum.advanced)
-                                ? colors.fgDanger
-                                : colors.fgDefault
-                            }
-                            size={14}
-                            amtZec={maxAmount}
-                            privacy={privacy}
-                          />
-                        ) : (
-                          <CurrencyAmount
-                            style={{ fontSize: 14 }}
-                            priceDate={zecPrice.date}
-                            price={zecPrice.zecPrice}
-                            amtZec={maxAmount}
-                            currency={currency}
-                            privacy={privacy}
-                          />
-                        )}
+                        <ZecAmount
+                          style={{ marginLeft: 0 }}
+                          currencyName={info.currencyName}
+                          color={
+                            stillConfirming ||
+                            negativeMaxAmount ||
+                            (spendableBalanceLastError &&
+                              mode === ModeEnum.advanced)
+                              ? colors.fgDanger
+                              : colors.fgDefault
+                          }
+                          size={14}
+                          amtZec={maxAmount}
+                          privacy={privacy}
+                        />
                       </View>
                     </TouchableOpacity>
                     {donation &&

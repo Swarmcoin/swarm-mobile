@@ -17,11 +17,8 @@ import { useTheme } from '@app/theme';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import {
-  ChainNameEnum,
-  CurrencyEnum,
   ModeEnum,
   RouteEnum,
-  SelectServerEnum,
   SnackbarDurationEnum,
   TranslateType,
 } from '@app/AppState';
@@ -30,9 +27,10 @@ import InfoType from '@app/AppState/types/InfoType';
 import ZecPriceType from '@app/AppState/types/ZecPriceType';
 import Utils from '@app/utils';
 import Button, { ButtonTypeEnum } from '@ui/primitives/Button';
-import CurrencyAmount from '@ui/widgets/CurrencyAmount';
 import FadeText from '@ui/primitives/FadeText';
 import PriceFetcher from '@ui/widgets/PriceFetcher';
+import SwmFiatValue from '@ui/widgets/SwmFiatValue';
+import { usePriceFreshness } from '@ui/widgets/priceFetcherStore';
 import RegText from '@ui/primitives/RegText';
 import ZecAmount from '@ui/widgets/ZecAmount';
 import PrivacyToggle from './PrivacyToggle';
@@ -65,9 +63,8 @@ type BalanceRowProps = {
   translate: (key: string) => TranslateType;
   totalBalance: TotalBalanceClass | null;
   info: InfoType;
-  currency: CurrencyEnum;
   zecPrice: ZecPriceType;
-  selectServer: SelectServerEnum;
+  priceShown: boolean;
   showShieldButton: boolean;
   shieldingFee: number;
   valueTransfersTotal: number | null;
@@ -90,9 +87,8 @@ const BalanceRow: React.FC<BalanceRowProps> = React.memo(
     translate,
     totalBalance,
     info,
-    currency,
     zecPrice,
-    selectServer,
+    priceShown,
     showShieldButton,
     shieldingFee,
     valueTransfersTotal,
@@ -106,12 +102,12 @@ const BalanceRow: React.FC<BalanceRowProps> = React.memo(
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const { colors } = useTheme();
     const reducedMotion = useReducedMotion();
+    const freshness = usePriceFreshness(zecPrice);
     const showFiat =
-      currency === CurrencyEnum.USDCurrency &&
+      priceShown &&
       !noBalance &&
-      selectServer !== SelectServerEnum.offline &&
-      info.chainName === ChainNameEnum.mainChainName &&
-      zecPrice.date > 0;
+      freshness !== 'absent' &&
+      freshness !== 'unavailable';
 
     return (
       <>
@@ -228,11 +224,11 @@ const BalanceRow: React.FC<BalanceRowProps> = React.memo(
             onLayout={e => onUsdRowLayout?.(e.nativeEvent.layout.height)}
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            <CurrencyAmount
-              style={{ marginTop: 0, marginBottom: 0 }}
-              priceDate={zecPrice.date}
-              price={zecPrice.zecPrice}
-              amtZec={
+            <SwmFiatValue
+              testID="header.fiat"
+              accessibilityLabel={translate('price.fiat-acc') as string}
+              price={zecPrice}
+              amount={
                 totalBalance
                   ? totalBalance.totalIronwoodBalance +
                     totalBalance.totalOrchardBalance +
@@ -240,7 +236,6 @@ const BalanceRow: React.FC<BalanceRowProps> = React.memo(
                     totalBalance.totalTransparentBalance
                   : 0
               }
-              currency={currency}
               privacy={privacy}
             />
             <View style={{ marginLeft: 5 }}>

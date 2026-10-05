@@ -73,6 +73,7 @@ describe('Component Settings - test', () => {
           setPerformanceLevelOption={onSetOption}
           setBlockExplorerOption={onSetOption}
           setNymOption={onSetOption}
+          setShowSwmPriceOption={onSetOption}
           toggleMenuDrawer={toggle}
         />
       </ContextAppLoadedProvider>,

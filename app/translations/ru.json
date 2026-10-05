@@ -14,9 +14,9 @@
   "biometricsfailed-body": "В целях безопасности приложение заблокировано.",
   "biometricsfailed-footer": "Пройдите авторизацию для разблокировки.",
   "biometricsfailed-button": "Разблокировать",
-  "price-ring-live": "Not used in this build.",
-  "price-ring-stale": "Not used in this build.",
-  "price-ring-paused": "Not used in this build.",
+  "price-ring-live": "Цена SWM актуальна",
+  "price-ring-stale": "Цена SWM устарела",
+  "price-ring-paused": "Обновление цены SWM приостановлено",
   "biometrics-message": "Пожалуйста, авторизуйтесь",
   "biometrics-error": "В целях безопасности для выполнения этого действия необходимо повторно пройти авторизацию. Вы всегда можете поменять эту опцию в Настройках",
   "biometrics-failure-declined": "Аутентификация была отменена или не удалась.",
@@ -389,6 +389,8 @@
     "value-memo-wallet": "кошелек",
     "value-memo-all": "все",
     "currency-title": "Not used in this build.",
+    "swmprice-title": "Показывать цену SWM (USD)",
+    "swmprice-help": "Цену предоставляет ценовой сервис SWARM (wallet.swarm.green), который получает данные пула SWM/ETH в сети Base из GeckoTerminal и DexScreener. Ваши адреса и балансы никогда не отправляются. Если выключить этот параметр, кошелёк не делает запросов цены.",
     "language-title": "Язык",
     "islanguage": "Выберите язык для приложения.",
     "sendall-title": "Включить отправку всех средств",
@@ -487,8 +489,24 @@
     "copy-report": "Скопировать отчёт",
     "report-copied": "Отчёт скопирован в буфер обмена"
   },
+  "price": {
+    "label": "ЦЕНА SWM",
+    "updated-seconds": "обновлено {n} с назад",
+    "updated-minutes": "обновлено {n} мин назад",
+    "unavailable": "Цена недоступна",
+    "change": "{pct} % за 24 ч",
+    "note": "Ориентировочная цена из пула SWM/ETH в сети Base. Пул небольшой; даже небольшие сделки сдвигают цену. Это не котировка.",
+    "info-acc": "Об этой цене",
+    "open-acc": "Открыть пул SWM/ETH на DexScreener",
+    "open-failed": "Не удалось открыть страницу листинга.",
+    "fiat-acc": "Баланс в долларах США",
+    "error-timeout": "Ценовой сервис SWARM не ответил вовремя.",
+    "error-network": "Не удалось связаться с ценовым сервисом SWARM.",
+    "error-response": "Ценовой сервис SWARM прислал ответ, который кошелёк не может прочитать.",
+    "error-unavailable": "У ценового сервиса SWARM нет текущей цены."
+  },
   "header": {
-    "lastupdate": "Not used in this build."
+    "lastupdate": "на {time}"
   },
   "info": {
     "version": "Версия",
@@ -496,7 +514,7 @@
     "zainod": "URL-адрес сервера",
     "network": "Сеть",
     "serverblock": "Высота блока сервера",
-    "zecprice": "Not used in this build.",
+    "zecprice": "Цена SWM (USD)",
     "unknown": "Неизвестно",
     "title": "Данные сервера",
     "zingolib": "Wallet SDK version"

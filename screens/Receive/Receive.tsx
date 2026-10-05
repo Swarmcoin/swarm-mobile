@@ -22,6 +22,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import SingleAddress from '@ui/widgets/SingleAddress';
 import { AppDrawerParamList } from '@app/types';
 import { ContextAppLoaded } from '@app/context';
+import { useSwmPriceShown } from '@app/hooks/useSwmPriceShown';
 import Header from '@ui/widgets/Header';
 import BoldText from '@ui/primitives/BoldText';
 import AppSheet from '@ui/primitives/AppSheet';
@@ -29,8 +30,6 @@ import AppSheetModal from '@ui/primitives/AppSheetModal';
 
 import {
   AddressKindEnum,
-  ChainNameEnum,
-  CurrencyEnum,
   ModeEnum,
   SecurityType,
   UnifiedAddressClass,
@@ -76,6 +75,7 @@ const Receive: React.FunctionComponent<ReceiveProps> = ({
   setAddressBook,
 }) => {
   const context = useContext(ContextAppLoaded);
+  const priceShown = useSwmPriceShown();
   const {
     translate,
     addresses,
@@ -117,20 +117,13 @@ const Receive: React.FunctionComponent<ReceiveProps> = ({
   const BALANCE_SNAP_BUMP = 10;
 
   useEffect(() => {
-    const isMainChain =
-      context.server.chainName === ChainNameEnum.mainChainName;
-    const withUsd =
-      isMainChain && context.currency === CurrencyEnum.USDCurrency;
-    if (!withUsd) {
+    if (!priceShown) {
       setUsdRowH(0);
     }
-  }, [context.currency, context.server.chainName]);
+  }, [priceShown]);
 
   const receiveSnapPoints = useMemo(() => {
-    const isMainChain =
-      context.server.chainName === ChainNameEnum.mainChainName;
-    const withUsd =
-      isMainChain && context.currency === CurrencyEnum.USDCurrency;
+    const withUsd = priceShown;
     if (containerH <= 0 || headerH <= 0) {
       return withUsd ? ['85%', '89%', '93%'] : ['89%', '93%'];
     }
@@ -152,14 +145,7 @@ const Receive: React.FunctionComponent<ReceiveProps> = ({
     }
     points.push(snapMax);
     return points;
-  }, [
-    context.currency,
-    context.server.chainName,
-    containerH,
-    headerH,
-    usdRowH,
-    priceRowH,
-  ]);
+  }, [priceShown, containerH, headerH, usdRowH, priceRowH]);
 
   // The BottomSheet `index` prop is hardcoded to 0 below (NOT reactive). This
   // is critical: gorhom v5.2.14 has an internal useEffect that fires

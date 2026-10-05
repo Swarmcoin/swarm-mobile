@@ -26,6 +26,7 @@ import RegText from '@ui/primitives/RegText';
 import BoldText from '@ui/primitives/BoldText';
 import ZecAmount from '@ui/widgets/ZecAmount';
 import CurrencyAmount from '@ui/widgets/CurrencyAmount';
+import { useSwmPriceShown } from '@app/hooks/useSwmPriceShown';
 import Button, { ButtonTypeEnum } from '@ui/primitives/Button';
 import AppSheet from '@ui/primitives/AppSheet';
 import { useTheme } from '@app/theme';
@@ -38,7 +39,7 @@ import { useFullSheetSnapPoints } from '@app/hooks/useFullSheetSnapPoints';
 import { AppDrawerParamList } from '@app/types';
 import Utils from '@app/utils';
 import {
-  ChainNameEnum,
+  CurrencyEnum,
   GlobalConst,
   ScreenEnum,
   RouteEnum,
@@ -83,18 +84,16 @@ const Confirm: React.FunctionComponent<ConfirmProps> = ({
   const {
     info,
     translate,
-    currency,
     zecPrice,
     defaultUnifiedAddress,
     privacy,
     addLastSnackbar,
-    server,
     security,
     foregroundEpoch,
   } = context;
   const { colors } = useTheme();
   const screenName = ScreenEnum.Confirm;
-  const isMainChain = server.chainName === ChainNameEnum.mainChainName;
+  const priceShown = useSwmPriceShown();
 
   // Audit Issue D — bio gate for security.sendConfirm lives at the
   // Confirm screen entry. Mirrors Seed / Ufvk / Settings / Rescan via
@@ -377,12 +376,12 @@ const Confirm: React.FunctionComponent<ConfirmProps> = ({
                 size={28}
                 smallPrefix={true}
               />
-              {isMainChain && (
+              {priceShown && (
                 <CurrencyAmount
                   amtZec={sendingTotal}
                   price={zecPrice.zecPrice}
                   priceDate={zecPrice.date}
-                  currency={currency}
+                  currency={CurrencyEnum.USDCurrency}
                   privacy={false}
                 />
               )}
@@ -432,13 +431,13 @@ const Confirm: React.FunctionComponent<ConfirmProps> = ({
                 amtZec={calculatedFee}
                 privacy={privacy}
               />
-              {isMainChain && (
+              {priceShown && (
                 <CurrencyAmount
                   style={{ fontSize: 18 }}
                   amtZec={calculatedFee}
                   price={zecPrice.zecPrice}
                   priceDate={zecPrice.date}
-                  currency={currency}
+                  currency={CurrencyEnum.USDCurrency}
                   privacy={privacy}
                 />
               )}
@@ -473,13 +472,13 @@ const Confirm: React.FunctionComponent<ConfirmProps> = ({
                           amtZec={donationAmount}
                           privacy={privacy}
                         />
-                        {isMainChain && (
+                        {priceShown && (
                           <CurrencyAmount
                             style={{ fontSize: 18 }}
                             amtZec={donationAmount}
                             price={zecPrice.zecPrice}
                             priceDate={zecPrice.date}
-                            currency={currency}
+                            currency={CurrencyEnum.USDCurrency}
                             privacy={privacy}
                           />
                         )}
@@ -503,13 +502,13 @@ const Confirm: React.FunctionComponent<ConfirmProps> = ({
                       amtZec={Utils.parseStringLocaleToNumberFloat(to.amount)}
                       privacy={privacy}
                     />
-                    {isMainChain && (
+                    {priceShown && (
                       <CurrencyAmount
                         style={{ fontSize: 18 }}
                         amtZec={Utils.parseStringLocaleToNumberFloat(to.amount)}
                         price={zecPrice.zecPrice}
                         priceDate={zecPrice.date}
-                        currency={currency}
+                        currency={CurrencyEnum.USDCurrency}
                         privacy={privacy}
                       />
                     )}

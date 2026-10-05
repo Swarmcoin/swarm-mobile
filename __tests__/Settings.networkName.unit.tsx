@@ -60,6 +60,7 @@ const renderWithServerChain = (chainName: ChainNameEnum) => {
         setPerformanceLevelOption={set}
         setBlockExplorerOption={set}
         setNymOption={set}
+        setShowSwmPriceOption={set}
         toggleMenuDrawer={set}
       />
     </ContextAppLoadedProvider>,

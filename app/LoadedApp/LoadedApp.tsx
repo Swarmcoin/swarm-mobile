@@ -2525,6 +2525,7 @@ export class LoadedAppClass extends Component<
                             this.setPerformanceLevelOption
                           }
                           setBlockExplorerOption={this.setBlockExplorerOption}
+                          setShowSwmPriceOption={this.setShowSwmPriceOption}
                           setNymOption={this.setNymOption}
                           toggleMenuDrawer={
                             () => toggleOptionsPanel() /* header */

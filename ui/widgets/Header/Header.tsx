@@ -33,6 +33,7 @@ import { ContextAppLoaded } from '@app/context';
 import { getSwarmMark } from '@app/utils/ZingoAppData';
 import { useShieldFunds } from '@app/hooks/useShieldFunds';
 import { useSyncStatus } from '@app/hooks/useSyncStatus';
+import { useSwmPriceShown } from '@app/hooks/useSwmPriceShown';
 import BoldText from '@ui/primitives/BoldText';
 import SyncStatusBar from './components/SyncStatusBar';
 import BalanceRow from './components/BalanceRow';
@@ -113,7 +114,6 @@ const Header: React.FunctionComponent<HeaderProps> = ({
     totalBalance,
     info,
     syncingStatus,
-    currency,
     zecPrice,
     readOnly,
     valueTransfersTotal,
@@ -130,6 +130,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
   const privacy = privacyProp !== undefined ? privacyProp : context.privacy;
 
   const { colors } = useTheme();
+  const priceShown = useSwmPriceShown();
 
   const { isOpen: optionsPanelOpen } = useOptionsPanel();
   const headerOpacity = useSharedValue(1);
@@ -238,9 +239,8 @@ const Header: React.FunctionComponent<HeaderProps> = ({
             translate={translate}
             totalBalance={totalBalance}
             info={info}
-            currency={currency}
             zecPrice={zecPrice}
-            selectServer={selectServer}
+            priceShown={priceShown}
             showShieldButton={showShieldButton}
             shieldingFee={shieldingFee}
             valueTransfersTotal={valueTransfersTotal}
@@ -296,10 +296,9 @@ const Header: React.FunctionComponent<HeaderProps> = ({
           {!noBalance && (
             <PriceRow
               translate={translate}
-              currency={currency}
               zecPrice={zecPrice}
-              info={info}
-              selectServer={selectServer}
+              shown={priceShown}
+              addLastSnackbar={context.addLastSnackbar}
               onLayout={onPriceRowLayout}
             />
           )}
