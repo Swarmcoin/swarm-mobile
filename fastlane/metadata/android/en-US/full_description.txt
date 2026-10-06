@@ -1,13 +1,13 @@
 SWARM Wallet is the phone wallet for SWARM Mainnet, the live network of SWARM: private, proof-of-work money run by its community.
 
-THE COINS HERE ARE REAL. SWM on SWARM Mainnet has real value, and what you lose is lost for good. Nothing in this app is an offer, an investment or a way to earn money. Nobody sells SWM to you through this app. The SWM price it shows is indicative and is not a quote.
+THE COINS HERE ARE REAL. SWM on SWARM Mainnet has real value, and what you lose is lost for good. Nothing in this app is an offer, an investment or a way to earn money. Nobody sells SWM to you through this app.
 
 What you can do
 • Create a wallet on your phone. Your recovery words stay with you; nobody else has them.
 • Receive SWM at a shielded address (swm1…) and show it as a QR code.
 • Send SWM to another SWARM address, with an optional encrypted memo.
 • See your balance and your transaction history.
-• See an indicative SWM price in US dollars from the SWARM price service. You can switch it off in Settings.
+• See the SWM price in US dollars from the SWARM price service. You can switch it off in Settings.
 • Lock the app with your phone's screen lock or fingerprint.
 • Switch to SWARM Testnet (engineering) in Settings if you want to try things out. Its coins have no value and never will.
 
