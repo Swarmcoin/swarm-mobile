@@ -91,6 +91,39 @@ describe('parseSwmPrice', () => {
     ]);
   });
 
+  test('Tests that the on-chain pool reading parses as source pool, first among the sources.', () => {
+    const outcome = parseSwmPrice(
+      withBody({
+        source: 'pool',
+        sources: [
+          { id: 'pool', ok: true, price_usd: '1.42', fetched_unix: 1791223633 },
+          {
+            id: 'dexscreener',
+            ok: true,
+            price_usd: '1.42',
+            fetched_unix: 1791223633,
+          },
+          {
+            id: 'geckoterminal',
+            ok: true,
+            price_usd: '1.28',
+            fetched_unix: 1791223633,
+          },
+        ],
+      }),
+    );
+    expect(outcome.kind).toBe('swmPrice');
+    if (outcome.kind !== 'swmPrice') {
+      return;
+    }
+    expect(outcome.reading.source).toBe('pool');
+    expect(outcome.reading.details.sources).toEqual([
+      { id: 'pool', ok: true, priceUsd: 1.42 },
+      { id: 'dexscreener', ok: true, priceUsd: 1.42 },
+      { id: 'geckoterminal', ok: true, priceUsd: 1.28 },
+    ]);
+  });
+
   test.each([
     ['another schema', withBody({ schema: 'swarm-price/2' })],
     ['another symbol', withBody({ symbol: 'ZEC' })],

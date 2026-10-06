@@ -119,7 +119,8 @@ test('Tests that the page shows the price, the ETH price, the three changes, the
   expect(view.getByText('$0.8602  ✓')).toBeTruthy();
   expect(view.getByText('0xf1e0…4599')).toBeTruthy();
   expect(view.getByText('0xf904…043B')).toBeTruthy();
-  expect(view.getByTestId('price.page.note')).toBeTruthy();
+  expect(view.queryByTestId('price.page.note')).toBeNull();
+  expect(view.queryByText(/Indicative/)).toBeNull();
   expect(view.getByTestId('price.page.switch')).toBeTruthy();
 });
 
@@ -173,13 +174,13 @@ test('Tests that a touch on the chart reads out the price and the hour under the
   expect(view.getByTestId('price.chart.readout')).toHaveTextContent('');
 });
 
-test('Tests that the page shows only the note and the switch when the price setting is off. The switch turns it back on.', () => {
+test('Tests that the page shows only the switch when the price setting is off. The switch turns it back on.', () => {
   const setOption = jest.fn(async () => {});
   const view = render(pageUi({ showSwmPrice: false }, setOption));
 
   expect(view.queryByTestId('price.page.value')).toBeNull();
   expect(view.queryByTestId('price.page.balance')).toBeNull();
-  expect(view.getByTestId('price.page.note')).toBeTruthy();
+  expect(view.queryByTestId('price.page.note')).toBeNull();
   fireEvent.press(view.getByTestId('price.page.switch'));
   expect(setOption).toHaveBeenCalledWith(true);
 });
@@ -231,6 +232,49 @@ test('Tests that a failed source greys its row with a dash.', () => {
   );
   expect(view.getByTestId('price.page.source.dexscreener')).toHaveTextContent(
     'DexScreener—',
+  );
+});
+
+test('Tests that the Sources list starts with the Live row, which is not a link, then DexScreener, then GeckoTerminal.', () => {
+  const RN: typeof import('react-native') = require('react-native');
+  const open = jest.spyOn(RN.Linking, 'openURL').mockResolvedValue(true);
+  const view = render(
+    pageUi({
+      zecPrice: {
+        ...mockSwmPrice(NOW),
+        source: 'pool',
+        details: {
+          ...mockSwmDetails,
+          sources: [
+            { id: 'pool', ok: true, priceUsd: 1.42 },
+            { id: 'dexscreener', ok: true, priceUsd: 1.42 },
+            { id: 'geckoterminal', ok: true, priceUsd: 1.28 },
+          ],
+        },
+      },
+    }),
+  );
+  const rows = view
+    .getAllByTestId(/^price\.page\.source\./)
+    .map(node => node.props.testID);
+  expect(rows).toEqual([
+    'price.page.source.pool',
+    'price.page.source.dexscreener',
+    'price.page.source.geckoterminal',
+  ]);
+  const liveRow = view.getByTestId('price.page.source.pool');
+  expect(liveRow).toHaveTextContent(/^Live\$1\.42\s+✓$/);
+  expect(liveRow.props.accessibilityRole).toBeUndefined();
+  expect(liveRow.props.onPress).toBeUndefined();
+  fireEvent.press(liveRow);
+  expect(open).not.toHaveBeenCalled();
+  open.mockRestore();
+});
+
+test('Tests that the Live row is greyed with a dash when the relay sent no on-chain reading.', () => {
+  const view = render(pageUi());
+  expect(view.getByTestId('price.page.source.pool')).toHaveTextContent(
+    'Live—',
   );
 });
 

@@ -6,9 +6,11 @@ import { PRICE_UP } from '@app/theme/tokens';
 import { PriceFreshness } from './priceFetcherStore';
 import { formatClock } from './swmPriceFormat';
 
+/** Source labels: the pool read on chain is "Live" (owner 2026-10-06), the aggregators keep their names. */
 export const SOURCE_NAMES: Record<string, string> = {
-  geckoterminal: 'GeckoTerminal',
+  pool: 'Live',
   dexscreener: 'DexScreener',
+  geckoterminal: 'GeckoTerminal',
 };
 
 /** `updated 12 s ago` while the reading is fresh, `as of 14:05` after that. */

@@ -165,8 +165,8 @@ bytes were distributed.
 
 `0.2.0-mainnet.5` opens the chain restarted on 2026-10-02 (genesis
 `01b76d8a…eff2`, indexer `lwd-main.swarm.green:443`) and moves a wallet made on
-the abandoned chain once (see "The 2026-10-02 restart"). The wallet also shows an
-indicative SWM price in US dollars on SWARM Mainnet, read from
+the abandoned chain once (see "The 2026-10-02 restart"). The wallet also shows the
+SWM price in US dollars on SWARM Mainnet, read from
 `https://wallet.swarm.green/api/price/swm`, with a Settings switch that stops
 the request, and a separate SWM price page opened from the price card. The SDK
 pin names `Swarmcoin/privacy-zingolib`, because the Swarm-Official account no

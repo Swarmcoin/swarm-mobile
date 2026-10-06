@@ -62,7 +62,13 @@ const HOUR = 3600;
 const DAY = 86400;
 const CHART_HEIGHT = 190;
 const RANGES: readonly ChartRange[] = ['24h', '48h', '30d'];
-const SOURCES: readonly SwmPriceSource[] = ['geckoterminal', 'dexscreener'];
+// The service's order of trust (specs/PRICE-DISPLAY.md 2.2): the pool read on
+// chain ("Live", not a link), then DexScreener, then GeckoTerminal.
+const SOURCES: readonly SwmPriceSource[] = [
+  'pool',
+  'dexscreener',
+  'geckoterminal',
+];
 
 // A series that ends at the live price carries one point after its closes.
 const timed = (
@@ -194,15 +200,6 @@ export default function Price({
         )}
       </Pressable>
     </View>
-  );
-
-  const note = (
-    <Text
-      testID="price.page.note"
-      style={[styles.note, { color: colors.fgMuted }]}
-    >
-      {t('price.note')}
-    </Text>
   );
 
   const details = zecPrice.details;
@@ -412,6 +409,34 @@ export default function Price({
               {SOURCES.map(id => {
                 const reading = details?.sources.find(src => src.id === id);
                 const ok = !!reading?.ok;
+                const content = (
+                  <>
+                    <Text
+                      style={[
+                        styles.rowLabel,
+                        { color: ok ? colors.fgDefault : colors.fgMuted },
+                      ]}
+                    >
+                      {SOURCE_NAMES[id]}
+                    </Text>
+                    <Text style={ok ? mono : muted}>
+                      {ok && reading?.priceUsd !== undefined
+                        ? `$${formatSwmPrice(reading.priceUsd)}  ✓`
+                        : dash}
+                    </Text>
+                  </>
+                );
+                if (id === 'pool') {
+                  return (
+                    <View
+                      key={id}
+                      testID={`price.page.source.${id}`}
+                      style={styles.row}
+                    >
+                      {content}
+                    </View>
+                  );
+                }
                 return (
                   <Pressable
                     key={id}
@@ -431,19 +456,7 @@ export default function Price({
                     }
                     style={styles.row}
                   >
-                    <Text
-                      style={[
-                        styles.rowLabel,
-                        { color: ok ? colors.fgDefault : colors.fgMuted },
-                      ]}
-                    >
-                      {SOURCE_NAMES[id]}
-                    </Text>
-                    <Text style={ok ? mono : muted}>
-                      {ok && reading?.priceUsd !== undefined
-                        ? `$${formatSwmPrice(reading.priceUsd)}  ✓`
-                        : dash}
-                    </Text>
+                    {content}
                   </Pressable>
                 );
               })}
@@ -471,7 +484,6 @@ export default function Price({
             </View>
           )}
 
-          {note}
           {settingRow}
         </ScrollView>
       )}
@@ -527,7 +539,6 @@ const styles = StyleSheet.create({
   },
   rowLabel: { fontFamily: fontFamily.bodyMedium, fontSize: 14 },
   copy: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  note: { fontFamily: fontFamily.bodyRegular, fontSize: 12, lineHeight: 17 },
   settingRow: {
     flexDirection: 'row',
     alignItems: 'center',

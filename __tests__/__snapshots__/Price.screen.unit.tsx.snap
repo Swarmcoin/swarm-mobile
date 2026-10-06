@@ -1024,37 +1024,6 @@ exports[`Tests that the snapshot of the page matches when the reading is the spe
           SOURCES
         </Text>
         <View
-          accessibilityLabel="Open the SWM/ETH pool on GeckoTerminal"
-          accessibilityRole="link"
-          accessibilityState={
-            {
-              "busy": undefined,
-              "checked": undefined,
-              "disabled": undefined,
-              "expanded": undefined,
-              "selected": undefined,
-            }
-          }
-          accessibilityValue={
-            {
-              "max": undefined,
-              "min": undefined,
-              "now": undefined,
-              "text": undefined,
-            }
-          }
-          accessible={true}
-          collapsable={false}
-          focusable={true}
-          onBlur={[Function]}
-          onClick={[Function]}
-          onFocus={[Function]}
-          onResponderGrant={[Function]}
-          onResponderMove={[Function]}
-          onResponderRelease={[Function]}
-          onResponderTerminate={[Function]}
-          onResponderTerminationRequest={[Function]}
-          onStartShouldSetResponder={[Function]}
           style={
             {
               "alignItems": "center",
@@ -1063,7 +1032,7 @@ exports[`Tests that the snapshot of the page matches when the reading is the spe
               "minHeight": 36,
             }
           }
-          testID="price.page.source.geckoterminal"
+          testID="price.page.source.pool"
         >
           <Text
             style={
@@ -1073,22 +1042,22 @@ exports[`Tests that the snapshot of the page matches when the reading is the spe
                   "fontSize": 14,
                 },
                 {
-                  "color": "#c3c3c3",
+                  "color": "#888888",
                 },
               ]
             }
           >
-            GeckoTerminal
+            Live
           </Text>
           <Text
             style={
               {
-                "color": "#c3c3c3",
+                "color": "#888888",
                 "fontFamily": "JetBrainsMono-Regular",
               }
             }
           >
-            $0.8411  ✓
+            —
           </Text>
         </View>
         <View
@@ -1157,6 +1126,74 @@ exports[`Tests that the snapshot of the page matches when the reading is the spe
             }
           >
             $0.8602  ✓
+          </Text>
+        </View>
+        <View
+          accessibilityLabel="Open the SWM/ETH pool on GeckoTerminal"
+          accessibilityRole="link"
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onBlur={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+              "minHeight": 36,
+            }
+          }
+          testID="price.page.source.geckoterminal"
+        >
+          <Text
+            style={
+              [
+                {
+                  "fontFamily": "Manrope-Medium",
+                  "fontSize": 14,
+                },
+                {
+                  "color": "#c3c3c3",
+                },
+              ]
+            }
+          >
+            GeckoTerminal
+          </Text>
+          <Text
+            style={
+              {
+                "color": "#c3c3c3",
+                "fontFamily": "JetBrainsMono-Regular",
+              }
+            }
+          >
+            $0.8411  ✓
           </Text>
         </View>
         <View
@@ -1350,23 +1387,6 @@ exports[`Tests that the snapshot of the page matches when the reading is the spe
           </View>
         </View>
       </View>
-      <Text
-        style={
-          [
-            {
-              "fontFamily": "Manrope-Regular",
-              "fontSize": 12,
-              "lineHeight": 17,
-            },
-            {
-              "color": "#888888",
-            },
-          ]
-        }
-        testID="price.page.note"
-      >
-        Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote.
-      </Text>
       <View
         style={
           {

@@ -1,4 +1,4 @@
-/** Reads the indicative SWM/USD price from the fixed SWARM price service URL, sending no wallet data. */
+/** Reads the SWM/USD price from the fixed SWARM price service URL, sending no wallet data. */
 import { ErrorKeyed, errorKeyed } from '@app/AppState/types/Result';
 
 export const SWM_PRICE_URL = 'https://wallet.swarm.green/api/price/swm';
@@ -19,7 +19,11 @@ export type SwmPriceErrorKey =
   | 'price.error-response'
   | 'price.error-unavailable';
 
-export type SwmPriceSource = 'geckoterminal' | 'dexscreener';
+/**
+ * The service's readings in its order of trust (specs/PRICE-DISPLAY.md 2.2):
+ * `pool` is the pool's own price read on chain, then the two aggregators.
+ */
+export type SwmPriceSource = 'pool' | 'dexscreener' | 'geckoterminal';
 
 export type SwmPool = {
   chain: string;
@@ -74,7 +78,9 @@ const finite = (n: unknown): n is number =>
   typeof n === 'number' && Number.isFinite(n);
 
 const sourceOf = (id: unknown): SwmPriceSource | undefined =>
-  id === 'geckoterminal' || id === 'dexscreener' ? id : undefined;
+  id === 'pool' || id === 'dexscreener' || id === 'geckoterminal'
+    ? id
+    : undefined;
 
 const seriesOf = (points: unknown, max: number): number[] | undefined => {
   if (!Array.isArray(points) || points.length < 2) {

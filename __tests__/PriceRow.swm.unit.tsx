@@ -153,15 +153,21 @@ test('Tests that a tap on the card opens the price page.', () => {
   expect(onOpen).toHaveBeenCalledTimes(1);
 });
 
-test('Tests that the info button and a long press show the note that the price is indicative.', () => {
+test('Tests that the card has no info button and no note, only the price (owner 2026-10-06).', () => {
   const view = render(rowUi(mockSwmPrice(NOW)));
+  expect(view.queryByTestId('price.info')).toBeNull();
   expect(view.queryByTestId('price.note')).toBeNull();
-
-  fireEvent.press(view.getByTestId('price.info'));
-  expect(view.getByTestId('price.note')).toHaveTextContent(
-    'Indicative price from the SWM/ETH pool on Base. The pool is small; small trades move it. Not a quote.',
-  );
-
   fireEvent(view.getByTestId('price.card'), 'longPress');
   expect(view.queryByTestId('price.note')).toBeNull();
+  expect(view.queryByText(/Indicative/)).toBeNull();
+  expect(view.queryByText(/not a quote/i)).toBeNull();
+});
+
+test('Tests that the meta line labels the on-chain pool reading "Live".', () => {
+  const view = render(
+    rowUi({ ...mockSwmPrice(NOW - 12_000), source: 'pool' }),
+  );
+  expect(view.getByTestId('price.meta')).toHaveTextContent(
+    'Live · updated 12 s ago',
+  );
 });

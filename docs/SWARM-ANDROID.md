@@ -69,7 +69,7 @@ you choose it in Settings. There is no ZEC, no currency picker, no donation
 toggle, no exchange or swap, and no public server registry: the app never asks
 a third party which server to trust.
 
-On SWARM Mainnet the wallet shows an indicative SWM price in US dollars. It
+On SWARM Mainnet the wallet shows the SWM price in US dollars. It
 reads it once a minute, while the wallet is open, from the SWARM price service
 at `https://wallet.swarm.green/api/price/swm`, which reads the SWM/ETH pool on
 Base from GeckoTerminal and DexScreener. The request carries no address and no
@@ -80,7 +80,8 @@ The price card in the header and the USD balance under the total open the
 **SWM price** page: the price in USD and ETH, the 1 h, 6 h and 24 h changes, a
 24 h, 48 h or 30 day chart that reads out a value under the finger, the
 balance at that price, 24 h volume, fully diluted value, trades and pool fee,
-the GeckoTerminal and DexScreener readings with links to their pool pages, the
+the readings: Live (the pool read on chain, no link), then DexScreener and
+GeckoTerminal with links to their pool pages, the
 pool id and the token contract with copy controls, and the same switch.
 
 ---

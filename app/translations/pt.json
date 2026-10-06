@@ -495,8 +495,6 @@
     "updated-minutes": "atualizado há {n} min",
     "unavailable": "Preço indisponível",
     "change": "{pct} % 24 h",
-    "note": "Preço indicativo do pool SWM/ETH na Base. O pool é pequeno; operações pequenas o movem. Não é uma cotação.",
-    "info-acc": "Sobre este preço",
     "open-acc": "Abrir o pool SWM/ETH no DexScreener",
     "open-failed": "Não foi possível abrir a página da listagem.",
     "fiat-acc": "Saldo em dólares americanos",

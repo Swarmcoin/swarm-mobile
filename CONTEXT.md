@@ -280,10 +280,12 @@ app never sees it.
 Vocabulary for the SWM/USD display and its fetch lifecycle.
 
 **Price**:
-The indicative SWM/USD value the SWARM price service at
-`wallet.swarm.green/api/price/swm` reports from the SWM/ETH pool on Base.
-Only a SWARM Mainnet wallet with "Show SWM price (USD)" on reads it.
-_Avoid_: quote (the pool is small, and the display says it is not one)
+The SWM/USD value the SWARM price service at
+`wallet.swarm.green/api/price/swm` reports, first from the SWM/ETH pool on Base
+read on chain (source `pool`, shown as "Live"), else from DexScreener or
+GeckoTerminal. Only a SWARM Mainnet wallet with "Show SWM price (USD)" on reads
+it. The display shows just the price, no note (owner 2026-10-06).
+_Avoid_: quote
 
 **Freshness**:
 The age of the last good reading on the device clock: fresh under five

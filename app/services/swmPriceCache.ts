@@ -63,7 +63,9 @@ export async function loadSwmPrice(): Promise<ZecPriceType | undefined> {
       typeof kept.changePct24h === 'number' ? kept.changePct24h : undefined,
     sparklineUsd: isNumbers(kept.sparklineUsd) ? kept.sparklineUsd : undefined,
     source:
-      kept.source === 'geckoterminal' || kept.source === 'dexscreener'
+      kept.source === 'pool' ||
+      kept.source === 'dexscreener' ||
+      kept.source === 'geckoterminal'
         ? kept.source
         : undefined,
     generatedUnix:

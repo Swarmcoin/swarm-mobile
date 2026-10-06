@@ -495,8 +495,6 @@
     "updated-minutes": "{n} dk önce güncellendi",
     "unavailable": "Fiyat kullanılamıyor",
     "change": "{pct} % 24 sa",
-    "note": "Base ağındaki SWM/ETH havuzundan gösterge niteliğinde fiyat. Havuz küçüktür; küçük işlemler fiyatı oynatır. Bu bir fiyat teklifi değildir.",
-    "info-acc": "Bu fiyat hakkında",
     "open-acc": "SWM/ETH havuzunu DexScreener'da aç",
     "open-failed": "Listeleme sayfası açılamadı.",
     "fiat-acc": "ABD doları cinsinden bakiye",

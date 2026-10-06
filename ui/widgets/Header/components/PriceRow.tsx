@@ -1,8 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useState } from 'react';
+import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useTheme } from '@app/theme';
 import { BG_SURFACE_NESTED } from '@app/theme/tokens';
 import { fontFamily, typeScale } from '@app/theme/typography';
@@ -44,7 +42,6 @@ const PriceRow = React.memo(
     const { colors } = useTheme();
     const freshness = usePriceFreshness(zecPrice);
     const { lastErrorKey } = usePriceFetcherStore();
-    const [noteOpen, setNoteOpen] = useState<boolean>(false);
     const live = shown && freshness !== 'absent';
     useTick(META_TICK_MS, live);
 
@@ -72,7 +69,6 @@ const PriceRow = React.memo(
         accessibilityRole="button"
         accessibilityLabel={translate('price.page.open-acc') as string}
         onPress={onOpen}
-        onLongPress={() => setNoteOpen(!noteOpen)}
         onLayout={e =>
           onLayout?.(e.nativeEvent.layout.height + CARD_VERTICAL_MARGINS)
         }
@@ -114,20 +110,6 @@ const PriceRow = React.memo(
               backgroundColor: dot,
             }}
           />
-          <View style={{ flex: 1 }} />
-          <Pressable
-            testID="price.info"
-            accessibilityRole="button"
-            accessibilityLabel={translate('price.info-acc') as string}
-            hitSlop={12}
-            onPress={() => setNoteOpen(!noteOpen)}
-          >
-            <FontAwesomeIcon
-              icon={faInfoCircle}
-              size={14}
-              color={colors.fgMuted}
-            />
-          </Pressable>
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -213,19 +195,6 @@ const PriceRow = React.memo(
         >
           {meta}
         </Text>
-        {noteOpen && (
-          <Text
-            testID="price.note"
-            style={{
-              fontFamily: fontFamily.bodyRegular,
-              fontSize: 12,
-              lineHeight: 17,
-              color: colors.fgMuted,
-            }}
-          >
-            {translate('price.note') as string}
-          </Text>
-        )}
       </Pressable>
     );
   },
