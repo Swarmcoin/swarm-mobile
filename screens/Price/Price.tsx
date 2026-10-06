@@ -1,25 +1,14 @@
 import React, { useContext, useState } from 'react';
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { faCopy } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { ContextAppLoaded } from '@app/context';
-import { RouteEnum, ScreenEnum, SnackbarDurationEnum } from '@app/AppState';
+import { RouteEnum, ScreenEnum } from '@app/AppState';
 import ZecPriceType from '@app/AppState/types/ZecPriceType';
 import { AppDrawerParamList } from '@app/types';
 import { useTheme } from '@app/theme';
 import { BG_SURFACE_NESTED } from '@app/theme/tokens';
 import { fontFamily, MASKED_AMOUNT, typeScale } from '@app/theme/typography';
 import { priceAvailableOnChain } from '@app/utils/priceAvailability';
-import type { SwmPriceSource } from '@app/walletBackend';
 import Header from '@ui/widgets/Header';
 import PriceChart, { ChartPoint } from '@ui/widgets/PriceChart';
 import { usePriceFreshness } from '@ui/widgets/priceFetcherStore';
@@ -28,7 +17,6 @@ import {
   formatClock,
   formatCoin,
   formatEth,
-  formatPct,
   formatSwmPrice,
   formatUsd,
 } from '@ui/widgets/swmPriceFormat';
@@ -36,16 +24,8 @@ import {
   changeTone,
   freshnessColor,
   priceAgeText,
-  SOURCE_NAMES,
   useTick,
 } from '@ui/widgets/swmPriceMeta';
-import {
-  dexscreenerUrl,
-  geckoterminalUrl,
-  shortHex,
-  shownPoolId,
-  SWM_TOKEN,
-} from '@ui/widgets/swmPriceLinks';
 import SettingSwitchOn from '../../assets/img/setting-switch-on.svg';
 import SwitchOff from '../../assets/img/switch-off.svg';
 
@@ -62,13 +42,6 @@ const HOUR = 3600;
 const DAY = 86400;
 const CHART_HEIGHT = 190;
 const RANGES: readonly ChartRange[] = ['24h', '48h', '30d'];
-// The service's order of trust (specs/PRICE-DISPLAY.md 2.2): the pool read on
-// chain ("Live", not a link), then DexScreener, then GeckoTerminal.
-const SOURCES: readonly SwmPriceSource[] = [
-  'pool',
-  'dexscreener',
-  'geckoterminal',
-];
 
 // A series that ends at the live price carries one point after its closes.
 const timed = (
@@ -125,6 +98,10 @@ const dayOf = (unix: number) =>
     month: 'short',
   });
 
+// Owner 2026-10-06 (specs/PRICE-DISPLAY.md 2.3): the page shows only the price
+// in USD and ETH, the 1h/6h/24h changes, the chart, the freshness, the
+// wallet's balance in USD and the switch. No market figures, no sources, no
+// ids, no links.
 export default function Price({
   navigation,
   setShowSwmPriceOption,
@@ -136,7 +113,6 @@ export default function Price({
     showSwmPrice,
     totalBalance,
     privacy,
-    addLastSnackbar,
   } = useContext(ContextAppLoaded);
   const { colors } = useTheme();
   const freshness = usePriceFreshness(zecPrice);
@@ -150,18 +126,6 @@ export default function Price({
   const range = series[chosen].length
     ? chosen
     : (RANGES.find(r => series[r].length) ?? chosen);
-
-  const open = async (url: string) => {
-    try {
-      await Linking.openURL(url);
-    } catch {
-      addLastSnackbar(t('price.open-failed'));
-    }
-  };
-  const copy = (text: string) => {
-    Clipboard.setString(text);
-    addLastSnackbar(t('price.page.copied'), SnackbarDurationEnum.short);
-  };
 
   const mono = { fontFamily: fontFamily.monoRegular, color: colors.fgDefault };
   const muted = { fontFamily: fontFamily.monoRegular, color: colors.fgMuted };
@@ -212,28 +176,6 @@ export default function Price({
   const unavailable = freshness === 'unavailable';
   const greyed = freshness === 'stale' || unavailable;
   const dash = '—';
-  const usdOr = (n: number | undefined) =>
-    n === undefined ? dash : `$${formatUsd(n)}`;
-  const stats: [string, string][] = [
-    [t('price.page.volume'), usdOr(details?.volume24hUsd)],
-    [t('price.page.fdv'), usdOr(details?.fdvUsd)],
-    [
-      t('price.page.trades'),
-      details?.transactions24h
-        ? `${details.transactions24h.buys} / ${details.transactions24h.sells}`
-        : dash,
-    ],
-    [
-      t('price.page.fee'),
-      zecPrice.pool?.feePct === undefined
-        ? dash
-        : formatPct(zecPrice.pool.feePct),
-    ],
-  ];
-  const ids: [string, string, string][] = [
-    ['pool', t('price.page.pool'), shownPoolId(zecPrice)],
-    ['token', t('price.page.token'), SWM_TOKEN],
-  ];
   const changes: [string, number | undefined][] = [
     [t('price.page.period-1h'), details?.changePct1h],
     [t('price.page.period-6h'), details?.changePct6h],
@@ -392,98 +334,6 @@ export default function Price({
             </View>
           )}
 
-          {live && (
-            <View style={[card, styles.grid]}>
-              {stats.map(([label, value]) => (
-                <View key={label} style={styles.stat}>
-                  <Text style={kicker}>{label.toUpperCase()}</Text>
-                  <Text style={[mono, styles.statValue]}>{value}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {live && (
-            <View style={card}>
-              <Text style={kicker}>{t('price.page.sources')}</Text>
-              {SOURCES.map(id => {
-                const reading = details?.sources.find(src => src.id === id);
-                const ok = !!reading?.ok;
-                const content = (
-                  <>
-                    <Text
-                      style={[
-                        styles.rowLabel,
-                        { color: ok ? colors.fgDefault : colors.fgMuted },
-                      ]}
-                    >
-                      {SOURCE_NAMES[id]}
-                    </Text>
-                    <Text style={ok ? mono : muted}>
-                      {ok && reading?.priceUsd !== undefined
-                        ? `$${formatSwmPrice(reading.priceUsd)}  ✓`
-                        : dash}
-                    </Text>
-                  </>
-                );
-                if (id === 'pool') {
-                  return (
-                    <View
-                      key={id}
-                      testID={`price.page.source.${id}`}
-                      style={styles.row}
-                    >
-                      {content}
-                    </View>
-                  );
-                }
-                return (
-                  <Pressable
-                    key={id}
-                    testID={`price.page.source.${id}`}
-                    accessibilityRole="link"
-                    accessibilityLabel={t(
-                      id === 'dexscreener'
-                        ? 'price.open-acc'
-                        : 'price.page.open-gecko-acc',
-                    )}
-                    onPress={() =>
-                      open(
-                        id === 'dexscreener'
-                          ? dexscreenerUrl(zecPrice)
-                          : geckoterminalUrl(zecPrice),
-                      )
-                    }
-                    style={styles.row}
-                  >
-                    {content}
-                  </Pressable>
-                );
-              })}
-              {ids.map(([id, label, hex]) => (
-                <View key={id} style={styles.row}>
-                  <Text style={[styles.rowLabel, { color: colors.fgDefault }]}>
-                    {label}
-                  </Text>
-                  <Pressable
-                    testID={`price.page.copy.${id}`}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${t('price.page.copy-acc')} ${label}`}
-                    onPress={() => copy(hex)}
-                    style={styles.copy}
-                  >
-                    <Text style={mono}>{shortHex(hex)}</Text>
-                    <FontAwesomeIcon
-                      icon={faCopy}
-                      size={14}
-                      color={colors.fgMuted}
-                    />
-                  </Pressable>
-                </View>
-              ))}
-            </View>
-          )}
-
           {settingRow}
         </ScrollView>
       )}
@@ -528,17 +378,6 @@ const styles = StyleSheet.create({
   rangeEmpty: { opacity: 0.4 },
   rangeText: { fontFamily: fontFamily.monoMedium, fontSize: 12 },
   balance: { fontSize: typeScale.mono.fontSize },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14 },
-  stat: { width: '50%', gap: 4 },
-  statValue: { fontSize: typeScale.mono.fontSize },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 36,
-  },
-  rowLabel: { fontFamily: fontFamily.bodyMedium, fontSize: 14 },
-  copy: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   settingRow: {
     flexDirection: 'row',
     alignItems: 'center',

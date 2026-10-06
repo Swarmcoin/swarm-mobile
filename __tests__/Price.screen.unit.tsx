@@ -6,8 +6,7 @@ jest.mock('@app/walletBackend/modules/SwmPriceService', () => ({
 
 import 'react-native';
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
+import { fireEvent, render } from '@testing-library/react-native';
 import en from '@app/translations/en.json';
 import Price, { chartSeries } from '@screens/Price/Price';
 import {
@@ -16,7 +15,6 @@ import {
 } from '@app/context';
 import { ChainNameEnum, CurrencyNameEnum, RouteEnum } from '@app/AppState';
 import type { ZecPriceType } from '@app/AppState';
-import { dexscreenerUrl } from '@ui/widgets/swmPriceLinks';
 import mockNavigation from '../__mocks__/dataMocks/mockNavigation';
 import { mockTotalBalance } from '../__mocks__/dataMocks/mockTotalBalance';
 import {
@@ -87,7 +85,7 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test('Tests that the page shows the price, the ETH price, the three changes, the 24 h chart, the balance, the stats without liquidity or network, and the sources when the reading is fresh.', () => {
+test('Tests that the page shows only the price, the ETH price, the three changes, the 24 h chart, the balance and the switch when the reading is fresh.', () => {
   const view = render(pageUi());
 
   expect(view.getByTestId('price.page.freshness.fresh')).toBeTruthy();
@@ -107,18 +105,35 @@ test('Tests that the page shows the price, the ETH price, the three changes, the
   expect(view.getByTestId('price.chart.high')).toHaveTextContent('$0.8411');
   expect(view.getByTestId('price.chart.low')).toHaveTextContent('$0.5259');
   expect(view.getByTestId('price.chart.latest')).toHaveTextContent('$0.8411');
-  expect(view.queryByText('$3,761.34')).toBeNull();
-  expect(view.queryByText('LIQUIDITY')).toBeNull();
-  expect(view.getByText('$378.11')).toBeTruthy();
-  expect(view.getByText('$8,411.43')).toBeTruthy();
-  expect(view.getByText('9 / 0')).toBeTruthy();
-  expect(view.getByText('0.9 %')).toBeTruthy();
-  expect(view.queryByText('Base')).toBeNull();
-  expect(view.queryByText('NETWORK')).toBeNull();
-  expect(view.getByText('$0.8411  ✓')).toBeTruthy();
-  expect(view.getByText('$0.8602  ✓')).toBeTruthy();
-  expect(view.getByText('0xf1e0…4599')).toBeTruthy();
-  expect(view.getByText('0xf904…043B')).toBeTruthy();
+  // Owner 2026-10-06 (specs/PRICE-DISPLAY.md 2.3): nothing else.
+  [
+    '$3,761.34',
+    'LIQUIDITY',
+    '$378.11',
+    '$8,411.43',
+    '9 / 0',
+    '0.9 %',
+    'Base',
+    'NETWORK',
+    'SOURCES',
+    '$0.8411  ✓',
+    '$0.8602  ✓',
+    '0xf1e0…4599',
+    '0xf904…043B',
+  ].forEach(text => expect(view.queryByText(text)).toBeNull());
+  [
+    /24 H VOLUME/i,
+    /FULLY DILUTED/i,
+    /BUYS/i,
+    /POOL FEE/i,
+    /^Live/,
+    /DexScreener/,
+    /GeckoTerminal/,
+  ].forEach(text => expect(view.queryByText(text)).toBeNull());
+  expect(view.queryAllByTestId(/^price\.page\.(source|copy)\./)).toHaveLength(
+    0,
+  );
+  expect(view.queryAllByRole('link')).toHaveLength(0);
   expect(view.queryByTestId('price.page.note')).toBeNull();
   expect(view.queryByText(/Indicative/)).toBeNull();
   expect(view.getByTestId('price.page.switch')).toBeTruthy();
@@ -194,99 +209,33 @@ test('Tests that the page has no content when the wallet is on SWARM Testnet.', 
   expect(view.queryByTestId('price.page')).toBeNull();
 });
 
-test('Tests that a source row opens its listing on the fixed host and the pool row copies the full pool id.', async () => {
+test('Tests that the page names no source and opens no listing, whichever reading the price came from.', () => {
   const RN: typeof import('react-native') = require('react-native');
   const open = jest.spyOn(RN.Linking, 'openURL').mockResolvedValue(true);
-  const snackbar = jest.fn();
-  const view = render(pageUi({ addLastSnackbar: snackbar }));
-
-  fireEvent.press(view.getByTestId('price.page.source.geckoterminal'));
-  await waitFor(() =>
-    expect(open).toHaveBeenCalledWith(
-      'https://www.geckoterminal.com/base/pools/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
-    ),
-  );
-  open.mockRestore();
-
-  fireEvent.press(view.getByTestId('price.page.copy.pool'));
-  expect(Clipboard.setString).toHaveBeenCalledWith(
-    '0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
-  );
-  expect(snackbar).toHaveBeenCalledWith('Copied to the clipboard', 'short');
-});
-
-test('Tests that a failed source greys its row with a dash.', () => {
-  const view = render(
-    pageUi({
-      zecPrice: {
-        ...mockSwmPrice(NOW),
-        details: {
-          ...mockSwmDetails,
-          sources: [
-            { id: 'geckoterminal', ok: true, priceUsd: 0.84114343 },
-            { id: 'dexscreener', ok: false },
-          ],
+  (['pool', 'dexscreener', 'geckoterminal'] as const).forEach(source => {
+    const view = render(
+      pageUi({
+        zecPrice: {
+          ...mockSwmPrice(NOW),
+          source,
+          details: {
+            ...mockSwmDetails,
+            sources: [
+              { id: 'pool', ok: true, priceUsd: 1.42 },
+              { id: 'dexscreener', ok: true, priceUsd: 1.42 },
+              { id: 'geckoterminal', ok: true, priceUsd: 1.28 },
+            ],
+          },
         },
-      },
-    }),
-  );
-  expect(view.getByTestId('price.page.source.dexscreener')).toHaveTextContent(
-    'DexScreener—',
-  );
-});
-
-test('Tests that the Sources list starts with the Live row, which is not a link, then DexScreener, then GeckoTerminal.', () => {
-  const RN: typeof import('react-native') = require('react-native');
-  const open = jest.spyOn(RN.Linking, 'openURL').mockResolvedValue(true);
-  const view = render(
-    pageUi({
-      zecPrice: {
-        ...mockSwmPrice(NOW),
-        source: 'pool',
-        details: {
-          ...mockSwmDetails,
-          sources: [
-            { id: 'pool', ok: true, priceUsd: 1.42 },
-            { id: 'dexscreener', ok: true, priceUsd: 1.42 },
-            { id: 'geckoterminal', ok: true, priceUsd: 1.28 },
-          ],
-        },
-      },
-    }),
-  );
-  const rows = view
-    .getAllByTestId(/^price\.page\.source\./)
-    .map(node => node.props.testID);
-  expect(rows).toEqual([
-    'price.page.source.pool',
-    'price.page.source.dexscreener',
-    'price.page.source.geckoterminal',
-  ]);
-  const liveRow = view.getByTestId('price.page.source.pool');
-  expect(liveRow).toHaveTextContent(/^Live\$1\.42\s+✓$/);
-  expect(liveRow.props.accessibilityRole).toBeUndefined();
-  expect(liveRow.props.onPress).toBeUndefined();
-  fireEvent.press(liveRow);
+      }),
+    );
+    expect(view.queryAllByTestId(/^price\.page\.source\./)).toHaveLength(0);
+    expect(view.queryByText(/Live|DexScreener|GeckoTerminal/)).toBeNull();
+    expect(view.queryByText(/1\.28/)).toBeNull();
+    view.unmount();
+  });
   expect(open).not.toHaveBeenCalled();
   open.mockRestore();
-});
-
-test('Tests that the Live row is greyed with a dash when the relay sent no on-chain reading.', () => {
-  const view = render(pageUi());
-  expect(view.getByTestId('price.page.source.pool')).toHaveTextContent(
-    'Live—',
-  );
-});
-
-test('Tests that the listing links stay on the fixed hosts when the relay names another chain.', () => {
-  expect(
-    dexscreenerUrl({
-      ...mockSwmPrice(NOW),
-      pool: { chain: 'ethereum', dex: 'x', id: '0x' + 'a'.repeat(64) },
-    }),
-  ).toBe(
-    'https://dexscreener.com/base/0xf1e066d77279b388b40fdca7f5cf4a6559f77bdf9e2e8937ce9c2fe2960f4599',
-  );
 });
 
 test('Tests that the chart series place the hourly closes before the relay hour when the relay sends no start hour.', () => {

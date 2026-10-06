@@ -60,7 +60,3 @@ export const formatCoin = (amount: number): string => {
   const fixed = amount.toFixed(8).replace(/0{1,6}$/, '');
   return localize(fixed);
 };
-
-/** A plain percentage, `0.9 %`. */
-export const formatPct = (pct: number): string =>
-  `${localize(roundHalfUp(pct, 2).toString())} %`;

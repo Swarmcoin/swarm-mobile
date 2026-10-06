@@ -495,8 +495,6 @@
     "updated-minutes": "{n} dk önce güncellendi",
     "unavailable": "Fiyat kullanılamıyor",
     "change": "{pct} % 24 sa",
-    "open-acc": "SWM/ETH havuzunu DexScreener'da aç",
-    "open-failed": "Listeleme sayfası açılamadı.",
     "fiat-acc": "ABD doları cinsinden bakiye",
     "error-timeout": "SWARM fiyat hizmeti zamanında yanıt vermedi.",
     "error-network": "SWARM fiyat hizmetine ulaşılamadı.",
@@ -514,17 +512,7 @@
       "chart-acc": "SWM fiyat grafiği. Bir değeri okumak için dokunup sürükleyin.",
       "no-chart": "Bu aralık için henüz fiyat geçmişi yok.",
       "balance": "BAKİYENİZ",
-      "volume": "24 saatlik hacim",
-      "fdv": "Tam seyreltilmiş değer",
-      "trades": "Alım / satım 24 sa",
-      "fee": "Havuz ücreti",
-      "sources": "KAYNAKLAR",
-      "pool": "Havuz",
-      "token": "Token",
-      "copy-acc": "Kopyala",
-      "copied": "Panoya kopyalandı",
-      "now": "şimdi",
-      "open-gecko-acc": "SWM/ETH havuzunu GeckoTerminal'de aç"
+      "now": "şimdi"
     }
   },
   "chainrestart": {

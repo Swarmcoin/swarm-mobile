@@ -51,7 +51,7 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-test('Tests that the card shows the price, the 24 h change, the sparkline and its source when the reading is fresh.', () => {
+test('Tests that the card shows the price, the 24 h change, the sparkline and the freshness without a source name when the reading is fresh.', () => {
   const view = render(rowUi(mockSwmPrice(NOW - 12_000)));
 
   expect(view.getByText('SWM PRICE')).toBeTruthy();
@@ -63,7 +63,7 @@ test('Tests that the card shows the price, the 24 h change, the sparkline and it
   );
   expect(view.getByTestId('price.freshness.fresh')).toBeTruthy();
   expect(view.getByTestId('price.meta')).toHaveTextContent(
-    'GeckoTerminal · updated 12 s ago',
+    /^updated 12 s ago$/,
   );
 });
 
@@ -100,7 +100,7 @@ test('Tests that the meta line says "as of" with the time when the reading is be
   });
   expect(view.getByTestId('price.freshness.ageing')).toBeTruthy();
   expect(view.getByTestId('price.meta')).toHaveTextContent(
-    `GeckoTerminal · as of ${clock}`,
+    new RegExp(`^as of ${clock}$`),
   );
   expect(colorOf(view.getByTestId('price.value'))).toBe(
     mockTheme.colors.fgDefault,
@@ -163,11 +163,13 @@ test('Tests that the card has no info button and no note, only the price (owner 
   expect(view.queryByText(/not a quote/i)).toBeNull();
 });
 
-test('Tests that the meta line labels the on-chain pool reading "Live".', () => {
-  const view = render(
-    rowUi({ ...mockSwmPrice(NOW - 12_000), source: 'pool' }),
-  );
-  expect(view.getByTestId('price.meta')).toHaveTextContent(
-    'Live · updated 12 s ago',
-  );
+test('Tests that the meta line names no source, not even "Live", whichever reading the price came from (owner 2026-10-06).', () => {
+  (['pool', 'dexscreener', 'geckoterminal'] as const).forEach(source => {
+    const view = render(rowUi({ ...mockSwmPrice(NOW - 12_000), source }));
+    expect(view.getByTestId('price.meta')).toHaveTextContent(
+      /^updated 12 s ago$/,
+    );
+    expect(view.queryByText(/Live|DexScreener|GeckoTerminal/)).toBeNull();
+    view.unmount();
+  });
 });

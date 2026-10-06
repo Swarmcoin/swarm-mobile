@@ -17,7 +17,6 @@ import {
   changeTone,
   freshnessColor,
   priceAgeText,
-  SOURCE_NAMES,
   useTick,
 } from '@ui/widgets/swmPriceMeta';
 
@@ -54,14 +53,11 @@ const PriceRow = React.memo(
     const dot = freshnessColor(colors, freshness);
     const change = zecPrice.changePct24h;
     const { arrow, color: changeColor } = changeTone(colors, change);
-    const meta = [
-      zecPrice.source ? SOURCE_NAMES[zecPrice.source] : undefined,
+    // Owner 2026-10-06 (specs/PRICE-DISPLAY.md 2.3): the freshness only, no source name.
+    const meta =
       unavailable && lastErrorKey
         ? (translate(lastErrorKey) as string)
-        : priceAgeText(translate, zecPrice, freshness),
-    ]
-      .filter(part => !!part)
-      .join(' · ');
+        : priceAgeText(translate, zecPrice, freshness);
 
     return (
       <Pressable

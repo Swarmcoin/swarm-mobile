@@ -79,10 +79,9 @@ it. The testnet shows no price.
 The price card in the header and the USD balance under the total open the
 **SWM price** page: the price in USD and ETH, the 1 h, 6 h and 24 h changes, a
 24 h, 48 h or 30 day chart that reads out a value under the finger, the
-balance at that price, 24 h volume, fully diluted value, trades and pool fee,
-the readings: Live (the pool read on chain, no link), then DexScreener and
-GeckoTerminal with links to their pool pages, the
-pool id and the token contract with copy controls, and the same switch.
+balance at that price and the same switch. Nothing else (owner 2026-10-06):
+no market figures, no source names or rows, no pool or token ids, no links to
+listing pages; the card's meta line is the freshness only ("updated 12 s ago").
 
 ---
 

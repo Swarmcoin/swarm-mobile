@@ -495,8 +495,6 @@
     "updated-minutes": "actualizado hace {n} min",
     "unavailable": "Precio no disponible",
     "change": "{pct} % 24 h",
-    "open-acc": "Abrir el pool SWM/ETH en DexScreener",
-    "open-failed": "No se pudo abrir la página del listado.",
     "fiat-acc": "Saldo en dólares estadounidenses",
     "error-timeout": "El servicio de precios de SWARM no respondió a tiempo.",
     "error-network": "No se pudo conectar con el servicio de precios de SWARM.",
@@ -514,17 +512,7 @@
       "chart-acc": "Gráfico del precio de SWM. Toca y arrastra para leer un valor.",
       "no-chart": "Todavía no hay historial de precios para este periodo.",
       "balance": "TU SALDO",
-      "volume": "Volumen 24 h",
-      "fdv": "Valor totalmente diluido",
-      "trades": "Compras / ventas 24 h",
-      "fee": "Comisión del pool",
-      "sources": "FUENTES",
-      "pool": "Pool",
-      "token": "Token",
-      "copy-acc": "Copiar",
-      "copied": "Copiado al portapapeles",
-      "now": "ahora",
-      "open-gecko-acc": "Abrir el pool SWM/ETH en GeckoTerminal"
+      "now": "ahora"
     }
   },
   "chainrestart": {

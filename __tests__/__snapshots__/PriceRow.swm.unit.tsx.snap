@@ -176,7 +176,7 @@ exports[`Tests that the snapshot of the card matches when the reading is the spe
     }
     testID="price.meta"
   >
-    GeckoTerminal · updated 12 s ago
+    updated 12 s ago
   </Text>
 </View>
 `;
