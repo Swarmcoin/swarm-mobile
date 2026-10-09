@@ -266,7 +266,7 @@ In the Apple Developer portal, once enrolled:
 
 ### 4.3 Add the repository secrets
 
-`Swarm-Official/swarm-mobile` → Settings → Secrets and variables → Actions.
+`Swarmcoin/swarm-mobile` → Settings → Secrets and variables → Actions.
 (The organisation was renamed from `brs-holding` on 2026-09-22; old URLs
 redirect.)
 **Names only below. Never paste a value into a chat, an issue, a commit, a

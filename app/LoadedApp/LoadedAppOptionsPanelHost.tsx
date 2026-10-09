@@ -39,7 +39,7 @@ import LoadWalletFromSeedBasicIcon from '../../assets/img/options/switch-wallet-
 // in this row because the row renders one fixed SVG glyph per id and there is
 // no site glyph; it belongs in About rather than invented here.)
 const SOCIAL_X_URL = 'https://x.com/swarm_coin';
-const SOCIAL_GITHUB_URL = 'https://github.com/Swarm-Official/swarm-mobile';
+const SOCIAL_GITHUB_URL = 'https://github.com/Swarmcoin/swarm-mobile';
 
 // Legacy `menu.*` testID slugs, kept stable across the drawer→OptionsPanel
 // migration so existing Maestro flows (.maestro/*.yaml) and the detox

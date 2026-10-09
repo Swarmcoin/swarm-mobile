@@ -9,7 +9,7 @@ A wallet for **SWARM Mainnet**, a private Zcash-derived proof-of-work network
 that launched in September 2026. It is a fork of
 [zingo-mobile](https://github.com/zingolabs/zingo-mobile) (MIT) built on the
 project's fork of the Zingo SDK,
-[privacy-zingolib](https://github.com/Swarm-Official/privacy-zingolib).
+[privacy-zingolib](https://github.com/Swarmcoin/privacy-zingolib).
 
 **The SWM in this wallet is real.** What is lost here is lost for good. This is
 a first release for a young network, it has not been independently audited, and
@@ -343,7 +343,7 @@ drops 32-bit x86, which no current phone or emulator image needs.
 ### Where the SDK comes from
 
 `rust/Cargo.toml` pins three crates to
-`Swarm-Official/privacy-zingolib`. That fork carries the SWARM network
+`Swarmcoin/privacy-zingolib` (the account was Swarm-Official until its rename). That fork carries the SWARM network
 identities (mainnet and the engineering testnet) and nothing else — chain type, chain label, birthday, the indexer identity check,
 and a distinct wallet-file chain tag so a wallet from another chain cannot be
 opened against the wrong genesis. Key derivation, signing, proving, note

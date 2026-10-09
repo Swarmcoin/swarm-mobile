@@ -11,14 +11,14 @@
     "slug": "settings",
     "eyebrow": "YOUR CHOICE OF SERVER",
     "caption": "Point it at a server you trust",
-    "sub": "The default is lwd.swarm.green:443. You can run your own."
+    "sub": "The default is lwd-main.swarm.green:443. You can run your own."
   },
   {
     "file": "03-home.png",
     "slug": "home",
-    "eyebrow": "SWARM TESTNET",
+    "eyebrow": "SWARM MAINNET",
     "caption": "Your balance, shielded",
-    "sub": "SWM test coins have no value on this network."
+    "sub": "The SWM here is real. Keep your recovery words on paper."
   },
   {
     "file": "04-history.png",

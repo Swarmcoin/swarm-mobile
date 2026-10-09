@@ -40,7 +40,7 @@
 	<string>????</string>
 	<!-- No CFBundleURLTypes and no LSApplicationQueriesSchemes.
 	     Upstream claims the public `zcash:` URL scheme; SWARM is a
-	     separate test network and must not intercept Zcash payment links
+	     separate network and must not intercept Zcash payment links
 	     on anyone's phone, so the claim is removed rather than renamed.
 	     Nothing in the app depends on it: the `zcash:` handling in the
 	     shared JavaScript parses strings that are pasted or scanned, not
@@ -59,7 +59,7 @@
 	<!-- Provenance, kept deliberately. SWARM Wallet is a fork and says so;
 	     the MIT notices this app inherits stay in place. -->
 	<key>NSHumanReadableCopyright</key>
-	<string>SWARM Wallet. Based on Zingo Mobile by ZingoLabs (MIT licence), which builds on zingolib (MIT). SWM are test coins on a private test network and have no value.</string>
+	<string>SWARM Wallet. Based on Zingo Mobile by ZingoLabs (MIT licence), which builds on zingolib (MIT).</string>
 	<key>NSCameraUsageDescription</key>
 	<string>SWARM Wallet uses the camera only to scan a SWARM address or payment QR code. Nothing is photographed, stored or sent.</string>
 	<key>NSFaceIDUsageDescription</key>

@@ -20,7 +20,7 @@ Privacidad
 La aplicación no tiene analíticas ni rastreo. Habla con un solo servidor para sincronizar bloques y enviar transacciones: el servidor de billetera de SWARM Mainnet (lwd-main.swarm.green) o un servidor que elijas tú. Mientras la billetera está abierta, también pide al servicio de precios de SWARM (wallet.swarm.green) el precio de SWM una vez por minuto. Esa solicitud no lleva ninguna dirección ni ningún saldo, y el interruptor de precio en Ajustes la detiene. Las transacciones blindadas ocultan remitente, destinatario e importe en la cadena, pero no ocultan tu dirección de internet a ese servidor, y las direcciones transparentes son públicas. La cámara se usa solo para leer códigos QR en tu teléfono. El desbloqueo por huella o bloqueo de pantalla lo gestiona Android y nunca sale del dispositivo. Detalles: https://swarm.green/wallet/privacy/
 
 Código abierto
-SWARM Wallet es una bifurcación de Zingo, una billetera con licencia MIT, adaptada a SWARM. Código fuente: https://github.com/Swarm-Official/swarm-mobile
+SWARM Wallet es una bifurcación de Zingo, una billetera con licencia MIT, adaptada a SWARM. Código fuente: https://github.com/Swarmcoin/swarm-mobile
 
 Ten en cuenta
 • Escribe tus palabras de recuperación en papel. Si las pierdes, nadie puede restaurar tu billetera, y eso nos incluye a nosotros.
@@ -30,4 +30,4 @@ Ten en cuenta
 
 SWARM no está afiliado ni respaldado por Electric Coin Company, Zcash Foundation, Zingo Labs, la aplicación Swarm de Foursquare ni el proyecto Ethereum Swarm.
 
-Canales oficiales: https://swarm.green, https://github.com/Swarm-Official, @swarm_coin en X, swarmofficial@atomicmail.io. Nadie te pedirá nunca tus palabras de recuperación.
+Canales oficiales: https://swarm.green, https://github.com/Swarmcoin, @swarm_coin en X, swarmofficial@atomicmail.io. Nadie te pedirá nunca tus palabras de recuperación.

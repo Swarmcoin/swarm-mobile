@@ -211,8 +211,16 @@ chain the wallet is on, and the vault source
 at swarm.green/wallet/risks has not been updated, so the app and the website
 disagree until the owner publishes the mainnet text.
 
-**The store listings describe the testnet.** The Play `full_description` and
-the App Store description were not touched.
+**The store screenshots still show the engineering testnet.** The texts are
+mainnet's: the Play listing, the App Store description, the App Review notes,
+the App Store "What's New" and the Play changelog `9.txt` describe SWARM
+Mainnet and `lwd-main.swarm.green:443` (checked by
+`scripts/check_play_listing.mjs` and `scripts/store/check_store_art.mjs`). The
+images are not: the two Play phone screenshots show a `utest1…` address and
+the server `lwd.swarm.green:443`, and the four App Store screenshots, although
+captioned SWARM Mainnet, show a `swarm1…` address and the same testnet
+server. They need fresh mainnet captures (`scripts/swarm_store_screens.sh`
+and the iOS simulator) before either listing is submitted on mainnet.
 
 **The explorer follows the chain.** Each network profile carries its own site:
 `mainnet.explore.swarm.green` on SWARM Mainnet, `testnet.explore.swarm.green`
