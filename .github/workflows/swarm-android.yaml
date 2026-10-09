@@ -46,13 +46,13 @@ env:
   # restarted on 2026-10-02) and the
   # engineering testnet is a second, clearly-labelled choice. See docs/MAINNET.md.
   # 0.2.0-mainnet.1 was versionCode 4, 0.2.0-mainnet.2 versionCode 5,
-  # 0.2.0-mainnet.3 versionCode 6 and 0.2.0-mainnet.4 versionCode 7. A version
-  # string never names two builds.
-  SWARM_VERSION: 0.2.0-mainnet.5
+  # 0.2.0-mainnet.3 versionCode 6, 0.2.0-mainnet.4 versionCode 7 and
+  # 0.2.0-mainnet.5 versionCode 8. A version string never names two builds.
+  SWARM_VERSION: 0.2.0-mainnet.6
   # versionCode must increase for every Play upload; bump it here. Play keeps
   # every code it has ever seen and refuses a repeat, including one from a
   # release that was later deleted.
-  SWARM_ANDROID_VERSION_CODE: 8
+  SWARM_ANDROID_VERSION_CODE: 9
   # Play shows this string. It stays a plain three-part version; which network
   # the build is for is said by SWARM_VERSION, by the release notes and by the
   # app itself, not by a suffix Play would have to parse.

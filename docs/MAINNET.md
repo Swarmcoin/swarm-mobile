@@ -157,11 +157,17 @@ addresses on both SWARM networks, and reports both profiles from
 
 ## Versions
 
-Android `0.2.0` (`versionCode` 8, `SWARM_VERSION` `0.2.0-mainnet.5`); iOS
-`MARKETING_VERSION` `0.2.0`. `0.2.0-mainnet.1` was `versionCode` 4,
-`0.2.0-mainnet.2` `versionCode` 5, `0.2.0-mainnet.3` `versionCode` 6 and
-`0.2.0-mainnet.4` `versionCode` 7. Neither the mainnet.2 nor the mainnet.3
+Android `0.2.0` (`versionCode` 9, `SWARM_VERSION` `0.2.0-mainnet.6`); iOS
+`MARKETING_VERSION` `0.2.0`, build number from the CI run number.
+`0.2.0-mainnet.1` was `versionCode` 4, `0.2.0-mainnet.2` `versionCode` 5,
+`0.2.0-mainnet.3` `versionCode` 6, `0.2.0-mainnet.4` `versionCode` 7 and
+`0.2.0-mainnet.5` `versionCode` 8. Neither the mainnet.2 nor the mainnet.3
 bytes were distributed.
+
+`0.2.0-mainnet.6` is `0.2.0-mainnet.5` plus the price display trimmed to the
+price, its change, the chart, the ETH value and the time of the reading (no
+statistics, no sources, no price note), and store texts that describe SWARM
+Mainnet (App Review notes, App Store "What's New", Play changelog `9.txt`).
 
 `0.2.0-mainnet.5` opens the chain restarted on 2026-10-02 (genesis
 `01b76d8a…eff2`, indexer `lwd-main.swarm.green:443`) and moves a wallet made on
